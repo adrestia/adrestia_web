@@ -27,7 +27,7 @@ sudo chmod -R +a "$HTTPDUSER allow delete,write,append,file_inherit,directory_in
 sudo chmod -R +a "`whoami` allow delete,write,append,file_inherit,directory_inherit" var
 ```
 This is so that the webserver can write to the cache file properly.  
-If these instructions don't work, check [here](http://symfony.com/doc/current/book/installation.html#checking-symfony-application-configuration-and-setup)\n
+If these instructions don't work, check [here](http://symfony.com/doc/current/book/installation.html#checking-symfony-application-configuration-and-setup)  
 
 #### Download the parameters file from Kyle
 This should be pretty self explanatory.  
