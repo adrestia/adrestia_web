@@ -20,11 +20,11 @@ cd adrestia_web
 
 #### Modify permissions with the following commands
 ```
-$ rm -rf var/cache/* var/logs/* var/sessions/*
+rm -rf var/cache/* var/logs/* var/sessions/*
 
-$ HTTPDUSER=`ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1`
-$ sudo chmod -R +a "$HTTPDUSER allow delete,write,append,file_inherit,directory_inherit" var
-$ sudo chmod -R +a "`whoami` allow delete,write,append,file_inherit,directory_inherit" var
+HTTPDUSER=`ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1`
+sudo chmod -R +a "$HTTPDUSER allow delete,write,append,file_inherit,directory_inherit" var
+sudo chmod -R +a "`whoami` allow delete,write,append,file_inherit,directory_inherit" var
 ```
 This is so that the webserver can write to the cache file properly. \n
 If these instructions don't work, check [here](http://symfony.com/doc/current/book/installation.html#checking-symfony-application-configuration-and-setup)\n
