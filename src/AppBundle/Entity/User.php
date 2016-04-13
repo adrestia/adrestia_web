@@ -1,6 +1,6 @@
 <?php
   
-  namespace Entity;
+  namespace AppBundle\Entity;
   
   use Symfony\Component\Security\Core\User\UserInterface;
   use Doctrine\ORM\Mapping as ORM;
@@ -61,7 +61,6 @@
        *    2 – Suspended for 7 days
        *    3 – Deactivated by admin
        *    4 – Deleted by user
-       *
        */
       private $account_status = 0;
       
@@ -84,7 +83,22 @@
        */
       private $reports;
       
+      /**
+       * @OneToMany(targetEntity="Post", mappedBy="user")
+       */
+      private $posts;
       
+      /**
+       * @OneToMany(targetEntity="Like", mappedBy="user")
+       *
+       * This includes dislikes
+       */
+      private $likes;
+      
+      /**
+       * @OneToMany(targetEntity="Comment", mappedBy="user")
+       */
+      private $comments;
       
       /**
        * @var \Datetime $created
@@ -109,7 +123,6 @@
        * @Gedmo\Timestampable(on="change", field={"email", "password"})
        */
       private $account_canged;
-      
       
   }
 ?>
