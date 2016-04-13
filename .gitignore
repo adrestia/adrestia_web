@@ -38,3 +38,6 @@
 
 # Composer PHAR
 /composer.phar
+
+# OS X
+.DS_Store
