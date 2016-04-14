@@ -2,17 +2,21 @@
   
 namespace AppBundle\Entity;
 
-use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
 * AppBundle\Entity\User
 * 
 * @ORM\Table(name="users")
 * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
+* @UniqueEntity(fields="email", message="Email already taken")
+*
 */  
 
 class User implements UserInterface, \Serializable
@@ -25,7 +29,9 @@ class User implements UserInterface, \Serializable
     private $id;
   
     /**
-    * @ORM\Column(name="email", type="string", length=50, unique=true)
+    * @ORM\Column(name="email", type="string", length=255, unique=true)
+    * @Assert\NotBlank()
+    * @Assert\Email()
     */
     private $email;
   
@@ -33,6 +39,12 @@ class User implements UserInterface, \Serializable
     * @ORM\Column(name="email_confirmed", type="boolean") 
     */
     private $email_confirmed = false;
+    
+    /**
+     * @Assert\NotBlank()
+     * @Assert\Length(max=4096)
+     */
+    private $plainPassword;
   
     /**
     * @ORM\Column(type="string", length=100)
@@ -227,6 +239,26 @@ class User implements UserInterface, \Serializable
     public function getEmailConfirmed()
     {
         return $this->email_confirmed;
+    }
+    
+    /**
+     * Get plainPassword
+     *
+     * @return string
+     */
+    public function getPlainPassword()
+    {
+        return $this->plainPassword;
+    }
+
+    /**
+     * Set plainPassword
+     *
+     * @param string $password
+     */
+    public function setPlainPassword($password)
+    {
+        $this->plainPassword = $password;
     }
 
     /**
