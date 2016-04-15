@@ -82,6 +82,13 @@ doctrine:
                 class: Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter
                 enabled: true
 
+stof_doctrine_extensions:
+    default_locale: en_US
+    orm:
+        default:
+            softdeleteable: true
+            timestampable: true
+
 # Swiftmailer Configuration
 swiftmailer:
     transport: "%mailer_transport%"

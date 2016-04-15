@@ -4,12 +4,10 @@ security:
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory:
-             memory: ~
-#        our_db_provider:
-#              entity:
-#                  class: AppBundle:User
-#             property: email
+        our_db_provider:
+            entity:
+                class: AppBundle:User
+                property: email
     
     encoders:
         AppBundle\Entity\User:
@@ -17,7 +15,7 @@ security:
     
     access_control:
         # require ROLE_ADMIN for /admin*
-        #- { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/admin, roles: ROLE_ADMIN }
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
@@ -26,7 +24,6 @@ security:
             security: false
 
         main:
-            anonymous: ~
-#             pattern:    ^/
-#             http_basic: ~
-#             provider: our_db_provider
+             pattern:    ^/
+             http_basic: ~
+             provider: our_db_provider

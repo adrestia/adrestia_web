@@ -76,7 +76,7 @@ class User implements UserInterface, \Serializable
     /**
     * @var \Datetime $suspended_date
     *
-    * @ORM\Column(name="suspended_date", type="datetime")
+    * @ORM\Column(name="suspended_date", type="datetime", nullable=true)
     *
     * The date for when the user is able to access their account again
     */
@@ -85,7 +85,7 @@ class User implements UserInterface, \Serializable
     /** 
     * @ORM\Column(name="reports", type="integer")
     */
-    private $reports;
+    private $reports = 0;
   
     /**
     * #@OneToMany(targetEntity="Post", mappedBy="user")
@@ -131,7 +131,7 @@ class User implements UserInterface, \Serializable
     /**
     * @ORM\Column(name="is_active", type="boolean")
     */
-    private $is_active; 
+    private $is_active = true; 
 
     public function __construct()
     {

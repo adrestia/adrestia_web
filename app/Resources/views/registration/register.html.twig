@@ -1,8 +1,20 @@
 {{ form_start(form) }}
-    {{ form_row(form.email) }}
-    {{ form_row(form.plainPassword.first) }}
-    {{ form_row(form.plainPassword.second) }}
-    {{ form_row(form.termsAccepted, {'label' : 'I accept the <a href="#">Terms and Conditions</a>'}) }}
+    <div class="email">
+        {{ form_row(form.email) }}
+    </div>
+    <div class="password">
+        {{ form_row(form.plainPassword.first) }}
+    </div>
+    <div class="password">
+        {{ form_row(form.plainPassword.second) }}
+    </div>
+    <div class="terms">
+        {% set terms_link %}
+            I agree to the <a title="{% trans %}Terms and Conditions{% endtrans %}" href="{{ path('terms') }}">{% trans %}Terms and Conditions{% endtrans %}</a>
+        {% endset %}
+        <label for="{{ form.termsAccepted.vars.id }}">{{ terms_link|raw }}</label>
+        {{ form_widget(form.termsAccepted) }}
+    </div>        
 
     <button type="submit">Register!</button>
 {{ form_end(form) }}

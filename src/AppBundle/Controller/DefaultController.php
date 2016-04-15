@@ -18,4 +18,12 @@ class DefaultController extends Controller
             'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..'),
         ]);
     }
+    
+    /**
+     * @Route("/terms", name="terms")
+     */
+    public function termsAction(Request $request)
+    {
+        return $this->render('default/terms.html.twig');
+    }
 }
