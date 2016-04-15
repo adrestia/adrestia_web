@@ -7,19 +7,15 @@ parameters:
 
 services:
     platform.user.manager:
-        class:            Doctrine\ORM\EntityManager
-        factory_service:  doctrine
-        factory_method:   getManagerForClass
-        arguments:        
-                    -   "%platform.entity.user.class%"
+        class: Doctrine\ORM\EntityManager
+        factory: ["@doctrine", getManagerForClass]
+        arguments: [%platform.entity.user.class%]
+
     platform.user.repository:
-        class:            AppBundle\Repository\UserRepository
-        factory_service:  platform.user.manager
-        factory_method:   getRepository
-        arguments:        
-                    -   "%platform.entity.user.class%"
+        class: AppBundle\Repository\UserRepository
+        factory: ["@platform.user.manager", getRepository]
+        arguments: [%platform.entity.user.class%]
 
     platform.user.provider:
-        class:          "%platform.user.provider.class%"
-        arguments:      
-                    -   "platform.user.repository"
+        class: %platform.user.provider.class%
+        arguments: [@platform.user.repository]
