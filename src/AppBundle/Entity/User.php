@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -88,9 +89,9 @@ class User implements UserInterface, \Serializable
     private $reports = 0;
   
     /**
-    * #@OneToMany(targetEntity="Post", mappedBy="user")
+    * @OneToMany(targetEntity="Post", mappedBy="user")
     */
-    //private $posts;
+    private $posts;
   
     /**
     * #@OneToMany(targetEntity="Like", mappedBy="user")
@@ -102,7 +103,7 @@ class User implements UserInterface, \Serializable
     /**
     * #@OneToMany(targetEntity="Comment", mappedBy="user")
     */
-    //private $comments;
+    private $comments;
   
     /**
     * @var \Datetime $created
@@ -447,5 +448,81 @@ class User implements UserInterface, \Serializable
     public function getIsActive()
     {
         return $this->is_active;
+    }
+
+    /**
+     * Set created
+     *
+     * @param \DateTime $created
+     *
+     * @return User
+     */
+    public function setCreated($created)
+    {
+        $this->created = $created;
+
+        return $this;
+    }
+
+    /**
+     * Set updated
+     *
+     * @param \DateTime $updated
+     *
+     * @return User
+     */
+    public function setUpdated($updated)
+    {
+        $this->updated = $updated;
+
+        return $this;
+    }
+
+    /**
+     * Set accountChanged
+     *
+     * @param \DateTime $accountChanged
+     *
+     * @return User
+     */
+    public function setAccountChanged($accountChanged)
+    {
+        $this->account_changed = $accountChanged;
+
+        return $this;
+    }
+
+    /**
+     * Add post
+     *
+     * @param \AppBundle\Entity\Post $post
+     *
+     * @return User
+     */
+    public function addPost(\AppBundle\Entity\Post $post)
+    {
+        $this->posts[] = $post;
+
+        return $this;
+    }
+
+    /**
+     * Remove post
+     *
+     * @param \AppBundle\Entity\Post $post
+     */
+    public function removePost(\AppBundle\Entity\Post $post)
+    {
+        $this->posts->removeElement($post);
+    }
+
+    /**
+     * Get posts
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getPosts()
+    {
+        return $this->posts;
     }
 }

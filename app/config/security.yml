@@ -56,7 +56,7 @@ security:
             form_login:
                 provider: user_provider
                 check_path: _security_check
-                login_path: _demo_login
+                login_path: auth_login
             anonymous: true
 
         api:
