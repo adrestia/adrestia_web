@@ -4,18 +4,24 @@ security:
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
-        our_db_provider:
-            entity:
-                class: AppBundle:User
-                property: email
+        user_provider:
+           id: platform.user.provider
     
     encoders:
         AppBundle\Entity\User:
             algorithm: bcrypt
+            encode_as_base64: false
+            iterations:       1
+
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
     
     access_control:
-        # require ROLE_ADMIN for /admin*
-        - { path: ^/admin, roles: ROLE_ADMIN }
+        # You can omit this if /api can be accessed both authenticated and anonymously
+        - { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY ] }
+        - { path: ^/demo/secured/hello/admin/, roles: ROLE_ADMIN }
+        #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
@@ -23,7 +29,37 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        main:
-             pattern:    ^/
-             http_basic: ~
-             provider: our_db_provider
+        login:
+            pattern:  ^/demo/secured/login$
+            security: false
+
+
+        oauth_token:
+            pattern:    ^/oauth/v2/token
+            security:   false
+
+        secured_area:
+            pattern:    ^/demo/secured/
+            form_login:
+                provider: user_provider
+                check_path: _security_check
+                login_path: _demo_login
+            logout:
+                path:   _demo_logout
+                target: _demo
+            #anonymous: ~
+            #http_basic:
+            #    realm: "Secured Demo Area"
+
+        oauth_authorize:
+            pattern:    ^/oauth/v2/auth
+            form_login:
+                provider: user_provider
+                check_path: _security_check
+                login_path: _demo_login
+            anonymous: true
+
+        api:
+            pattern:    ^/api
+            fos_oauth:  true
+            stateless:  true

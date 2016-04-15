@@ -17,12 +17,12 @@ class UserProvider implements UserProviderInterface
       $this->userRepository = $userRepository;
   }
 
-  public function loadUserByEmail($email)
+  public function loadUserByUsername($username)
   {
       $q = $this->userRepository
           ->createQueryBuilder('u')
           ->where('u.email = :email')
-          ->setParameter('email', $email)
+          ->setParameter('email', $username)
           ->getQuery();
 
       try {
@@ -30,7 +30,7 @@ class UserProvider implements UserProviderInterface
       } catch (NoResultException $e) {
           $message = sprintf(
               'Unable to find an active admin AcmeDemoBundle:User object identified by "%s".',
-              $email
+              $username
           );
           throw new UsernameNotFoundException($message, 0, $e);
       }
