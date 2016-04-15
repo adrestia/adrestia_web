@@ -2,8 +2,8 @@
     <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
 {% endif %}
 
-<form action="{{ path('login_check') }}" method="post">
-    <label for="username">Email:</label>
+<form action="{{ path('auth_login') }}" method="post">
+    <label for="username">Username:</label>
     <input type="text" id="username" name="_username" value="{{ last_username }}" />
     <br />
     <label for="password">Password:</label>

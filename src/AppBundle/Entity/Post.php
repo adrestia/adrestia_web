@@ -28,7 +28,7 @@ class Post
     private $id;
     
     /**
-    * @ORM\Column(name="body", type="string", length=1023, unique=true)
+    * @ORM\Column(name="body", type="string", length=1023)
     * @Assert\NotBlank()
     */
     private $body;

@@ -8,7 +8,7 @@ api:
     type:       annotation
     prefix:     /api
 
-acme_oauth:
+oauth:
     resource:   "@AppBundle/Controller/SecurityController.php"
     type:       annotation
     prefix:     /oauth/v2/

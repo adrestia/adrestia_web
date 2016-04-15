@@ -29,7 +29,7 @@ class Comment
     private $id;
     
     /**
-    * @ORM\Column(name="body", type="string", length=255, unique=true)
+    * @ORM\Column(name="body", type="string", length=255)
     * @Assert\NotBlank()
     */
     private $body;

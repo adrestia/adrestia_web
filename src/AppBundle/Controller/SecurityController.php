@@ -6,6 +6,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
+use AppBundle\Form\UserType;
+use AppBundle\Entity\User;
 
 class SecurityController extends Controller
 {
@@ -14,12 +16,22 @@ class SecurityController extends Controller
      */
     public function loginAction(Request $request)
     {
-        $helper = $this->get('security.authentication_utils');
+        $authenticationUtils = $this->get('security.authentication_utils');
 
-        return $this->render('security/login.html.twig', array(
-            'last_username' => $helper->getLastUsername(),
-            'error'         => $helper->getLastAuthenticationError(),
-        ));
+        // get the login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
+
+        // last username entered by the user
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render(
+            'security/login.html.twig',
+            array(
+                // last username entered by the user
+                'last_username' => $lastUsername,
+                'error'         => $error,
+            )
+        );
     }
     
     /**

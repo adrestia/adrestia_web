@@ -5,7 +5,9 @@ security:
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
         user_provider:
-           id: platform.user.provider
+            entity:
+                class: AppBundle:User
+                property: email
     
     encoders:
         AppBundle\Entity\User:
@@ -19,8 +21,8 @@ security:
     
     access_control:
         # You can omit this if /api can be accessed both authenticated and anonymously
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY ] }
-        - { path: ^/demo/secured/hello/admin/, roles: ROLE_ADMIN }
         #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
 
     firewalls:
@@ -28,28 +30,21 @@ security:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-
-        login:
-            pattern:  ^/demo/secured/login$
-            security: false
-
+            
+        login_firewall:
+            pattern: ^/login$
+            anonymous: ~
+        
+        main:
+            pattern:    ^/*
+            form_login:
+                provider:   user_provider
+                login_path: login
+                check_path: login_check
 
         oauth_token:
             pattern:    ^/oauth/v2/token
             security:   false
-
-        secured_area:
-            pattern:    ^/demo/secured/
-            form_login:
-                provider: user_provider
-                check_path: _security_check
-                login_path: _demo_login
-            logout:
-                path:   _demo_logout
-                target: _demo
-            #anonymous: ~
-            #http_basic:
-            #    realm: "Secured Demo Area"
 
         oauth_authorize:
             pattern:    ^/oauth/v2/auth
