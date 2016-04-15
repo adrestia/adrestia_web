@@ -19,7 +19,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 * @UniqueEntity(fields="email", message="Email already taken")
 *
 */  
-
 class User implements UserInterface, \Serializable
 {
     /**
