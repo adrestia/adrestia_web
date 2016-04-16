@@ -22,8 +22,7 @@ security:
     access_control:
         # You can omit this if /api can be accessed both authenticated and anonymously
         - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api, roles: [ IS_AUTHENTICATED_FULLY ] }
-        #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
@@ -34,13 +33,10 @@ security:
         login_firewall:
             pattern: ^/login$
             anonymous: ~
-        
-        main:
-            pattern:    ^/*
-            form_login:
-                provider:   user_provider
-                login_path: login
-                check_path: login_check
+            
+        register_firewall:
+            pattern: ^/register$
+            anonymous: ~
 
         oauth_token:
             pattern:    ^/oauth/v2/token
@@ -48,13 +44,24 @@ security:
 
         oauth_authorize:
             pattern:    ^/oauth/v2/auth
+            security: true
             form_login:
                 provider: user_provider
-                check_path: _security_check
                 login_path: auth_login
+                check_path: auth_login_check
             anonymous: true
 
         api:
             pattern:    ^/api
             fos_oauth:  true
             stateless:  true
+        
+        main:
+            pattern: ^/
+            form_login:
+                provider:   user_provider
+                login_path: login
+                check_path: login_check
+            logout:
+                path:   /logout
+                target: /

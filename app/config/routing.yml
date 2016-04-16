@@ -11,10 +11,13 @@ api:
 oauth:
     resource:   "@AppBundle/Controller/SecurityController.php"
     type:       annotation
-    prefix:     /oauth/v2/
+    prefix:     /oauth/v2
 
 fos_oauth_server_token:
     resource:   "@FOSOAuthServerBundle/Resources/config/routing/token.xml"
 
 fos_oauth_server_authorize:
     resource:   "@FOSOAuthServerBundle/Resources/config/routing/authorize.xml"
+
+logout:
+    path: /logout
