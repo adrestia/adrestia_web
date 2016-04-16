@@ -16,4 +16,24 @@ class APIController extends Controller
     {
         return new JsonResponse(array('name' => $name));
     }
+    
+    /**
+     * @Route("/users/{id}", name="get_user", requirements={"id" = "\d+"})
+     */ 
+    public function getUserAction(Request $request)
+    {
+        $user = $this->getDoctrine()
+                ->getRepository('AppBundle:User')
+                ->find($id);
+    
+        if (!$user) {
+            throw $this->createNotFoundException(
+                'No product found for id ' . $id
+            );
+        }
+        
+        $serializer = $this->container->get('serializer');
+        $reports = $serializer->serialize($user, 'json');
+        return new Response($user);
+    }
 }
