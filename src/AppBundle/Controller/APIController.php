@@ -5,6 +5,7 @@ namespace AppBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class APIController extends Controller
@@ -20,7 +21,7 @@ class APIController extends Controller
     /**
      * @Route("/users/{id}", name="get_user", requirements={"id" = "\d+"})
      */ 
-    public function getUserAction(Request $request)
+    public function getUserAction(Request $request, $id)
     {
         $user = $this->getDoctrine()
                 ->getRepository('AppBundle:User')
@@ -34,6 +35,6 @@ class APIController extends Controller
         
         $serializer = $this->container->get('serializer');
         $reports = $serializer->serialize($user, 'json');
-        return new Response($user);
+        return new Response($reports);
     }
 }

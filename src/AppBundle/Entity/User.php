@@ -132,6 +132,27 @@ class User implements UserInterface, \Serializable
     * @ORM\Column(name="is_active", type="boolean")
     */
     private $is_active = true; 
+    
+    /**
+     * @ORM\Column(type="string", length=32)
+     */
+    private $apiKey;
+
+    /**
+     * @param mixed $apiKey
+     */
+    public function setApiKey($apiKey)
+    {
+        $this->apiKey = $apiKey;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getApiKey()
+    {
+        return $this->apiKey;
+    }
 
     public function __construct()
     {
