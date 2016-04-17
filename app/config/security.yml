@@ -49,7 +49,7 @@ security:
                 provider: user_provider
                 login_path: /oauth/v2/auth_login
                 check_path: /oauth/v2/auth_login_check
-            anonymous: true
+            anonymous: ~
 
         api:
             pattern:    ^/api
