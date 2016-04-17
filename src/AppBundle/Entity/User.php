@@ -134,16 +134,17 @@ class User implements UserInterface, \Serializable
     private $is_active = true; 
     
     /**
-     * @ORM\Column(type="string", length=32)
+     * @ORM\Column(name="api_key", type="guid")
+     * @ORM\GeneratedValue(strategy="UUID")
      */
-    private $apiKey;
+    private $api_key;
 
     /**
      * @param mixed $apiKey
      */
-    public function setApiKey($apiKey)
+    public function setApiKey($api_key)
     {
-        $this->apiKey = $apiKey;
+        $this->api_key = $api_key;
     }
 
     /**
@@ -151,7 +152,7 @@ class User implements UserInterface, \Serializable
      */
     public function getApiKey()
     {
-        return $this->apiKey;
+        return $this->api_key;
     }
 
     public function __construct()

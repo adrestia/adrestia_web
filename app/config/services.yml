@@ -19,3 +19,9 @@ services:
     platform.user.provider:
         class: %platform.user.provider.class%
         arguments: ["@platform.user.repository"]
+    
+    platform.grant_type.api_key:
+        class:  AppBundle\OAuth\ApiKeyGrantExtension
+        tags:
+            - { name: fos_oauth_server.grant_extension, uri: http://localhost:8000/grants/api_key }
+        arguments:  ["@platform.user.repository"]
