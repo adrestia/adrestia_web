@@ -8,7 +8,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Ramsey\Uuid\Uuid;
 
 class RegistrationController extends Controller
 {
@@ -33,7 +32,7 @@ class RegistrationController extends Controller
             $user->setPassword($password);
             
             do {
-                $apikey = Uuid::uuid4();
+                $apikey = self::guidv4();
                 $entity = $em->getRepository('AppBundle\Entity\User')->findOneBy(array('api_key' => $apikey));
             } while($entity !== null);
             
@@ -57,5 +56,16 @@ class RegistrationController extends Controller
             'registration/register.html.twig',
             array('form' => $form->createView())
         );
+    }
+    
+    function guidv4()
+    {
+        $data = openssl_random_pseudo_bytes(16);
+        assert(strlen($data) == 16);
+
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
+
+        return vsprintf('%s%s%s%s%s%s%s%s', str_split(bin2hex($data), 4));
     }
 }

@@ -24,7 +24,7 @@ class ApiKeyGrantExtension implements GrantExtensionInterface
      */
     public function checkGrantExtension(IOAuth2Client $client, array $inputData, array $authHeaders)
     {
-        $user = $this->userRepository->findOneByApiKey($inputData['api_key']);
+        $user = $this->userRepository->findOneBy(array('api_key' => $inputData['api_key']));
 
         if ($user) {
             //if you need to return access token with associated user
