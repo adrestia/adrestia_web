@@ -21,13 +21,3 @@ monolog:
         console:
             type:   console
             channels: [!event, !doctrine]
-            
-doctrine:
-    dbal:
-        driver:   pdo_mysql
-        host:     localhost
-        port:     null
-        dbname:   adrestia
-        user:     adrestia
-        password: password
-        charset:  UTF8
