@@ -22,8 +22,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class User implements UserInterface, \Serializable
 {
     /**
-     * @Id
-     * @Column(type="integer")
+     * @ORM\Id
+     * @ORM\Column(type="integer")
      */
     private $id;
   
