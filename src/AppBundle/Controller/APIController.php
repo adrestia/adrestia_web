@@ -29,12 +29,32 @@ class APIController extends Controller
     
         if (!$user) {
             throw $this->createNotFoundException(
-                'No product found for id ' . $id
+                'No user found for id ' . $id
             );
         }
         
         $serializer = $this->container->get('serializer');
         $reports = $serializer->serialize($user, 'json');
+        return new Response($reports);
+    }    
+    
+    /**
+     * @Route("/posts/{id}", name="get_post", requirements={"id" = "\d+"})
+     */
+    public function getPostAction(Request $request, $post_id)
+    {
+        $post = $this->getDoctrine()
+                ->getRepository('AppBundle:Post')
+                ->find($post_id);
+    
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+        
+        $serializer = $this->container->get('serializer');
+        $reports = $serializer->serialize($post, 'json');
         return new Response($reports);
     }
 }
