@@ -22,10 +22,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
 class User implements UserInterface, \Serializable
 {
     /**
-    * @ORM\Column(name="id", type="integer")
-    * @ORM\Id
-    * @ORM\GeneratedValue(strategy="AUTO")
-    */
+     * @ORM\Id
+     * @ORM\Column(name="id", type="integer", unique=true)
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
     private $id;
   
     /**
@@ -131,11 +131,33 @@ class User implements UserInterface, \Serializable
     /**
     * @ORM\Column(name="is_active", type="boolean")
     */
-    private $is_active = true; 
+    private $is_active; 
+    
+    /**
+     * @ORM\Column(name="api_key", type="guid")
+     * @ORM\GeneratedValue(strategy="UUID")
+     */
+    private $api_key;
+
+    /**
+     * @param mixed $apiKey
+     */
+    public function setApiKey($api_key)
+    {
+        $this->api_key = $api_key;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getApiKey()
+    {
+        return $this->api_key;
+    }
 
     public function __construct()
     {
-        $this->isActive = true;
+        $this->is_active = true;
     }
 
     public function getUsername()

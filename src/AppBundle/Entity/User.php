@@ -23,7 +23,8 @@ class User implements UserInterface, \Serializable
 {
     /**
      * @ORM\Id
-     * @ORM\Column(type="integer")
+     * @ORM\Column(name="id", type="integer", unique=true)
+     * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
   
