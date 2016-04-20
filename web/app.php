@@ -18,7 +18,9 @@ $loader->unregister();
 $apcLoader->register(true);
 */
 
-$kernel = new AppKernel('prod', false);
+$env = 'dev';
+
+$kernel = new AppKernel($env, false);
 $kernel->loadClassCache();
 //$kernel = new AppCache($kernel);
 

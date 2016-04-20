@@ -1,0 +1,52 @@
+<?php    
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\OneToMany;
+use Gedmo\Mapping\Annotation as Gedmo;
+use AppBundle\Entity\User;
+use AppBundle\Entity\Post;
+
+/**
+* AppBundle\Entity\PostLikes
+* @ORM\Entity
+* @ORM\Table(name="post_likes")
+*
+*/  
+class PostLikes
+{
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    protected $id;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    protected $user;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="Post")
+     */
+    protected $post;
+    
+    /**
+     * @ORM\Column(name="is_like", type="boolean")
+     * 
+     * Two values here:
+     * 1 – true – like
+     * 0 – false – dislike
+     */
+    private $is_like = 0;
+    
+    /**
+    * @var \Datetime $voted
+    *
+    * @Gedmo\Timestampable(on="create")
+    * @ORM\Column(type="datetime")
+    */
+    private $voted;
+}

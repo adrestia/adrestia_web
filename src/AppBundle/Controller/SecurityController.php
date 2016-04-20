@@ -9,21 +9,10 @@ use Symfony\Component\Security\Core\Security;
 use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
 
-class DefaultController extends Controller
+class SecurityController extends Controller
 {
     /**
-     * @Route("/", name="homepage")
-     */
-    public function indexAction(Request $request)
-    {
-        // replace this example code with whatever you need
-        return $this->render('default/index.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..'),
-        ]);
-    }
-    
-    /**
-     * @Route("/login", name="login")
+     * @Route("/auth_login", name="auth_login")
      */
     public function loginAction(Request $request)
     {
@@ -36,7 +25,7 @@ class DefaultController extends Controller
         $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render(
-            'security/login.html.twig',
+            'security/auth_login.html.twig',
             array(
                 // last username entered by the user
                 'last_username' => $lastUsername,
@@ -46,18 +35,10 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/login_check", name="login_check")
+     * @Route("/auth_login_check", name="auth_login_check")
      */
     public function loginCheckAction(Request $request)
     {
-        
-    }
-    
-    /**
-     * @Route("/terms", name="terms")
-     */
-    public function termsAction(Request $request)
-    {
-        return $this->render('default/terms.html.twig');
+
     }
 }

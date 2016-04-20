@@ -47,17 +47,61 @@ doctrine:
         user:     "%database_user%"
         password: "%database_password%"
         charset:  UTF8
-        # if using pdo_sqlite as your database driver:
-        #   1. add the path in parameters.yml
-        #     e.g. database_path: "%kernel.root_dir%/data/data.db3"
-        #   2. Uncomment database_path in parameters.yml.dist
-        #   3. Uncomment next line:
-        #     path:     "%database_path%"
-
     orm:
         auto_generate_proxy_classes: "%kernel.debug%"
         naming_strategy: doctrine.orm.naming_strategy.underscore
         auto_mapping: true
+        mappings:
+            gedmo_translatable:
+                type: annotation
+                prefix: Gedmo\Translatable\Entity
+                dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translatable/Entity"
+                alias: GedmoTranslatable # (optional) it will default to the name set for the mapping
+                is_bundle: false
+            gedmo_translator:
+                type: annotation
+                prefix: Gedmo\Translator\Entity
+                dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Translator/Entity"
+                alias: GedmoTranslator # (optional) it will default to the name set for the mapping
+                is_bundle: false
+            gedmo_loggable:
+                type: annotation
+                prefix: Gedmo\Loggable\Entity
+                dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Loggable/Entity"
+                alias: GedmoLoggable # (optional) it will default to the name set for the mappingmapping
+                is_bundle: false
+            gedmo_tree:
+                type: annotation
+                prefix: Gedmo\Tree\Entity
+                dir: "%kernel.root_dir%/../vendor/gedmo/doctrine-extensions/lib/Gedmo/Tree/Entity"
+                alias: GedmoTree # (optional) it will default to the name set for the mapping
+                is_bundle: false
+        filters:
+            softdeleteable:
+                class: Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter
+                enabled: true
+
+# Stof Doctrine Extensions
+
+stof_doctrine_extensions:
+    default_locale: en_US
+    orm:
+        default:
+            softdeleteable: true
+            timestampable: true
+
+# FOS Auth Server Info
+
+fos_oauth_server:
+    db_driver: orm
+    client_class:        AppBundle\Entity\Client
+    access_token_class:  AppBundle\Entity\AccessToken
+    refresh_token_class: AppBundle\Entity\RefreshToken
+    auth_code_class:     AppBundle\Entity\AuthCode
+    service:
+        user_provider: platform.user.provider
+        options:
+            supported_scopes: user
 
 # Swiftmailer Configuration
 swiftmailer:

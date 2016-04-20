@@ -7,6 +7,9 @@ This is the github repo for the web api as well as the frontent.
 Technologies used:   
 Symfony 3  
 MySQL 5.6  
+Doctrine 2  
+Doctrine Extensions  
+OAuth Server Bundle  
 Composer  
 Assetic  
 Twig  
