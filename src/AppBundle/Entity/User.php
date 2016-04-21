@@ -25,8 +25,7 @@ class User implements UserInterface, \Serializable
      * @var integer
      *
      * @ORM\Id
-     * @ORM\Column(name="`id`", type="integer")
-     * @ORM\GeneratedValue(strategy="SEQUENCE")
+     * @ORM\Column(type="integer", nullable=false, columnDefinition="INT AUTO_INCREMENT UNIQUE")
      */
     private $id;
   
