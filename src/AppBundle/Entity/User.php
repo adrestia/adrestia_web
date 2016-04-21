@@ -157,6 +157,8 @@ class User implements UserInterface, \Serializable
     public function __construct()
     {
         $this->is_active = true;
+        $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->posts = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     public function getUsername()
