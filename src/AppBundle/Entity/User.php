@@ -135,7 +135,6 @@ class User implements UserInterface, \Serializable
     
     /**
      * @ORM\Column(name="api_key", type="guid")
-     * @ORM\GeneratedValue(strategy="UUID")
      */
     protected $api_key;
 
