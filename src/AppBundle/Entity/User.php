@@ -100,7 +100,7 @@ class User implements UserInterface, \Serializable
      //protected $likes;
   
     /**
-     * #@OneToMany(targetEntity="Comment", mappedBy="user")
+     * @OneToMany(targetEntity="Comment", mappedBy="user")
      */
     protected $comments;
   
