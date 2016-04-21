@@ -60,7 +60,7 @@ class Comment
     private $ip_address;
     
     /**
-     * @ManyToOne(targetEntity="User", inversedBy="posts")
+     * @ManyToOne(targetEntity="User", inversedBy="comments")
      * @JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $user;
