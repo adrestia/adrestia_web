@@ -76,6 +76,7 @@ class Post
     * @ORM\Column(type="datetime")
     */
     private $created;
+    
     /**
      * Constructor
      */

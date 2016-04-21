@@ -23,121 +23,120 @@ class User implements UserInterface, \Serializable
 {
     /**
      * @ORM\Id
-     * @ORM\Column(name="id", type="integer", unique=true)
+     * @ORM\Column(type="integer")
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
   
     /**
-    * @ORM\Column(name="email", type="string", length=255, unique=true)
-    * @Assert\NotBlank()
-    * @Assert\Email()
-    */
-    private $email;
+     * @ORM\Column(name="email", type="string", length=255, unique=true)
+     * @Assert\NotBlank()
+     * @Assert\Email()
+     */
+    protected $email;
   
     /**
-    * @ORM\Column(name="email_confirmed", type="boolean") 
-    */
-    private $email_confirmed = false;
+     * @ORM\Column(name="email_confirmed", type="boolean") 
+     */
+    protected $email_confirmed = false;
     
     /**
      * @Assert\NotBlank()
      * @Assert\Length(max=4096)
      */
-    private $plainPassword;
+    protected $plainPassword;
   
     /**
-    * @ORM\Column(type="string", length=100)
-    */
-    private $password;
+     * @ORM\Column(type="string", length=100)
+     */
+    protected $password;
   
     /**
-    * @ORM\Column(name="score", type="integer")
-    */
-    private $score = 0;
+     * @ORM\Column(name="score", type="integer")
+     */
+    protected $score = 0;
   
     /**
-    * @ORM\Column(name="account_status", type="integer")
-    *
-    * Types of account_status:
-    *    0 – Normal account; Full privileges
-    *    1 – Suspended for 24 hours
-    *    2 – Suspended for 7 days
-    *    3 – Deactivated by admin
-    *    4 – Deleted by user
-    */
-    private $account_status = 0;
+     * @ORM\Column(name="account_status", type="integer")
+     *
+     * Types of account_status:
+     *    0 – Normal account; Full privileges
+     *    1 – Suspended for 24 hours
+     *    2 – Suspended for 7 days
+     *    3 – Deactivated by admin
+     *    4 – Deleted by user
+     */
+    protected $account_status = 0;
   
     /**
-    * @ORM\Column(name="suspended", type="boolean")
-    */
-    private $suspended = false;
+     * @ORM\Column(name="suspended", type="boolean")
+     */
+    protected $suspended = false;
   
     /**
-    * @var \Datetime $suspended_date
-    *
-    * @ORM\Column(name="suspended_date", type="datetime", nullable=true)
-    *
-    * The date for when the user is able to access their account again
-    */
-    private $suspended_date;
+     * @var \Datetime $suspended_date
+     *
+     * @ORM\Column(name="suspended_date", type="datetime", nullable=true)
+     *
+     * The date for when the user is able to access their account again
+     */
+    protected $suspended_date;
   
     /** 
-    * @ORM\Column(name="reports", type="integer")
-    */
-    private $reports = 0;
+     * @ORM\Column(name="reports", type="integer")
+     */
+    protected $reports = 0;
   
     /**
-    * @OneToMany(targetEntity="Post", mappedBy="user")
-    */
-    private $posts;
+     * @OneToMany(targetEntity="Post", mappedBy="user")
+     */
+    protected $posts;
   
     /**
-    * #@OneToMany(targetEntity="Like", mappedBy="user")
-    *
-    * This includes dislikes
-    */
-    //private $likes;
+     * #@OneToMany(targetEntity="Like", mappedBy="user")
+     *
+     * This includes dislikes
+     */
+     //protected $likes;
   
     /**
-    * #@OneToMany(targetEntity="Comment", mappedBy="user")
-    */
-    private $comments;
+     * @OneToMany(targetEntity="Comment", mappedBy="user")
+     */
+    protected $comments;
   
     /**
-    * @var \Datetime $created
-    *
-    * @Gedmo\Timestampable(on="create")
-    * @ORM\Column(type="datetime")
-    */
-    private $created;
+     * @var \Datetime $created
+     *
+     * @Gedmo\Timestampable(on="create")
+     * @ORM\Column(type="datetime")
+     */
+    protected $created;
   
     /**
-    * @var \DateTime $updated
-    *
-    * @Gedmo\Timestampable(on="update")
-    * @ORM\Column(type="datetime")
-    */
-    private $updated;
+     * @var \DateTime $updated
+     *
+     * @Gedmo\Timestampable(on="update")
+     * @ORM\Column(type="datetime")
+     */
+    protected $updated;
   
     /**
-    * @var \DateTime $account_changed
-    *
-    * @ORM\Column(name="account_changed", type="datetime", nullable=true)
-    * @Gedmo\Timestampable(on="change", field={"email", "password"})
-    */
-    private $account_changed;  
+     * @var \DateTime $account_changed
+     *
+     * @ORM\Column(name="account_changed", type="datetime", nullable=true)
+     * @Gedmo\Timestampable(on="change", field={"email", "password"})
+     */
+    protected $account_changed;  
   
     /**
-    * @ORM\Column(name="is_active", type="boolean")
-    */
-    private $is_active; 
+     * @ORM\Column(name="is_active", type="boolean")
+     */
+    protected $is_active; 
     
     /**
      * @ORM\Column(name="api_key", type="guid")
-     * @ORM\GeneratedValue(strategy="UUID")
      */
-    private $api_key;
+    protected $api_key;
 
     /**
      * @param mixed $apiKey
