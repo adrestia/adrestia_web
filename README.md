@@ -32,22 +32,66 @@ sudo chmod -R +a "`whoami` allow delete,write,append,file_inherit,directory_inhe
 This is so that the webserver can write to the cache file properly.  
 If these instructions don't work, check [here](http://symfony.com/doc/current/book/installation.html#checking-symfony-application-configuration-and-setup)  
 
-#### Download the parameters file from Kyle
-This should be pretty self explanatory.  
-If you need access to the database, please ask.  
-You can reach me by email, `kyleminshall@gmail.com`  
+#### Create app/config/parameters.yml
+Put this inside of it:  
+```
+parameters:
+    database_host: 127.0.0.1
+    database_port: null
+    database_name: adrestia
+    database_user: adrestia
+    database_password: password
+    mailer_transport: smtp
+    mailer_host: 127.0.0.1
+    mailer_user: null
+    mailer_password: null
+    secret: ThisIsNotASecretChangeIt
+```
+
+#### Check out the dev branch
+`git fetch origin dev:dev`
+`git checkout dev`
+
+#### Configure MySQL
+If you don't have mysql installed, install it  
+`sudo apt-get install mysql-server`
+
+Log into MySQL to configure it  
+`mysql -uroot`
+
+Create the database named adrestia.   
+`CREATE DATABASE adrestia;`  
+Configure the increment variables. Similar to ClearDB.  
+`SET GLOBAL auto_increment_increment = 10;`  
+`SET GLOBAL auto_increment_offset = 2;`  
+Create a new user and grant permissions. This is so we don't have to use root.  
+`CREATE USER 'adrestia'@'localhost' IDENTIFIED BY 'password';`  
+`GRANT ALL PRIVILEGES ON * . * TO 'adrestia'@'localhost';`  
+After done, you have to flush MySQL so it can reload the configurations.  
+`FLUSH PRIVILEGES;`  
 
 #### Pull the vendor information with composer
+If you don't have composer, install it [here](https://getcomposer.org/download/).  
 Run `composer update` or `composer install`.
 This will download all of the dependencies outlined in the composer.json.  
 *Composer* is a dependency management tool for PHP and is closely integrated into Symfony. USE IT.  
 You can find more information about it by reading its documentation [here](https://getcomposer.org/doc/00-intro.md).  
 
+#### Configure Doctrine to update the database
+`php bin/console doctrine:schema:update --force`  
+
+If you want to see the SQL that is being created to see the tables, run  
+`php bin/console doctrine:schema:update --dump-sql`
+
 #### Start the web server
 Run the command
+`php bin/console server:run -vvv`
+
+If you want the server to run in the background
 `php bin/console server:start`
 
 If you have set everything up right, you can access your copy of the server at `http://localhost:8000`.
 
 #### Clear the cache after making changes
+If you make any changes to the HTML, CSS, or JavaScript you'll have to clear the asset cache.  
 `php bin/console cache:clear --env=dev`
