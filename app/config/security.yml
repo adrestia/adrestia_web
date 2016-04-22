@@ -4,21 +4,64 @@ security:
 
     # http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
     providers:
-        in_memory:
-            memory: ~
+        user_provider:
+            entity:
+                class: AppBundle:User
+                property: email
+    
+    encoders:
+        AppBundle\Entity\User:
+            algorithm: bcrypt
+            encode_as_base64: false
+            iterations:       1
+
+    role_hierarchy:
+        ROLE_ADMIN:       ROLE_USER
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
+    
+    access_control:
+        # You can omit this if /api can be accessed both authenticated and anonymously
+        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
     firewalls:
         # disables authentication for assets and the profiler, adapt it according to your needs
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-
-        main:
+            
+        login_firewall:
+            pattern: ^/login$
             anonymous: ~
-            # activate different ways to authenticate
+            
+        register_firewall:
+            pattern: ^/register$
+            anonymous: ~
 
-            # http_basic: ~
-            # http://symfony.com/doc/current/book/security.html#a-configuring-how-your-users-will-authenticate
+        oauth_token:
+            pattern:    ^/oauth/v2/token
+            security:   false
 
-            # form_login: ~
-            # http://symfony.com/doc/current/cookbook/security/form_login_setup.html
+        oauth_authorize:
+            pattern:    ^/oauth/v2/auth
+            security: true
+            form_login:
+                provider: user_provider
+                login_path: /oauth/v2/auth_login
+                check_path: /oauth/v2/auth_login_check
+            anonymous: ~
+
+        api:
+            pattern:    ^/api
+            fos_oauth:  true
+            stateless:  true
+        
+        main:
+            pattern: ^/
+            form_login:
+                provider:   user_provider
+                login_path: login
+                check_path: login_check
+            logout:
+                path:   /logout
+                target: /

@@ -1,3 +1,23 @@
 app:
-    resource: "@AppBundle/Controller/"
-    type:     annotation
+    resource:   "@AppBundle/Controller/"
+    type:       annotation
+    prefix:     /
+    
+api:
+    resource:   "@AppBundle/Controller/APIController.php"
+    type:       annotation
+    prefix:     /api
+
+oauth:
+    resource:   "@AppBundle/Controller/SecurityController.php"
+    type:       annotation
+    prefix:     /oauth/v2
+
+fos_oauth_server_token:
+    resource:   "@FOSOAuthServerBundle/Resources/config/routing/token.xml"
+
+fos_oauth_server_authorize:
+    resource:   "@FOSOAuthServerBundle/Resources/config/routing/authorize.xml"
+
+logout:
+    path: /logout
