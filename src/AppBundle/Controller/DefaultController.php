@@ -23,6 +23,18 @@ class DefaultController extends Controller
     }
     
     /**
+     * @Route("/post", name="newPostAction")
+     */
+    public function newPostAction(Request $request) 
+    {
+        if($request->isMethod('POST')) {
+            // Get the User's IP address
+            $post_ip = $this->container->get('request_stack')->getMasterRequest()->getClientIp();
+        }
+        
+    }
+    
+    /**
      * @Route("/login", name="login")
      */
     public function loginAction(Request $request)
