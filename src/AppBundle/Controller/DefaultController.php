@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
+use AppBundle\Entity\Post;
 
 class DefaultController extends Controller
 {
@@ -20,18 +21,6 @@ class DefaultController extends Controller
         return $this->render('default/index.html.twig', [
             'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..'),
         ]);
-    }
-    
-    /**
-     * @Route("/post", name="newPostAction")
-     */
-    public function newPostAction(Request $request) 
-    {
-        if($request->isMethod('POST')) {
-            // Get the User's IP address
-            $post_ip = $this->container->get('request_stack')->getMasterRequest()->getClientIp();
-        }
-        
     }
     
     /**
@@ -71,5 +60,9 @@ class DefaultController extends Controller
     public function termsAction(Request $request)
     {
         return $this->render('default/terms.html.twig');
+    }
+    
+    private function getEntityManager() {
+        return $this->get('doctrine')->getManager();
     }
 }
