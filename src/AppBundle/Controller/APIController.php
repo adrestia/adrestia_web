@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use AppBundle\Entity\Post;
 
+/**
+ * @Route("/api")
+ */
 class APIController extends Controller
 {
     /**
@@ -22,17 +25,20 @@ class APIController extends Controller
     }
     
     /**
-     * @Route("/users/{id}", name="get_user", requirements={"id" = "\d+"})
+     * @Route("/users/{user_id}", name="get_user", requirements={"id" = "\d+"})
      */ 
-    public function getUserAction(Request $request, $id)
+    public function getUserAction(Request $request, $user_id)
     {
+        // Get the user by their user_id from the database
         $user = $this->getDoctrine()
                 ->getRepository('AppBundle:User')
-                ->find($id);
+                ->find($user_id);
     
+        // If something other than a user is returned (incuding null)
+        // throw an error.
         if (!$user) {
             throw $this->createNotFoundException(
-                'No user found for id ' . $id
+                'No user found for id ' . $user_id
             );
         }
         
@@ -42,14 +48,17 @@ class APIController extends Controller
     }    
     
     /**
-     * @Route("/posts/{id}", name="get_post", requirements={"id" = "\d+"})
+     * @Route("/posts/{post_id}", name="get_post", requirements={"id" = "\d+"})
      */
     public function getPostAction(Request $request, $post_id)
     {
+        // Get the post from the post_id in the database
         $post = $this->getDoctrine()
                 ->getRepository('AppBundle:Post')
                 ->find($post_id);
     
+        // If anything other than a post is returned (including null)
+        // throw an error.
         if (!$post) {
             throw $this->createNotFoundException(
                 'No post found for id ' . $id
@@ -62,7 +71,7 @@ class APIController extends Controller
     }
     
     /**
-     * @Route("/post", name="new_post")
+     * @Route("/posts", name="new_post")
      * @Method({"POST"})
      */
     public function newPostAction(Request $request) 
@@ -95,7 +104,7 @@ class APIController extends Controller
     /**
      * @return Doctrine entity manager
      */
-    private function getEntityManager() {
+    protected function getEntityManager() {
         return $this->get('doctrine')->getManager();
     }
     

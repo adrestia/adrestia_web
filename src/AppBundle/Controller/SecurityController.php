@@ -9,6 +9,9 @@ use Symfony\Component\Security\Core\Security;
 use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
 
+/**
+ * @Route("/oauth/v2")
+ */
 class SecurityController extends Controller
 {
     /**
