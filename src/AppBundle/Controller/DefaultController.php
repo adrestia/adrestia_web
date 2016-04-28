@@ -22,6 +22,17 @@ class DefaultController extends Controller
      */
     public function indexAction(Request $request)
     {
+        $em = self::getEntityManager();
+        
+        $sql =  "SELECT id, body, upvotes, downvotes, score, created
+                 FROM posts
+                 ORDER BY created
+                 ";
+        $query = $em->createQuery($sql)
+                    ->setFirstResult(10)
+                    ->setMaxResults(100);
+        
+        
         // replace this example code with whatever you need
         return $this->render('default/index.html.twig', [
             'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..'),
