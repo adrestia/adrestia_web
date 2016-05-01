@@ -1,0 +1,1 @@
+var elem = new Foundation.Tabs($("#sort_selector"));
