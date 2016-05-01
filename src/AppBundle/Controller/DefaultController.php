@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -58,7 +59,54 @@ class DefaultController extends Controller
     {
         
     }
+     /**
+     * @Route("/upvote", name="new_upvote")
+     * @Method({"POST"})
+     */
+    public function upvoteAction(Request $request) 
+	{
+
+        // Get post id from the request
+        $post_id = $request->get("post_id");
+
+		// Get the post from the post_id in the database
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
     
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+
+        try{
+            $em = self::getEntityManager();
+            $like = new PostLikes;
+            $like->setIsLike(true);
+            if($user = getCurrentUser($this)) {
+                $like->setUser($user);
+            }
+            $like->setPost($post);
+            $em->persist($like); //updating database
+            $em->flush();
+        } catch (\Docrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
+        }
+
+        try{
+            $em = self::getEntityManager();
+            $post->setUpvotes($post->getUpvotes() + 1);
+            $em->persist($post);
+            $em->flush();
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => "Unable to upvote post. $e->message"));
+        }
+
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote a post'));
+	}
     /**
      * @Route("/posts", name="new_post")
      */
