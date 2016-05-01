@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -94,6 +95,58 @@ class DefaultController extends Controller
         }
     }
     
+    /**
+     * @Route("/downvote", name="new_downvote")
+     * @Method({"POST"})
+     */
+    public function newDownvoteAction(Request $request) 
+    {
+        // Get the post_id
+        $post_id = $request->get("$post_id");
+        
+        // Get the post from the post_id in the database
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+        
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+
+        // We have everything we need now
+        // Time to add the post to the database
+        try {
+            $em = self::getEntityManager();
+            $dislike = new PostDislike;
+            $dislike = setIsLike(false);
+            if($user = getCurrentUser($this)) {
+                $dislike->setUser($user);
+            }
+            $dislike->setPost($post);
+            $em->persist($dislike);
+            $em->flush();
+        }catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike. $e->message'));  
+        }
+        try {
+            $em = self::getEntityManager();
+            $post = setDownvots($post->getDownvotes() + 1);
+            $em->persist($post);
+            $em->flush();
+        }catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to downvote. $e->message'));
+            }  
+
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting'));
+        //var_dump($post);
+        //die();
+    }
+    
+
     /**
      * @Route("/terms", name="terms")
      */
