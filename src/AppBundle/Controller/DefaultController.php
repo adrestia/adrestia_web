@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\Security;
 use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Post;
+use AppBundle\Entity\PostLikes;
 
 /**
  * @Route("/")
@@ -43,42 +44,34 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/login", name="login")
+     * @Route("/posts/{post_id}", name="post_view")
      */
-    public function loginAction(Request $request)
+    public function viewPostAction(Request $request, $post_id) 
     {
-        $authenticationUtils = $this->get('security.authentication_utils');
-
-        // get the login error if there is one
-        $error = $authenticationUtils->getLastAuthenticationError();
-
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
-
-        return $this->render(
-            'security/login.html.twig',
-            array(
-                // last username entered by the user
-                'last_username' => $lastUsername,
-                'error'         => $error,
-            )
-        );
+        // Get the post from the post_id in the database
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+    
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                "Post not found!"
+            );
+        }
+        
+        return $this->render('default/post.html.twig', [
+            'post' => $post
+        ]);
     }
     
-    /**
-     * @Route("/login_check", name="login_check")
-     */
-    public function loginCheckAction(Request $request) 
-    {
-        
-    }
      /**
-     * @Route("/upvote", name="new_upvote")
+     * @Route("/upvote", name="upvote")
      * @Method({"POST"})
      */
     public function upvoteAction(Request $request) 
 	{
-
         // Get post id from the request
         $post_id = $request->get("post_id");
 
@@ -98,8 +91,8 @@ class DefaultController extends Controller
         try{
             $em = self::getEntityManager();
             $like = new PostLikes;
-            $like->setIsLike(true);
-            if($user = getCurrentUser($this)) {
+            $like->setIsLike(1);
+            if($user = self::getCurrentUser($this)) {
                 $like->setUser($user);
             }
             $like->setPost($post);
@@ -156,33 +149,40 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/posts/{post_id}", name="post_view")
+     * @Route("/login", name="login")
      */
-    public function viewPostAction(Request $request, $post_id) 
+    public function loginAction(Request $request)
     {
-        // Get the post from the post_id in the database
-        $post = $this->getDoctrine()
-                     ->getRepository('AppBundle:Post')
-                     ->find($post_id);
+        $authenticationUtils = $this->get('security.authentication_utils');
+
+        // get the login error if there is one
+        $error = $authenticationUtils->getLastAuthenticationError();
+
+        // last username entered by the user
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render(
+            'security/login.html.twig',
+            array(
+                // last username entered by the user
+                'last_username' => $lastUsername,
+                'error'         => $error,
+            )
+        );
+    }
     
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$post) {
-            throw $this->createNotFoundException(
-                "Post not found!"
-            );
-        }
+    /**
+     * @Route("/login_check", name="login_check")
+     */
+    public function loginCheckAction(Request $request) 
+    {
         
-        return $this->render('default/post.html.twig', [
-            'post' => $post
-        ]);
     }
     
     /**
      * @Route("/terms", name="terms")
      */
-    public function termsAction(Request $request)
-    {
+    public function termsAction(Request $request) {
         return $this->render('default/terms.html.twig');
     }
     
