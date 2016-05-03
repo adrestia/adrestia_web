@@ -60,7 +60,7 @@ class DefaultController extends Controller
         
     }
      /**
-     * @Route("/upvote", name="new_upvote")
+     * @Route("/upvote", name="upvote")
      * @Method({"POST"})
      */
     public function upvoteAction(Request $request) 
