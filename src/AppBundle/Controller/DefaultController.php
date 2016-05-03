@@ -2,6 +2,7 @@
 
 namespace AppBundle\Controller;
 
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -23,9 +24,21 @@ class DefaultController extends Controller
      */
     public function indexAction(Request $request)
     {
+        $em = self::getEntityManager();
+        
+        $sql =  "SELECT p FROM AppBundle\Entity\Post p ORDER BY p.created DESC";
+                 
+        $query = $em->createQuery($sql)
+                    ->setFirstResult(0)
+                    ->setMaxResults(100);
+        
+        $paginator = new Paginator($query, $fetchJoinCollection = false);
+        
+        $c = count($paginator);
+        
         // replace this example code with whatever you need
         return $this->render('default/index.html.twig', [
-            'base_dir' => realpath($this->getParameter('kernel.root_dir').'/..'),
+            'posts' => $paginator
         ]);
     }
     
@@ -55,7 +68,7 @@ class DefaultController extends Controller
     /**
      * @Route("/login_check", name="login_check")
      */
-    public function loginCheckAction(Request $request)
+    public function loginCheckAction(Request $request) 
     {
         
     }
@@ -108,7 +121,7 @@ class DefaultController extends Controller
         return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote a post'));
 	}
     /**
-     * @Route("/posts", name="new_post")
+     * @Route("/posts/new", name="new_post")
      */
     public function newPostAction(Request $request) 
     {
@@ -138,8 +151,31 @@ class DefaultController extends Controller
                 return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
             }   
         } else {
-            return $this->render('default/post.html.twig');
+            return $this->render('default/new_post.html.twig');
         }
+    }
+    
+    /**
+     * @Route("/posts/{post_id}", name="post_view")
+     */
+    public function viewPostAction(Request $request, $post_id) 
+    {
+        // Get the post from the post_id in the database
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+    
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                "Post not found!"
+            );
+        }
+        
+        return $this->render('default/post.html.twig', [
+            'post' => $post
+        ]);
     }
     
     /**
