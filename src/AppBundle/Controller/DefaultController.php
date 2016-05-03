@@ -90,20 +90,30 @@ class DefaultController extends Controller
 
         try{
             $em = self::getEntityManager();
-            $like = new PostLikes;
-            $like->setIsLike(1);
-            if($user = self::getCurrentUser($this)) {
-                $like->setUser($user);
+            $like = getDoctrine()
+                    ->getRepository('AppBundle:PostLikes')
+                    ->findBy(array('post_id'=>$post_id));
+
+            if(isset($like)) {
+                $post->setUpvotes($post->getUpvotes() - 1);
+                $em->remove($like);
+                $em->persist($like);
+                $em->flush();
+            } else {
+                $like = new PostLikes;
+                $like->setIsLike(1);
+                if($user = self::getCurrentUser($this)) {
+                    $like->setUser($user);
+                }
+                $like->setPost($post);
+                $em->persist($like); //updating database
+                $em->flush();
             }
-            $like->setPost($post);
-            $em->persist($like); //updating database
-            $em->flush();
         } catch (\Docrine\DBAL\DBALException $e) {
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
         }
 
-        try{
-            $em = self::getEntityManager();
+        try{            
             $post->setUpvotes($post->getUpvotes() + 1);
             $em->persist($post);
             $em->flush();
