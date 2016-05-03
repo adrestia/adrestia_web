@@ -44,6 +44,41 @@ class DefaultController extends Controller
     }
     
     /**
+     * @Route("/posts/new", name="new_post")
+     */
+    public function newPostAction(Request $request) 
+    {
+        // Only make the request submission on a POST request
+        if($request->isMethod('POST')) {
+            // Get the User's IP address
+            $post_ip = self::getCurrentIp($this);
+        
+            // Need to get the current user based on security acces
+            $user = self::getCurrentUser($this);
+        
+            // Get the body of the post from the request
+            $body = $request->get('body');
+        
+            // We have everything we need now
+            // Time to add the post to the database
+            try {
+                $em = self::getEntityManager();
+                $post = new Post;
+                $post->setBody($body);
+                $post->setIpAddress($post_ip);
+                $post->setUser($user);
+                $em->persist($post);
+                $em->flush();
+                return new JsonResponse(array('status' => 200, 'message' => 'Success'));
+            } catch (\Doctrine\DBAL\DBALException $e) {
+                return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
+            }   
+        } else {
+            return $this->render('default/new_post.html.twig');
+        }
+    }
+    
+    /**
      * @Route("/posts/{post_id}", name="post_view")
      */
     public function viewPostAction(Request $request, $post_id) 
@@ -113,40 +148,7 @@ class DefaultController extends Controller
 
         return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote a post'));
 	}
-    /**
-     * @Route("/posts/new", name="new_post")
-     */
-    public function newPostAction(Request $request) 
-    {
-        // Only make the request submission on a POST request
-        if($request->isMethod('POST')) {
-            // Get the User's IP address
-            $post_ip = self::getCurrentIp($this);
-        
-            // Need to get the current user based on security acces
-            $user = self::getCurrentUser($this);
-        
-            // Get the body of the post from the request
-            $body = $request->get('body');
-        
-            // We have everything we need now
-            // Time to add the post to the database
-            try {
-                $em = self::getEntityManager();
-                $post = new Post;
-                $post->setBody($body);
-                $post->setIpAddress($post_ip);
-                $post->setUser($user);
-                $em->persist($post);
-                $em->flush();
-                return new JsonResponse(array('status' => 200, 'message' => 'Success'));
-            } catch (\Doctrine\DBAL\DBALException $e) {
-                return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
-            }   
-        } else {
-            return $this->render('default/new_post.html.twig');
-        }
-    }
+    
     
     /**
      * @Route("/login", name="login")
