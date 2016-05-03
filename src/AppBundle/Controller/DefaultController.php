@@ -12,6 +12,7 @@ use Symfony\Component\Security\Core\Security;
 use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Post;
+use AppBundle\Entity\PostLike;
 
 /**
  * @Route("/")
