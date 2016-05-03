@@ -3,7 +3,7 @@ $(function() {
   $("#post_submit_error").hide();
 });
 
-$("#post_form").submit(function() {
+$("#post_form").submit(function(event) {
   var body = $("textarea");
   $.post("/posts/new", { body: body.val() })
     .done(function( data ) {
@@ -25,6 +25,21 @@ $("#post_form").submit(function() {
     });
   event.preventDefault();
 });
+
+$("#comment_form").submit(function(event) {
+  var body = $("#comment_body");
+  console.log(body);
+  $.post("/comments/new", {body: body.val(), post_id: body.attr('data-post-id') })
+    .done(function(data) {
+      if(data.status === 200) {
+        console.log("Success");
+        body.val("");
+      } else {
+        console.error("Error");
+      }
+    })
+  event.preventDefault();
+})
 
 $(".upvote").on('click', function() {
   var upvote = $(this); 
