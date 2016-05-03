@@ -5,7 +5,7 @@ $(function() {
 
 $("#post_form").submit(function() {
   var body = $("textarea");
-  $.post("posts", { body: body.val() })
+  $.post("/posts/new", { body: body.val() })
     .done(function( data ) {
       if(data.status === 200) {
         $("#post_submit_success").show();
@@ -25,3 +25,27 @@ $("#post_form").submit(function() {
     });
   event.preventDefault();
 });
+
+$(".upvote").on('click', function() {
+  var post_id = $(this).attr('data-post-id');
+  
+  $.post("/upvote", { post_id: post_id })
+    .done(function(data) {
+      console.log(data.message);
+    })
+    .error(function(data) {
+      console.error(data.message);
+    })
+})
+
+$(".downvote").on('click', function() {
+  var post_id = $(this).attr('data-post-id');
+  
+  $.post("/downvote", { post_id: post_id })
+    .done(function(data) {
+      console.log(data.message);
+    })
+    .error(function(data) {
+      console.error(data.message);
+    })
+})

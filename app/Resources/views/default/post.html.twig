@@ -1,34 +1,47 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/index.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="/css/post.css" type="text/css" media="screen">
+{% endblock %}
+
 {% block body %}
-<div class="row">
-    <div class="small-10 medium-6 small-centered columns">
-        <form method="POST" id="post_form">
-            <div class="row">
-                <div class="small-12 columns">
-                    <label> What's on your mind?
-                        <textarea name="body" placeholder="Today..."></textarea>
-                    </label>
-                    <input id="post_submit" type="submit" class="button" value="Post">
+    <div class="row">
+        <a class="button primary" href="{{ path('homepage')}}">Back</a>
+    </div>
+    <div class="row wrapper">
+        <div class="small-10 medium-8 small-centered columns">
+            <div class="row post" data-post-id="{{post.id}}">
+                <div class="small-11 columns body">
+                    <p class="post_body">{{ post.body }}</p>
+                    <a href="#" class="report" data-post-id="{{post.id}}">Report</a>
+                </div>
+                <div class="small-1 columns score">
+                    <i class="fi-arrow-up upvote" data-post-id="{{post.id}}"></i><br>
+                    <span class="score_number">{{ post.upvotes - post.downvotes }}</span><br>
+                    <i class="fi-arrow-down downvote" data-post-id="{{post.id}}"></i><br>
                 </div>
             </div>
-        </form>
-        <div id="post_submit_success" class="callout success small" data-closable>
-          <h5>Successfully submitted new post!</h5>
-          <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
-              <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div id="post_submit_error" class="callout alert small" data-closable>
-          <h5>Error submitting post. Please try again.</h5>
-          <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
-              <span aria-hidden="true">&times;</span>
-          </button>
         </div>
     </div>
-</div>
+    {% if comments is defined %}
+        {% for comment in comments %}
+            {# Stuff goes here! #}
+        {% endfor %}
+    {% endif %}
+    <div class="row post_comment">
+        <div class="small-10 medium-8 small-centered columns">
+            <form method="POST">
+                <div class="row new_comment" data-post-id="{{post.id}}">
+                    <div class="small-12 columns comment">
+                        <input type="text" name="comment" placeholder="Well..." />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}
 
 {% block javascripts %}
-    <script type="text/javascript" src="/js/posts.js"></script>
+    <script type="text/javascript" src="/js/post.js"></script>
 {% endblock %}

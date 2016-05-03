@@ -31,8 +31,8 @@ class APIController extends Controller
     {
         // Get the user by their user_id from the database
         $user = $this->getDoctrine()
-                ->getRepository('AppBundle:User')
-                ->find($user_id);
+                     ->getRepository('AppBundle:User')
+                     ->find($user_id);
     
         // If something other than a user is returned (incuding null)
         // throw an error.
@@ -54,8 +54,8 @@ class APIController extends Controller
     {
         // Get the post from the post_id in the database
         $post = $this->getDoctrine()
-                ->getRepository('AppBundle:Post')
-                ->find($post_id);
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
     
         // If anything other than a post is returned (including null)
         // throw an error.
