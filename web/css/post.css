@@ -5,3 +5,7 @@
     box-shadow: 0px 0px 3px #BBBBBB;
     height: 100%;
 }
+
+.upvote, .downvote {
+    cursor: pointer;
+}
