@@ -5,7 +5,7 @@ $(function() {
 
 $("#post_form").submit(function() {
   var body = $("textarea");
-  $.post("/posts", { body: body.val() })
+  $.post("/posts/new", { body: body.val() })
     .done(function( data ) {
       if(data.status === 200) {
         $("#post_submit_success").show();
