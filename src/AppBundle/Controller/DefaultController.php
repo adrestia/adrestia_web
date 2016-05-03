@@ -149,18 +149,19 @@ class DefaultController extends Controller
             }
             $em->persist($post);
             $em->flush();
+            $score = ($post->getUpvotes() - $post->getDownvotes());
         } catch (\Docrine\DBAL\DBALException $e) {
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
         }
         
-        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.'));
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
 	}
     
     /**
-     * @Route("/downvote", name="new_downvote")
+     * @Route("/downvote", name="downvote")
      * @Method({"POST"})
      */
-    public function newDownvoteAction(Request $request) 
+    public function downvoteAction(Request $request) 
     {
         // Get the post_id
         $post_id = $request->get('post_id');
@@ -186,7 +187,7 @@ class DefaultController extends Controller
                        ->findOneBy(array('post' => $post_id));
 
             if(!isset($like)) {
-                $dislike = new PostLike;
+                $dislike = new PostLikes;
                 $dislike = setIsLike(false);
                 $dislike->setUser(self::getCurrentUser());
                 $dislike->setPost($post);
@@ -205,11 +206,12 @@ class DefaultController extends Controller
             }
             $em->persist($post);
             $em->flush();
+            $score = ($post->getUpvotes() - $post->getDownvotes());
         } catch (\Doctrine\DBAL\DBALException $e) {
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike. $e->message'));  
         }
 
-        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting'));
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting', 'score' => $score));
     }
     
     /**

@@ -65,9 +65,14 @@ class Post
     private $user;
 
     /**
-    * @OneToMany(targetEntity="Comment", mappedBy="post")
-    */
+     * @OneToMany(targetEntity="Comment", mappedBy="post")
+     */
     private $comments;
+    
+    /**
+     * @OneToMany(targetEntity="PostLikes", mappedBy="post")
+     */
+    private $likes;
   
     /**
     * @var \Datetime $created
@@ -319,5 +324,39 @@ class Post
     public function getComments()
     {
         return $this->comments;
+    }
+
+    /**
+     * Add like
+     *
+     * @param \AppBundle\Entity\PostLikes $like
+     *
+     * @return Post
+     */
+    public function addLike(\AppBundle\Entity\PostLikes $like)
+    {
+        $this->likes[] = $like;
+
+        return $this;
+    }
+
+    /**
+     * Remove like
+     *
+     * @param \AppBundle\Entity\PostLikes $like
+     */
+    public function removeLike(\AppBundle\Entity\PostLikes $like)
+    {
+        $this->likes->removeElement($like);
+    }
+
+    /**
+     * Get likes
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getLikes()
+    {
+        return $this->likes;
     }
 }

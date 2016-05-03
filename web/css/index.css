@@ -51,11 +51,19 @@ div.body {
 .fi-arrow-up {
     text-align: center;
     font-size: 1.5em;
-    color: orange;
+    color: #DCDCDC;
 }
 
 .fi-arrow-down {
     text-align: center;
     font-size: 1.5em;
-    color: purple;
+    color: #DCDCDC;
+}
+
+.blue {
+    color: #3F51B5;
+}
+
+.pink {
+    color: #FF4081;
 }

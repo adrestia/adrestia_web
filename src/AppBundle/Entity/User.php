@@ -93,11 +93,11 @@ class User implements UserInterface, \Serializable
     protected $posts;
   
     /**
-     * #@OneToMany(targetEntity="Like", mappedBy="user")
+     * #@OneToMany(targetEntity="PostLikes", mappedBy="user")
      *
      * This includes dislikes
      */
-     //protected $likes;
+    protected $post_likes;
   
     /**
      * @OneToMany(targetEntity="Comment", mappedBy="user")
