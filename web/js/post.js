@@ -32,6 +32,8 @@ $(".upvote").on('click', function() {
   $.post("/upvote", { post_id: post_id })
     .done(function(data) {
       $(".score_number").text(data.score);
+      $(".upvote").toggleClass('blue');
+      $(".downvote").removeClass('pink');
     })
     .error(function(data) {
       console.error(data.message);
@@ -44,6 +46,8 @@ $(".downvote").on('click', function() {
   $.post("/downvote", { post_id: post_id })
     .done(function(data) {
       $(".score_number").text(data.score);
+      $(".downvote").toggleClass('pink');
+      $(".upvote").removeClass('blue');
     })
     .error(function(data) {
       console.error(data.message);

@@ -83,10 +83,16 @@ class DefaultController extends Controller
      */
     public function viewPostAction(Request $request, $post_id) 
     {
+        $user = self::getCurrentUser($this);
+        
         // Get the post from the post_id in the database
         $post = $this->getDoctrine()
                      ->getRepository('AppBundle:Post')
                      ->find($post_id);
+        
+        $like = $this->getDoctrine()
+                      ->getRepository('AppBundle:PostLikes')
+                      ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
     
         // If anything other than a post is returned (including null)
         // throw an error.
@@ -97,7 +103,7 @@ class DefaultController extends Controller
         }
         
         return $this->render('default/post.html.twig', [
-            'post' => $post
+            'post' => $post, 'like' => $like
         ]);
     }
     
@@ -188,8 +194,8 @@ class DefaultController extends Controller
 
             if(!isset($like)) {
                 $dislike = new PostLikes;
-                $dislike = setIsLike(false);
-                $dislike->setUser(self::getCurrentUser());
+                $dislike->setIsLike(false);
+                $dislike->setUser(self::getCurrentUser($this));
                 $dislike->setPost($post);
                 $post->setDownvotes($post->getDownvotes() + 1);
                 $em->persist($dislike);
