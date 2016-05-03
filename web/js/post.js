@@ -37,3 +37,15 @@ $(".upvote").on('click', function() {
       console.error(data.message);
     })
 })
+
+$(".downvote").on('click', function() {
+  var post_id = $(this).attr('data-post-id');
+  
+  $.post("/downvote", { post_id: post_id })
+    .done(function(data) {
+      console.log(data.message);
+    })
+    .error(function(data) {
+      console.error(data.message);
+    })
+})

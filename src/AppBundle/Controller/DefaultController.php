@@ -77,7 +77,7 @@ class DefaultController extends Controller
             return $this->render('default/new_post.html.twig');
         }
     }
-    
+
     /**
      * @Route("/posts/{post_id}", name="post_view")
      */
@@ -128,24 +128,27 @@ class DefaultController extends Controller
         try{
             $like = $em->getRepository('AppBundle:PostLikes')
                        ->findOneBy(array('post' => $post_id));
-
-            if(isset($like)) {
-                $post->setUpvotes($post->getUpvotes() - 1);
-                $em->remove($like);
-                $em->persist($post);
-                $em->flush();
-            } else {
+            
+            if(!isset($like)) {
                 $like = new PostLikes;
-                $like->setIsLike(1);
-                if($user = self::getCurrentUser($this)) {
-                    $like->setUser($user);
-                }
+                $like->setIsLike(true);
+                $like->setUser(self::getCurrentUser($this));
                 $like->setPost($post);
                 $post->setUpvotes($post->getUpvotes() + 1);
-                $em->persist($post);
-                $em->persist($like); //updating database
-                $em->flush();
+                $em->persist($like);
+            } else {
+                if($like->getIsLike()) {
+                    $post->setUpvotes($post->getUpvotes() - 1);
+                    $em->remove($like);
+                } else {
+                    $post->setUpvotes($post->getUpvotes() + 1);
+                    $post->setDownvotes($post->getDownvotes() - 1);
+                    $like->setIsLike(true);
+                    $em->persist($like);
+                }
             }
+            $em->persist($post);
+            $em->flush();
         } catch (\Docrine\DBAL\DBALException $e) {
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
         }
@@ -153,6 +156,61 @@ class DefaultController extends Controller
         return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.'));
 	}
     
+    /**
+     * @Route("/downvote", name="new_downvote")
+     * @Method({"POST"})
+     */
+    public function newDownvoteAction(Request $request) 
+    {
+        // Get the post_id
+        $post_id = $request->get('post_id');
+        
+        // Get the entity manager
+        $em = self::getEntityManager();
+        
+        // Get the post from the post_id in the database
+        $post = $em->getRepository('AppBundle:Post')
+                   ->find($post_id);
+        
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+
+        // Try to add the downvote
+        try {
+            $like = $em->getRepository('AppBundle:PostLikes')
+                       ->findOneBy(array('post' => $post_id));
+
+            if(!isset($like)) {
+                $dislike = new PostLike;
+                $dislike = setIsLike(false);
+                $dislike->setUser(self::getCurrentUser());
+                $dislike->setPost($post);
+                $post->setDownvotes($post->getDownvotes() + 1);
+                $em->persist($dislike);
+            } else {
+                if($like->getIsLike()) {
+                    $post->setUpvotes($post->getUpvotes() - 1);
+                    $post->setDownvotes($post->getDownvotes() + 1);
+                    $like->setIsLike(false);
+                    $em->persist($like);
+                } else {
+                    $post->setDownvotes($post->getDownvotes() - 1);
+                    $em->remove($like);
+                }
+            }
+            $em->persist($post);
+            $em->flush();
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike. $e->message'));  
+        }
+
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting'));
+    }
     
     /**
      * @Route("/login", name="login")
@@ -180,8 +238,7 @@ class DefaultController extends Controller
     /**
      * @Route("/login_check", name="login_check")
      */
-    public function loginCheckAction(Request $request) 
-    {
+    public function loginCheckAction(Request $request) {
         
     }
     
