@@ -121,7 +121,7 @@ class DefaultController extends Controller
         // Time to add the post to the database
         try {
             $em = self::getEntityManager();
-            $dislike = new PostDislike;
+            $dislike = new PostLike;
             $dislike = setIsLike(false);
             if($user = getCurrentUser($this)) {
                 $dislike->setUser($user);
