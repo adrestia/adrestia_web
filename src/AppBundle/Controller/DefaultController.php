@@ -109,11 +109,13 @@ class DefaultController extends Controller
 	{
         // Get post id from the request
         $post_id = $request->get("post_id");
+        
+        // Get the entity manager for Doctrine
+        $em = self::getEntityManager();
 
 		// Get the post from the post_id in the database
-        $post = $this->getDoctrine()
-                     ->getRepository('AppBundle:Post')
-                     ->find($post_id);
+        $post = $em->getRepository('AppBundle:Post')
+                   ->find($post_id);
     
         // If anything other than a post is returned (including null)
         // throw an error.
@@ -124,15 +126,13 @@ class DefaultController extends Controller
         }
 
         try{
-            $em = self::getEntityManager();
-            $like = getDoctrine()
-                    ->getRepository('AppBundle:PostLikes')
-                    ->findBy(array('post_id'=>$post_id));
+            $like = $em->getRepository('AppBundle:PostLikes')
+                       ->findOneBy(array('post' => $post_id));
 
             if(isset($like)) {
                 $post->setUpvotes($post->getUpvotes() - 1);
                 $em->remove($like);
-                $em->persist($like);
+                $em->persist($post);
                 $em->flush();
             } else {
                 $like = new PostLikes;
@@ -141,22 +141,16 @@ class DefaultController extends Controller
                     $like->setUser($user);
                 }
                 $like->setPost($post);
+                $post->setUpvotes($post->getUpvotes() + 1);
+                $em->persist($post);
                 $em->persist($like); //updating database
                 $em->flush();
             }
         } catch (\Docrine\DBAL\DBALException $e) {
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
         }
-
-        try{            
-            $post->setUpvotes($post->getUpvotes() + 1);
-            $em->persist($post);
-            $em->flush();
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => "Unable to upvote post. $e->message"));
-        }
-
-        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote a post'));
+        
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.'));
 	}
     
     
