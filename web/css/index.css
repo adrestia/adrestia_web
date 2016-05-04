@@ -78,3 +78,7 @@ div.body {
 .pink {
     color: #FF4081;
 }
+
+.upvote, .downvote {
+    cursor: pointer;
+}
