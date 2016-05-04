@@ -15,6 +15,7 @@
                 <div class="small-11 columns body">
                     <p class="post_body">{{ post.body }}</p>
                     <a href="#" class="report" data-post-id="{{post.id}}">Report</a>
+                    <a href="#" class="remove" data-post-id="{{post.id}}">Remove</a>
                 </div>
                 <div class="small-1 columns score">
                     <i class="fi-arrow-up upvote {% if like is not null and like.getIsLike %}blue{% endif %}" data-post-id="{{post.id}}"></i><br>
