@@ -152,8 +152,40 @@ class DefaultController extends Controller
         
         return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.'));
 	}
+    /**
+     * @Route("/remove", name="remove")
+     * @Method({"POST"})
+     */
     
+    public function removePost(Request $request) 
+    {
+         // Get post id from the request
+        $post_id = $request->get("post_id");
+
+        // Get the post from the post_id in the database
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
     
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+        
+            // Time to delete the post to the database
+            try {
+                $em = self::getEntityManager();
+                $em->remove($post);
+                $em->persist($post);
+                $em->flush();
+                return new JsonResponse(array('status' => 200, 'message' => 'Success'));
+            } catch (\Doctrine\DBAL\DBALException $e) {
+                return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
+            }   
+    } 
     /**
      * @Route("/login", name="login")
      */

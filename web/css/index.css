@@ -33,6 +33,17 @@ div.body {
     bottom: 10px;
 }
 
+.remove {
+    font-size: .75em;
+    position:relative;
+    width: 400px;
+    bottom: -42px;
+    left: 50px;
+}
+.remove:hover {
+    text-decoration: underline;
+}
+
 .report:hover {
     text-decoration: underline;
 }
