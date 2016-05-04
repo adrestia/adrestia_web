@@ -31,20 +31,52 @@ $(".upvote").on('click', function() {
   
   $.post("/upvote", { post_id: post_id })
     .done(function(data) {
-      console.log(data.message);
+      if(data.status === 200) {
+        $(".score_number").text(data.score);
+        $(".upvote").toggleClass('blue');
+        $(".downvote").removeClass('pink');
+      } else {
+        alert(data.message);
+      }
     })
     .error(function(data) {
       console.error(data.message);
     })
 })
-$(".remove").on('click', function() {
+
+$(".downvote").on('click', function() {
   var post_id = $(this).attr('data-post-id');
   
-  $.post("/remove", { post_id: post_id })
+  $.post("/downvote", { post_id: post_id })
     .done(function(data) {
-      console.log(data.message);
+      if(data.status === 200) {
+        $(".score_number").text(data.score);
+        $(".downvote").toggleClass('pink');
+        $(".upvote").removeClass('blue');
+      } else {
+        alert(data.message);
+      }
     })
     .error(function(data) {
       console.error(data.message);
     })
+})
+
+$(".remove").on('click', function() {
+  var confirmed = confirm("Are you sure you want to delete this post?");
+  if(confirmed) {
+    var post_id = $(this).attr('data-post-id');
+  
+    $.post("/remove", { post_id: post_id })
+      .done(function(data) {
+        if(data.status === 200) {
+          window.location = "/";
+        } else {
+          alert(data.message);
+        }
+      })
+      .error(function(data) {
+        console.error(data.message);
+      })
+  }
 })

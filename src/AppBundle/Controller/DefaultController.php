@@ -77,16 +77,22 @@ class DefaultController extends Controller
             return $this->render('default/new_post.html.twig');
         }
     }
-    
+
     /**
      * @Route("/posts/{post_id}", name="post_view")
      */
     public function viewPostAction(Request $request, $post_id) 
     {
+        $user = self::getCurrentUser($this);
+        
         // Get the post from the post_id in the database
         $post = $this->getDoctrine()
                      ->getRepository('AppBundle:Post')
                      ->find($post_id);
+        
+        $like = $this->getDoctrine()
+                      ->getRepository('AppBundle:PostLikes')
+                      ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
     
         // If anything other than a post is returned (including null)
         // throw an error.
@@ -97,7 +103,7 @@ class DefaultController extends Controller
         }
         
         return $this->render('default/post.html.twig', [
-            'post' => $post
+            'post' => $post, 'like' => $like
         ]);
     }
     
@@ -128,35 +134,96 @@ class DefaultController extends Controller
         try{
             $like = $em->getRepository('AppBundle:PostLikes')
                        ->findOneBy(array('post' => $post_id));
-
-            if(isset($like)) {
-                $post->setUpvotes($post->getUpvotes() - 1);
-                $em->remove($like);
-                $em->persist($post);
-                $em->flush();
-            } else {
+            
+            if(!isset($like)) {
                 $like = new PostLikes;
-                $like->setIsLike(1);
-                if($user = self::getCurrentUser($this)) {
-                    $like->setUser($user);
-                }
+                $like->setIsLike(true);
+                $like->setUser(self::getCurrentUser($this));
                 $like->setPost($post);
                 $post->setUpvotes($post->getUpvotes() + 1);
-                $em->persist($post);
-                $em->persist($like); //updating database
-                $em->flush();
+                $em->persist($like);
+            } else {
+                if($like->getIsLike()) {
+                    $post->setUpvotes($post->getUpvotes() - 1);
+                    $em->remove($like);
+                } else {
+                    $post->setUpvotes($post->getUpvotes() + 1);
+                    $post->setDownvotes($post->getDownvotes() - 1);
+                    $like->setIsLike(true);
+                    $em->persist($like);
+                }
             }
+            $em->persist($post);
+            $em->flush();
+            $score = ($post->getUpvotes() - $post->getDownvotes());
         } catch (\Docrine\DBAL\DBALException $e) {
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
         }
         
-        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.'));
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
 	}
+    
+    /**
+     * @Route("/downvote", name="downvote")
+     * @Method({"POST"})
+     */
+    public function downvoteAction(Request $request) 
+    {
+        // Get the post_id
+        $post_id = $request->get('post_id');
+        
+        // Get the entity manager
+        $em = self::getEntityManager();
+        
+        // Get the post from the post_id in the database
+        $post = $em->getRepository('AppBundle:Post')
+                   ->find($post_id);
+        
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+
+        // Try to add the downvote
+        try {
+            $like = $em->getRepository('AppBundle:PostLikes')
+                       ->findOneBy(array('post' => $post_id));
+
+            if(!isset($like)) {
+                $dislike = new PostLikes;
+                $dislike->setIsLike(false);
+                $dislike->setUser(self::getCurrentUser($this));
+                $dislike->setPost($post);
+                $post->setDownvotes($post->getDownvotes() + 1);
+                $em->persist($dislike);
+            } else {
+                if($like->getIsLike()) {
+                    $post->setUpvotes($post->getUpvotes() - 1);
+                    $post->setDownvotes($post->getDownvotes() + 1);
+                    $like->setIsLike(false);
+                    $em->persist($like);
+                } else {
+                    $post->setDownvotes($post->getDownvotes() - 1);
+                    $em->remove($like);
+                }
+            }
+            $em->persist($post);
+            $em->flush();
+            $score = ($post->getUpvotes() - $post->getDownvotes());
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike. $e->message'));  
+        }
+
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting', 'score' => $score));
+    }
+    
     /**
      * @Route("/remove", name="remove")
      * @Method({"POST"})
      */
-    
     public function removePost(Request $request) 
     {
          // Get post id from the request
@@ -175,17 +242,17 @@ class DefaultController extends Controller
             );
         }
         
-            // Time to delete the post to the database
-            try {
-                $em = self::getEntityManager();
-                $em->remove($post);
-                $em->persist($post);
-                $em->flush();
-                return new JsonResponse(array('status' => 200, 'message' => 'Success'));
-            } catch (\Doctrine\DBAL\DBALException $e) {
-                return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
-            }   
+        // Time to delete the post to the database
+        try {
+            $em = self::getEntityManager();
+            $em->remove($post);
+            $em->flush();
+            return new JsonResponse(array('status' => 200, 'message' => 'Success'));
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
+        }   
     } 
+    
     /**
      * @Route("/login", name="login")
      */
@@ -212,8 +279,7 @@ class DefaultController extends Controller
     /**
      * @Route("/login_check", name="login_check")
      */
-    public function loginCheckAction(Request $request) 
-    {
+    public function loginCheckAction(Request $request) {
         
     }
     

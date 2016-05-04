@@ -35,10 +35,10 @@ div.body {
 
 .remove {
     font-size: .75em;
-    position:relative;
-    width: 400px;
-    bottom: -42px;
-    left: 50px;
+    color: #F2363F;
+    position: absolute;
+    bottom: 10px;
+    left: 70px;
 }
 .remove:hover {
     text-decoration: underline;
@@ -62,11 +62,19 @@ div.body {
 .fi-arrow-up {
     text-align: center;
     font-size: 1.5em;
-    color: orange;
+    color: #DCDCDC;
 }
 
 .fi-arrow-down {
     text-align: center;
     font-size: 1.5em;
-    color: purple;
+    color: #DCDCDC;
+}
+
+.blue {
+    color: #3F51B5;
+}
+
+.pink {
+    color: #FF4081;
 }
