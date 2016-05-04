@@ -88,6 +88,7 @@ class Post
     public function __construct()
     {
         $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->likes = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**

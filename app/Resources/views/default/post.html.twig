@@ -25,7 +25,7 @@
             </div>
         </div>
     </div>
-    {% if comments is defined %}
+    {% if comments is defined and comments is not null %}
         {% for comment in comments %}
             {# Stuff goes here! #}
         {% endfor %}

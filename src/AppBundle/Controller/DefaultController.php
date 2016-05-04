@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -27,19 +28,39 @@ class DefaultController extends Controller
     {
         $em = self::getEntityManager();
         
-        $sql =  "SELECT p FROM AppBundle\Entity\Post p ORDER BY p.created DESC";
+        $user = self::getCurrentUser($this);
+        
+        /*
+        EQUIVALENT QUERY TO BUILDER BELOW
+
+       "SELECT p.id, p.user_id, p.body, p.upvotes, 
+                p.downvotes, p.score, p.reports, 
+                p.created, l.is_like, l.user_id, 
+                l.post_id 
+         FROM posts p
+         LEFT JOIN post_likes l
+         ON p.id = l.post_id AND l.user_id = ? 
+         ORDER BY created DESC;";
+        
+        */
                  
-        $query = $em->createQuery($sql)
-                    ->setFirstResult(0)
-                    ->setMaxResults(100);
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('p', 'l')
+            ->from('AppBundle:Post', 'p') 
+            ->leftJoin(
+                'p.likes',
+                'l',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'p.id = l.post AND l.user = :user'
+                )
+            ->setParameter('user', $user->getId())
+            ->orderBy('p.created', 'DESC');
+                
+        $posts = $builder->getQuery()->getResult();
         
-        $paginator = new Paginator($query, $fetchJoinCollection = false);
-        
-        $c = count($paginator);
-        
-        // replace this example code with whatever you need
         return $this->render('default/index.html.twig', [
-            'posts' => $paginator
+            'posts' => $posts
         ]);
     }
     
@@ -103,7 +124,8 @@ class DefaultController extends Controller
         }
         
         return $this->render('default/post.html.twig', [
-            'post' => $post, 'like' => $like
+            'post' => $post, 
+            'like' => $like
         ]);
     }
     
@@ -115,6 +137,9 @@ class DefaultController extends Controller
 	{
         // Get post id from the request
         $post_id = $request->get("post_id");
+        
+        // Get current user
+        $user = self::getCurrentUser($this);
         
         // Get the entity manager for Doctrine
         $em = self::getEntityManager();
@@ -133,7 +158,7 @@ class DefaultController extends Controller
 
         try{
             $like = $em->getRepository('AppBundle:PostLikes')
-                       ->findOneBy(array('post' => $post_id));
+                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
             
             if(!isset($like)) {
                 $like = new PostLikes;
@@ -141,10 +166,12 @@ class DefaultController extends Controller
                 $like->setUser(self::getCurrentUser($this));
                 $like->setPost($post);
                 $post->setUpvotes($post->getUpvotes() + 1);
+                $post->addLike($like);
                 $em->persist($like);
             } else {
                 if($like->getIsLike()) {
                     $post->setUpvotes($post->getUpvotes() - 1);
+                    $post->removeLike($like);
                     $em->remove($like);
                 } else {
                     $post->setUpvotes($post->getUpvotes() + 1);
@@ -172,6 +199,9 @@ class DefaultController extends Controller
         // Get the post_id
         $post_id = $request->get('post_id');
         
+        // Get current user
+        $user = self::getCurrentUser($this);
+        
         // Get the entity manager
         $em = self::getEntityManager();
         
@@ -190,7 +220,7 @@ class DefaultController extends Controller
         // Try to add the downvote
         try {
             $like = $em->getRepository('AppBundle:PostLikes')
-                       ->findOneBy(array('post' => $post_id));
+                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
 
             if(!isset($like)) {
                 $dislike = new PostLikes;
@@ -198,6 +228,7 @@ class DefaultController extends Controller
                 $dislike->setUser(self::getCurrentUser($this));
                 $dislike->setPost($post);
                 $post->setDownvotes($post->getDownvotes() + 1);
+                $post->addLike($dislike);
                 $em->persist($dislike);
             } else {
                 if($like->getIsLike()) {
@@ -208,6 +239,7 @@ class DefaultController extends Controller
                 } else {
                     $post->setDownvotes($post->getDownvotes() - 1);
                     $em->remove($like);
+                    $post->removeLike($like);
                 }
             }
             $em->persist($post);
