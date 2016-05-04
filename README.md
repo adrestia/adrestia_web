@@ -49,7 +49,7 @@ parameters:
 ```
 
 #### Check out the dev branch
-`git fetch origin dev:dev`
+`git fetch origin dev:dev`    
 `git checkout dev`
 
 #### Configure MySQL
@@ -72,7 +72,7 @@ After done, you have to flush MySQL so it can reload the configurations.
 
 #### Pull the vendor information with composer
 If you don't have composer, install it [here](https://getcomposer.org/download/).  
-Run `composer update` or `composer install`.
+Run `composer install`.
 This will download all of the dependencies outlined in the composer.json.  
 *Composer* is a dependency management tool for PHP and is closely integrated into Symfony. USE IT.  
 You can find more information about it by reading its documentation [here](https://getcomposer.org/doc/00-intro.md).  
