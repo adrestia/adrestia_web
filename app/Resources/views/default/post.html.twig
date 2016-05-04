@@ -45,12 +45,13 @@
             <form method="POST" id="comment_form">
                 <div class="row new_comment" data-post-id="{{post.id}}">
                     <div class="small-12 columns comment">
-                        <input type="text" name="comment" placeholder="Well..." id="comment_body" data-post-id="{{ post.id}}" />
+                        <input type="text" name="comment" placeholder="Well..." id="comment_body" data-post-id="{{ post.id}}"; />
                     </div>
                 </div>
             </form>
         </div>
     </div>
+
 {% endblock %}
 
 {% block javascripts %}

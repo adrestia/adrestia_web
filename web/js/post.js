@@ -8,6 +8,7 @@ $("#post_form").submit(function(event) {
   $.post("/posts/new", { body: body.val() })
     .done(function( data ) {
       if(data.status === 200) {
+        
         $("#post_submit_success").show();
         setTimeout(function() {
           $("#post_submit_success").fadeOut();
@@ -32,12 +33,23 @@ $("#comment_form").submit(function(event) {
   $.post("/comments/new", {body: body.val(), post_id: body.attr('data-post-id') })
     .done(function(data) {
       if(data.status === 200) {
-        console.log("Success");
+        $("#comment_submit_success").show();
+        setTimeout(function() {
+          $("#comment_submit_success").fadeOut();
+        }, 2000);
+        //console.log("Success Commented");
         body.val("");
       } else {
-        console.error("Error");
+        $("#comment_submit_error").show();
+        setTimeout(function() {
+          $("#comment_submit_error").fadeOut();
+        }, 2000);
+        //console.error("Error");
       }
     })
+    .error(function( data ) {
+      console.error(data);
+    });
   event.preventDefault();
 })
 
