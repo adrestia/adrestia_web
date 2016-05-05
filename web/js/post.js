@@ -8,7 +8,7 @@ $("#post_form").submit(function(event) {
   $.post("/posts/new", { body: body.val() })
     .done(function( data ) {
       if(data.status === 200) {
-        
+
         $("#post_submit_success").show();
         setTimeout(function() {
           $("#post_submit_success").fadeOut();
@@ -33,11 +33,9 @@ $("#comment_form").submit(function(event) {
   $.post("/comments/new", {body: body.val(), post_id: body.attr('data-post-id') })
     .done(function(data) {
       if(data.status === 200) {
-        $("#comment_submit_success").show();
-        setTimeout(function() {
-          $("#comment_submit_success").fadeOut();
-        }, 2000);
+        //pop a new row to show the comments that was made
         //console.log("Success Commented");
+        $(".post_comment").before("<div class=\"row\"><div class=\"small-10 medium-8 small-centered columns\">" + body.val() + "</div></div>");
         body.val("");
       } else {
         $("#comment_submit_error").show();
