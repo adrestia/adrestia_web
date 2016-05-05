@@ -22,9 +22,10 @@ use AppBundle\Entity\PostLikes;
 class DefaultController extends Controller
 {
     /**
-     * @Route("/", name="homepage")
+     * @Route("/{sorting}", name="homepage", defaults={"sorting":"new"}, requirements={"sorting":"top|new|^$"})
+     * @Method({"GET"})
      */
-    public function indexAction(Request $request)
+    public function indexAction(Request $request, $sorting)
     {
         $em = self::getEntityManager();
         
@@ -36,10 +37,14 @@ class DefaultController extends Controller
        "SELECT p.id, p.user_id, p.body, p.upvotes, 
                 p.downvotes, p.score, p.reports, 
                 p.created, l.is_like, l.user_id, 
-                l.post_id 
+                l.post_id, SUM(p.upvotes - p.downvotes) AS top
          FROM posts p
          LEFT JOIN post_likes l
          ON p.id = l.post_id AND l.user_id = ? 
+         GROUP BY p.id, p.user_id, p.body, p.upvotes
+                  p.downvotes, p.score, p.reports,
+                  p.created, l.is_like, l.user_id,
+                  l.post_id
          ORDER BY created DESC;";
         
         */
@@ -47,6 +52,7 @@ class DefaultController extends Controller
         $builder = $em->createQueryBuilder();
         $builder
             ->select('p', 'l')
+            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
             ->from('AppBundle:Post', 'p') 
             ->leftJoin(
                 'p.likes',
@@ -55,7 +61,15 @@ class DefaultController extends Controller
                 'p.id = l.post AND l.user = :user'
                 )
             ->setParameter('user', $user->getId())
-            ->orderBy('p.created', 'DESC');
+            ->groupBy('p', 'l');
+                    
+        if($sorting === "new") {
+            $builder->orderBy('p.created', 'DESC');
+        } elseif ($sorting === "top") {
+            $builder->orderBy('top', 'DESC');
+        } else {
+            $builder->orderBy('p.created', 'DESC');
+        }
                 
         $posts = $builder->getQuery()->getResult();
         
