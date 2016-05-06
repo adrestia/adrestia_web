@@ -386,6 +386,6 @@ class DefaultController extends Controller
         
         $seconds = $date->getTimestamp() - 1134028003;
         
-        return round($order * $sign + $seconds / 30000, 7);
+        return round($order * $sign + $seconds / 45000, 7);
     }
 }
