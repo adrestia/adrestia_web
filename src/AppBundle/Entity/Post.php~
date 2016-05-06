@@ -44,7 +44,7 @@ class Post
     private $downvotes = 0;
     
     /**
-    * @ORM\Column(name="score", type="integer")
+    * @ORM\Column(type="decimal", precision=20, scale=10)
     */
     private $score = 0;
   

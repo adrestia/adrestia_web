@@ -22,7 +22,7 @@ use AppBundle\Entity\PostLikes;
 class DefaultController extends Controller
 {
     /**
-     * @Route("/{sorting}", name="homepage", defaults={"sorting":"new"}, requirements={"sorting":"top|new|^$"})
+     * @Route("/{sorting}", name="homepage", defaults={"sorting":"new"}, requirements={"sorting":"top|new|hot|^$"})
      * @Method({"GET"})
      */
     public function indexAction(Request $request, $sorting)
@@ -67,6 +67,8 @@ class DefaultController extends Controller
             $builder->orderBy('p.created', 'DESC');
         } elseif ($sorting === "top") {
             $builder->orderBy('top', 'DESC');
+        } elseif ($sorting === "hot") {
+            $builder->orderBy('p.score', 'DESC');
         } else {
             $builder->orderBy('p.created', 'DESC');
         }
@@ -194,6 +196,7 @@ class DefaultController extends Controller
                     $em->persist($like);
                 }
             }
+            $post->setScore(self::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
             $em->persist($post);
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());
@@ -256,6 +259,7 @@ class DefaultController extends Controller
                     $post->removeLike($like);
                 }
             }
+            $post->setScore(self::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
             $em->persist($post);
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());
@@ -357,5 +361,31 @@ class DefaultController extends Controller
      */
     protected function getCurrentUser($context) {
         return $context->get('security.token_storage')->getToken()->getUser();
+    }
+    
+    /**
+     * The reddit hotness algorithm!
+     *
+     * @param $ups – Number of post upvotes
+     * @param $downs – Number of post downvotes
+     * @param $date – When the post was submitted
+     *
+     * @return calculated score of how hot a post is
+     */
+    private function hot($ups, $downs, $date) {
+        $score = $ups - $downs;
+        $order = log10(max(abs($score), 1));
+        
+        if($score > 0) {
+            $sign = 1;
+        } elseif($score < 0) {
+            $sign = -1;
+        } else {
+            $sign = 0;
+        }
+        
+        $seconds = $date->getTimestamp() - 1134028003;
+        
+        return round($order * $sign + $seconds / 30000, 7);
     }
 }
