@@ -104,6 +104,7 @@ class DefaultController extends Controller
                 $post->setBody($body);
                 $post->setIpAddress($post_ip);
                 $post->setUser($user);
+                $post->setScore(self::hot(0, 0, new \DateTime()));
                 $em->persist($post);
                 $em->flush();
                 return new JsonResponse(array('status' => 200, 'message' => 'Success'));
