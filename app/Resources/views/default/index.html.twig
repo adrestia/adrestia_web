@@ -5,6 +5,15 @@
 {% endblock %}
 
 {% block body %}
+    <div class="row">
+        <div class="small-10 medium-8 small-centered tabs-row columns">
+            <ul class="tabs" data-tabs id="example-tabs">
+              <li class="tabs-title {% if sorting == "hot" %}is-active{% endif %}"><a href="/hot" {% if sorting == "hot" %}aria-selected="true"{% endif %}>Hot</a></li>
+              <li class="tabs-title {% if sorting == "new" %}is-active{% endif %}"><a href="/new" {% if sorting == "new" %}aria-selected="true"{% endif %}>New</a></li>
+              <li class="tabs-title {% if sorting == "top" %}is-active{% endif %}"><a href="/top" {% if sorting == "top" %}aria-selected="true"{% endif %}>Top</a></li>
+            </ul>
+        </div>
+    </div>
     <div class="row wrapper">
         <div class="small-10 medium-8 small-centered columns">
             {% for post in posts %}

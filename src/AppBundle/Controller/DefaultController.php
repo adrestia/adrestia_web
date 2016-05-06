@@ -22,7 +22,7 @@ use AppBundle\Entity\PostLikes;
 class DefaultController extends Controller
 {
     /**
-     * @Route("/{sorting}", name="homepage", defaults={"sorting":"new"}, requirements={"sorting":"top|new|hot|^$"})
+     * @Route("/{sorting}", name="homepage", defaults={"sorting":"hot"}, requirements={"sorting":"top|new|hot|^$"})
      * @Method({"GET"})
      */
     public function indexAction(Request $request, $sorting)
@@ -62,7 +62,8 @@ class DefaultController extends Controller
                 )
             ->setParameter('user', $user->getId())
             ->groupBy('p', 'l');
-                    
+        
+        $sorting = strtolower($sorting);
         if($sorting === "new") {
             $builder->orderBy('p.created', 'DESC');
         } elseif ($sorting === "top") {
@@ -70,13 +71,15 @@ class DefaultController extends Controller
         } elseif ($sorting === "hot") {
             $builder->orderBy('p.score', 'DESC');
         } else {
+            $sorting === "hot";
             $builder->orderBy('p.created', 'DESC');
         }
                 
         $posts = $builder->getQuery()->getResult();
         
         return $this->render('default/index.html.twig', [
-            'posts' => $posts
+            'posts' => $posts,
+            'sorting' => $sorting
         ]);
     }
     

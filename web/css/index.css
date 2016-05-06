@@ -82,3 +82,8 @@ div.body {
 .upvote, .downvote {
     cursor: pointer;
 }
+
+.tabs-row {
+    padding: 0;
+    background: #FFF;
+}
