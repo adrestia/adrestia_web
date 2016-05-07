@@ -83,7 +83,7 @@ class RegistrationController extends Controller
     protected function sendEmail($address, $token) {
         $message = \Swift_Message::newInstance()
                 ->setSubject('Welcome to College Confessions!')
-                ->setFrom('adrestiaweb@gmail.com')
+                ->setFrom(array('adrestiaweb@gmail.com' => 'College Confessions'))
                 ->setTo($address)
                 ->setBody(
                     $this->renderView(
