@@ -164,6 +164,50 @@ class DefaultController extends Controller
     }
     
     /**
+     * @Route("/comments/new", name="new_comment")
+     */
+    public function newCommentAction(Request $request) 
+    {
+        // Only make the request submission on a POST request
+        if($request->isMethod('POST')) {
+
+            $post_id = $request->get('post_id');
+
+            // Get the Post Number
+            $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+
+            // Need to get the current user based on security acces
+            $user = self::getCurrentUser($this);
+
+            // Get the User's IP address
+            $comment_ip = self::getCurrentIp($this);
+        
+            // Get the body of the comment from the request
+            $body = $request->get('body');
+        
+            // We have everything we need now
+            // Time to add the post to the database
+            try {
+                $em = self::getEntityManager();
+                $comment = new Comment;
+                $comment->setPost($post);
+                $comment->setBody($body);
+                $comment->setIpAddress($comment_ip);
+                $comment->setUser($user);
+                $em->persist($comment);
+                $em->flush();
+                return new JsonResponse(array('status' => 200, 'message' => 'Success in posting comments'));
+            } catch (\Doctrine\DBAL\DBALException $e) {
+                return new JsonResponse(array('status' => 400, 'message' => 'Unable to comment.'));
+            }   
+        } else {
+            return $this->render('post/post.html.twig');
+        }
+    }
+    
+    /**
      * @Route("/posts/new", name="new_post")
      */
     public function newPostAction(Request $request) 
@@ -411,6 +455,48 @@ class DefaultController extends Controller
     }
     
     /**
+     * @Route("/confirm/{token}", name="confirm_email")
+     */
+    public function confirmEmailAction(Request $request, $token) {
+        
+        $em = self::getEntityManager();
+        
+        $auth = $em->getRepository("AppBundle:EmailAuth")
+                   ->findOneBy(array('token' => $token, 'verified' => false));
+        
+        if(!$auth) {
+            return $this->render(
+                'security/confirm.html.twig',
+                array(
+                    'error' => 'Token is invalid or has already been used',
+                )
+            );
+        }
+            
+        $user = $em->getRepository("AppBundle:User")
+                   ->find($auth->getUser());
+        
+        if(!$user) {
+            return $this->render(
+                'security/confirm.html.twig',
+                array(
+                    'error' => 'User could not be found. Please contact support at adrestiaweb@gmail.com.',
+                )
+            );
+        }
+        
+        $user->setEmailConfirmed(true);
+        $auth->setVerified(true);
+        $em->persist($user);
+        $em->persist($auth);
+        $em->flush();
+        
+        return $this->render(
+            'security/confirm.html.twig'
+        );
+    }
+    
+    /**
      * @Route("/login_check", name="login_check")
      */
     public function loginCheckAction(Request $request) {
@@ -422,6 +508,20 @@ class DefaultController extends Controller
      */
     public function termsAction(Request $request) {
         return $this->render('default/terms.html.twig');
+    }
+    
+    /**
+     * @Route("/privacy", name="privacy")
+     */
+    public function privacyAction(Request $request) {
+        return $this->render('default/privacy.html.twig');
+    }
+    
+    /**
+     * @Route("/content", name="content")
+     */
+    public function contentAction(Request $request) {
+        return $this->render('default/content.html.twig');
     }
     
     /**

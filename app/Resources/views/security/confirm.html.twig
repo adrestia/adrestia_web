@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block body%}
+    <div class="row">
+        <div class="small-10 columns">
+            {% if error is defined %}
+                <div class="callout alert">
+                  <h5>Whoops...</h5>
+                  <p>{{ error }}</p>
+                  <a href="{{ path('homepage') }}">Go home.</a>
+                </div>
+            {% else %}
+                <div class="callout success">
+                  <h5>Sucess</h5>
+                  <p>Thanks for confirming your email!.</p>
+                  <a href="{{ path('login') }}">Log in here!</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
