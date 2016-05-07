@@ -1,0 +1,72 @@
+html, body {
+    background: #F1F1F1;
+    font-family: 'San Francisco';
+    width: 100%;
+    height: 100%;
+
+}
+form{
+	margin: 0 auto;
+	margin-top : 150px;
+	margin-left: 500px;
+	margin-right: 650px;
+}
+label {
+    color: #555;
+    display: inline-block;
+    margin-left: 10px;
+    padding-top: 10px;
+    font-size: 12px;
+}
+
+input[type=text],
+    input[type=email]{
+        color: #777;
+        padding-left: 10px;
+        margin: 10px;
+        margin-top: 12px;
+        margin-left: 18px;
+        width: 290px;
+        height: 35px;
+        border: 1px solid #c7d0d2;
+        border-radius: 2px;
+        box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .4), 0 0 0 5px #f5f7f8;
+        -webkit-transition: all .4s ease;
+        -moz-transition: all .4s ease;
+        transition: all .4s ease;
+        }
+input[type=text],
+	input[type=password]{
+	    color: #777;
+	    padding-left: 10px;
+	    margin: 10px;
+	    margin-top: 10px;
+	    margin-left: 18px;
+	    width: 290px;
+	    height: 35px;
+	    border: 1px solid #c7d0d2;
+	    border-radius: 2px;
+	    box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .4), 0 0 0 5px #f5f7f8;
+	    -webkit-transition: all .4s ease;
+	    -moz-transition: all .4s ease;
+	    transition: all .4s ease;
+	    }
+
+input[type=text]:focus,
+    input[type=password]:focus,input[type=time]:focus {
+        border: 1px solid #a8c9e4;
+        box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .4), 0 0 0 5px #e6f2f9;
+    }
+    button
+    {
+    	margin-left: 250px;
+    	margin-bottom: 10px;
+
+    }
+    .button:hover
+    {
+    	background-color:#FF00FF;
+    }
+    .wrapper {
+    margin-top: 100px;
+}
