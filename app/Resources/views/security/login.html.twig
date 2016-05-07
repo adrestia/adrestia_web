@@ -1,3 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/login.css" type="text/css" media="screen">
+
+{% endblock %}
+
 {% if error %}
     <div>{{ error.messageKey|trans(error.messageData, 'security') }}</div>
 {% endif %}
@@ -18,3 +26,5 @@
 
     <button type="submit">Login</button>
 </form>
+{% endblock %}
+
