@@ -9,11 +9,12 @@
         {{ form_row(form.plainPassword.second) }}
     </div>
     <div class="terms">
-        {% set terms_link %}
-            I agree to the <a title="{% trans %}Terms and Conditions{% endtrans %}" href="{{ path('terms') }}">{% trans %}Terms and Conditions{% endtrans %}</a>
-        {% endset %}
-        <label for="{{ form.termsAccepted.vars.id }}">{{ terms_link|raw }}</label>
-        {{ form_widget(form.termsAccepted) }}
+        By signing up you agree to our 
+        <a title="Terms" href="{{ path('terms') }}">{% trans %}Terms{% endtrans %}</a> 
+        and that you have read our 
+        <a title="Privacy" href="{{ path('privacy') }}">{% trans %}Privacy Policy{% endtrans %}</a>
+        and
+        <a title="Content" href="{{ path('content') }}">{% trans %}Content Policy{% endtrans %}</a>.
     </div>        
 
     <button type="submit">Register!</button>

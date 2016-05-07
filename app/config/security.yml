@@ -35,7 +35,11 @@ security:
             anonymous: ~
             
         register_firewall:
-            pattern: ^/register$
+            pattern: ^/(register|confirm)
+            anonymous: ~
+            
+        policy_firewall:
+            pattern: ^/(privacy|content|terms)
             anonymous: ~
 
         oauth_token:
