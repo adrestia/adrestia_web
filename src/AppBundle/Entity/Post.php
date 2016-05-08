@@ -73,6 +73,11 @@ class Post
      * @OneToMany(targetEntity="PostLikes", mappedBy="post")
      */
     private $likes;
+    
+    /**
+     * @ManyToOne(targetEntity="College")
+     */
+    private $college;
   
     /**
     * @var \Datetime $created
@@ -359,5 +364,29 @@ class Post
     public function getLikes()
     {
         return $this->likes;
+    }
+
+    /**
+     * Set college
+     *
+     * @param \AppBundle\Entity\College $college
+     *
+     * @return Post
+     */
+    public function setCollege(\AppBundle\Entity\College $college = null)
+    {
+        $this->college = $college;
+
+        return $this;
+    }
+
+    /**
+     * Get college
+     *
+     * @return \AppBundle\Entity\College
+     */
+    public function getCollege()
+    {
+        return $this->college;
     }
 }

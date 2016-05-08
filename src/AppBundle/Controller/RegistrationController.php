@@ -32,20 +32,29 @@ class RegistrationController extends Controller
                 ->encodePassword($user, $user->getPlainPassword());
             $user->setPassword($password);
             
+            // Fix the user email to include the suffix
+            $suffix = $user->getCollege()->getSuffix();
+            $user->setEmail($user->getEmail() . "@" . $suffix);
+            
+            // Get a unique API key
             do {
                 $apikey = self::guidv4();
                 $entity = $em->getRepository('AppBundle\Entity\User')->findOneBy(array('api_key' => $apikey));
             } while($entity !== null);
             
+            // Set their API key
             $user->setApiKey($apikey);
             
+            // Create an email confirmation token
             $email_auth = new EmailAuth();
             
+            // Generate a new token for confirmation
             do {
                 $token = self::guidv4();
                 $entity = $em->getRepository('AppBundle:EmailAuth')->findOneBy(array('token' => $token));
             } while($entity !== null);
             
+            // Configure the confirmation token
             $email_auth->setToken($token);
             $email_auth->setUser($user);
             
@@ -54,8 +63,10 @@ class RegistrationController extends Controller
             $em->persist($email_auth);
             $em->flush();
             
+            // Send the confirmation email
             self::sendEmail($user->getEmail(), $token);
             
+            // Show the confirmation email
             return $this->render(
                 'registration/confirm.html.twig', [
                     'email' => $user->getEmail()
