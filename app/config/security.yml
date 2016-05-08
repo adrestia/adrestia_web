@@ -8,6 +8,8 @@ security:
             entity:
                 class: AppBundle:User
                 property: email
+        api_user_provider:
+            id: platform.user.provider
     
     encoders:
         AppBundle\Entity\User:
@@ -19,13 +21,8 @@ security:
         ROLE_ADMIN:       ROLE_USER
         ROLE_SUPER_ADMIN: ROLE_ADMIN
     
-    access_control:
-        # You can omit this if /api can be accessed both authenticated and anonymously
-        - { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
 
     firewalls:
-        # disables authentication for assets and the profiler, adapt it according to your needs
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
@@ -42,22 +39,11 @@ security:
             pattern: ^/(privacy|content|terms)
             anonymous: ~
 
-        oauth_token:
-            pattern:    ^/oauth/v2/token
-            security:   false
-
-        oauth_authorize:
-            pattern:    ^/oauth/v2/auth
-            security: true
-            form_login:
-                provider: user_provider
-                login_path: /oauth/v2/auth_login
-                check_path: /oauth/v2/auth_login_check
-            anonymous: ~
-
         api:
             pattern:    ^/api
-            fos_oauth:  true
+            simple_preauth:
+                authenticator: apikey_authenticator
+            provider: api_user_provider
             stateless:  true
         
         main:
