@@ -504,6 +504,33 @@ class DefaultController extends Controller
     }
     
     /**
+     * @Route("/suffix", name="email_suffix")
+     * @Method({"POST"})
+     */
+    public function suffixAction(Request $request) {
+        $name = $request->get('college');
+        
+        try {
+            $em = self::getEntityManager();
+        
+            $college = $em->getRepository('AppBundle:College')
+                          ->findOneBy(array('name' => $name));
+            
+            if(!$college) {
+                throw $this->createNotFoundException(
+                    'No college found with name ' . $name
+                );
+            }
+            
+            $suffix = $college->getSuffix();
+            
+            return new JsonResponse(array('status' => 200, 'suffix' => $suffix));
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to get suffix.'));
+        }   
+    }
+    
+    /**
      * @Route("/terms", name="terms")
      */
     public function termsAction(Request $request) {

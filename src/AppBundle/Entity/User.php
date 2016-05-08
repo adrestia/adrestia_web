@@ -4,6 +4,8 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -67,6 +69,11 @@ class User implements UserInterface, \Serializable
      *    4 – Deleted by user
      */
     protected $account_status = 0;
+    
+    /**
+     * @ManyToOne(targetEntity="College")
+     */
+    private $college;
   
     /**
      * @ORM\Column(name="suspended", type="boolean")
@@ -580,5 +587,29 @@ class User implements UserInterface, \Serializable
     public function getComments()
     {
         return $this->comments;
+    }
+
+    /**
+     * Set college
+     *
+     * @param \AppBundle\Entity\College $college
+     *
+     * @return User
+     */
+    public function setCollege(\AppBundle\Entity\College $college = null)
+    {
+        $this->college = $college;
+
+        return $this;
+    }
+
+    /**
+     * Get college
+     *
+     * @return \AppBundle\Entity\College
+     */
+    public function getCollege()
+    {
+        return $this->college;
     }
 }

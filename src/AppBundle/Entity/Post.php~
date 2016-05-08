@@ -73,6 +73,11 @@ class Post
      * @OneToMany(targetEntity="PostLikes", mappedBy="post")
      */
     private $likes;
+    
+    /**
+     * @ManyToOne(targetEntity="College")
+     */
+    private $college;
   
     /**
     * @var \Datetime $created
