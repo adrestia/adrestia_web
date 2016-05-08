@@ -12,14 +12,16 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\Event\FormEvent;
 
 class UserType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('email', EmailType::class, array(
-                'label' => 'College Email'
+            ->add('email', TextType::class, array(
+                'label' => 'College Email Prefix'
             ))
             ->add('plainPassword', RepeatedType::class, array(
                 'type' => PasswordType::class,
@@ -32,6 +34,15 @@ class UserType extends AbstractType
                 'expanded' => false,
                 'multiple' => false
             ));
+            
+        $builder->addEventListener(
+            FormEvents::SUBMIT,
+              function (FormEvent $event) {
+                  $data = $event->getData();
+                  $email = $data["email"] . "@" . $event->getCollege()->getSuffix();
+                  $data["email"] = $email;
+                  $event->setData($data);
+              });
     }
 
     public function configureOptions(OptionsResolver $resolver)
