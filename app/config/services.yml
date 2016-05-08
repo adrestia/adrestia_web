@@ -17,11 +17,11 @@ services:
         arguments: [%platform.entity.user.class%]
 
     platform.user.provider:
-        class: %platform.user.provider.class%
+        class: AppBundle\Provider\UserProvider
         arguments: ["@platform.user.repository"]
     
-    platform.grant_type.api_key:
-        class:  AppBundle\OAuth\ApiKeyGrantExtension
-        tags:
-            - { name: fos_oauth_server.grant_extension, uri: http://localhost:8000/grants/api_key }
-        arguments:  ["@platform.user.repository"]
+    apikey_authenticator:
+        class:  AppBundle\Security\ApiKeyAuthenticator
+        arguments: ["@security.http_utils"]
+        public: false
+        
