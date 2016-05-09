@@ -35,8 +35,26 @@ $("#comment_form").submit(function(event) {
       if(data.status === 200) {
         //pop a new row to show the comments that was made
         //console.log("Success Commented");
-        $(".post_comment").before("<div class=\"row entered_comment\"><div class=\"small-10 medium-7 small-centered columns \">" + body.val() + "</div></div>");
+        var comment = $(".post_comment").before("<div class=\"row\"> \
+                                     <div class=\"small-10 medium-8 small-centered columns\"> \
+                                        <div class=\"row comment\"> \
+                                             <div class=\"small-11 columns body\"> \
+                                                 <p class=\"comment_body\">" + body.val() + "</p> \
+                                                 <a href=\"#\" class=\"report\">Report</a> \
+                                             </div> \
+                                             <div class=\"small-1 columns score\"> \
+                                                 <i class=\"fi-arrow-up upvote\"></i><br> \
+                                                 <span class=\"score_number\">0</span><br> \
+                                                 <i class=\"fi-arrow-down downvote\"></i><br> \
+                                             </div> \
+                                         </div> \
+                                      </div> \
+                                    </div>");
         body.val("");
+        setTimeout(function() {
+          
+        })
+        console.log(comment);
       } else {
         $("#comment_submit_error").show();
         setTimeout(function() {

@@ -25,28 +25,30 @@
             </div>
         </div>
     </div>
-        <div class="small-10 medium-8 small-centered columns">
-            {% if post.comments is defined %}
-                {% for comment in post.Comments %}
+    {% if post.comments is defined %}
+        {% for comment in post.Comments %}
+            <div class="row">
+                <div class="small-10 medium-8 small-centered columns">
                     <div class="row comment" data-comment-id="{{comment.id}}">
-                            <div class="small-11 columns body">
-                                <p class="comment_body">{{ comment.body }}</p>
-                                <a href="#" class="report" data-comment-id="{{comment.id}}">Report</a>
-                            </div>
-                            <div class="small-1 columns score">
-                                <i class="fi-arrow-up upvote" data-comment-id="{{comment.id}}"></i><br>
-                                <span class="score_number">{{ comment.upvotes - comment.downvotes }}</span><br>
-                                <i class="fi-arrow-down downvote" data-comment-id="{{comment.id}}"></i><br>
-                            </div>
+                        <div class="small-11 columns body">
+                            <p class="comment_body">{{ comment.body }}</p>
+                            <a href="#" class="report" data-comment-id="{{comment.id}}">Report</a>
                         </div>
-                {% endfor %}
-            {% endif %}
-        </div>
+                        <div class="small-1 columns score">
+                            <i class="fi-arrow-up upvote" data-comment-id="{{comment.id}}"></i><br>
+                            <span class="score_number">{{ comment.upvotes - comment.downvotes }}</span><br>
+                            <i class="fi-arrow-down downvote" data-comment-id="{{comment.id}}"></i><br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
     <div class="row post_comment">
         <div class="small-10 medium-8 small-centered columns">
             <form method="POST" id="comment_form">
                 <div class="row new_comment" data-post-id="{{post.id}}">
-                    <div class="small-12 columns comment">
+                    <div class="small-12 columns comment_input">
                         <input type="text" name="comment" placeholder="Well..." id="comment_body" data-post-id="{{ post.id}}"; />
                     </div>
                 </div>
