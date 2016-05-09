@@ -1,4 +1,4 @@
-$(function() {
+  $(function() {
   $("#post_submit_success").hide();
   $("#post_submit_error").hide();
 });
@@ -35,7 +35,7 @@ $("#comment_form").submit(function(event) {
       if(data.status === 200) {
         //pop a new row to show the comments that was made
         //console.log("Success Commented");
-        $(".post_comment").before("<div class=\"row\"><div class=\"small-10 medium-8 small-centered columns\">" + body.val() + "</div></div>");
+        $(".post_comment").before("<div class=\"row entered_comment\"><div class=\"small-10 medium-7 small-centered columns \">" + body.val() + "</div></div>");
         body.val("");
       } else {
         $("#comment_submit_error").show();

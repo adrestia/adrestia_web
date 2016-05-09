@@ -1,3 +1,38 @@
+.comment {
+	position: relative;
+    background-color: #FFF;
+    box-shadow: 0px 0px 3px #BBBBBB;
+    height: 100%;
+}
+
+div.body {
+    display: inline-block;
+    margin-top: auto;
+    margin-bottom: auto;
+    height: 100%;
+    word-wrap: break-word;
+}
+
+.report {
+    font-size: .75em;
+    position: absolute;
+    bottom: 10px;
+}
+
+.remove {
+    font-size: .75em;
+    color: #F2363F;
+    position: absolute;
+    bottom: 10px;
+    left: 70px;
+}
+
+.entered_comment {
+	position: relative;
+    background-color: #FFF;
+    box-shadow: 0px 0px 3px #BBBBBB;
+}
+
 .new_comment {
     position: relative;
     background-color: #FFF;
