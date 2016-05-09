@@ -14,7 +14,6 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\FormEvents;
-use Doctrine\ORM\EntityRepository;
 
 class UserType extends AbstractType
 {   
