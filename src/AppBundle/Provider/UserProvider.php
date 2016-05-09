@@ -16,6 +16,27 @@ class UserProvider implements UserProviderInterface
   public function __construct(ObjectRepository $userRepository){
       $this->userRepository = $userRepository;
   }
+  
+  public function getUserByApiKey($apikey) {
+      $q = $this->userRepository
+          ->createQueryBuilder('u')
+          ->where('u.api_key = :apikey')
+          ->setParameter('apikey', $apikey)
+          ->getQuery();
+      
+      try {
+          $user = $q->getSingleResult();
+      } catch (NoResultException $e) {
+          $message = sprintf(
+              'Unable to find user identified by "%s".',
+              $username
+          );
+          throw new UsernameNotFoundException($message, 0, $e);
+      }
+
+      return $user;
+      
+  }
 
   public function loadUserByUsername($username)
   {
