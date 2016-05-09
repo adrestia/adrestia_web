@@ -7,16 +7,17 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\Event\FormEvent;
+use Doctrine\ORM\EntityRepository;
 
 class UserType extends AbstractType
-{
+{   
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -33,16 +34,21 @@ class UserType extends AbstractType
                 'choice_label' => 'name',
                 'expanded' => false,
                 'multiple' => false
+            ))
+            ->add('suffix', HiddenType::class, array(
+                'attr' => array('value' => '@school.edu'),
+                'mapped' => false,
             ));
             
-        $builder->addEventListener(
-            FormEvents::SUBMIT,
-              function (FormEvent $event) {
-                  $data = $event->getData();
-                  $email = $data["email"] . "@" . $event->getCollege()->getSuffix();
-                  $data["email"] = $email;
-                  $event->setData($data);
-              });
+        $builder
+            ->addEventListener(
+                FormEvents::PRE_SUBMIT,
+                function (\Symfony\Component\Form\FormEvent $event) {
+                    $data = $event->getData();
+                    $email = $data["email"] . $data['suffix'];
+                    $data["email"] = $email;
+                    $event->setData($data);
+                });
     }
 
     public function configureOptions(OptionsResolver $resolver)

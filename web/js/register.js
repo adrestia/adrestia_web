@@ -5,6 +5,7 @@ $(function() {
     .done(function(data) {
       if(data.status === 200) {
         $('#email_suffix').html("@" + data.suffix);
+        $("#user_suffix").attr("value", "@" + data.suffix);
         $("#user_email").prop('disabled', false);
         $("#user_plainPassword_first").prop('disabled', false);
         $("#user_plainPassword_second").prop('disabled', false);
@@ -20,6 +21,7 @@ $(function() {
     $("#user_plainPassword_second").prop('disabled', false);
   }
 })
+
 $('#user_college').change(function() {
   var college = $("#user_college option:selected").text();
   $.post('/suffix', { college: college })
@@ -27,6 +29,7 @@ $('#user_college').change(function() {
     if(data.status === 200) {
       $('#email_suffix').html("@" + data.suffix);
       $("#user_email").prop('disabled', false);
+      $("#user_suffix").attr("value", "@" + data.suffix);
       $("#user_plainPassword_first").prop('disabled', false);
       $("#user_plainPassword_second").prop('disabled', false);
     } else {

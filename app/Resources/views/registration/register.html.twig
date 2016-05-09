@@ -26,6 +26,7 @@
                     <div class="input-group">
                         {{ form_widget(form.email, {'attr' : {'class' : 'input-group-field', 'disabled' : ''}}) }}
                         <span class="input-group-label" id="email_suffix">@school.edu</span>
+                        {{ form_widget(form.suffix) }}
                     </div>
                     {{ form_errors(form.email) }}
                 </label>

@@ -33,10 +33,6 @@ class RegistrationController extends Controller
                 ->encodePassword($user, $user->getPlainPassword());
             $user->setPassword($password);
             
-            // Fix the user email to include the suffix
-            $suffix = $user->getCollege()->getSuffix();
-            $user->setEmail($user->getEmail() . "@" . $suffix);
-            
             // Get a unique API key
             do {
                 $apikey = self::guidv4();
@@ -107,6 +103,7 @@ class RegistrationController extends Controller
                 )
                 ->addPart(
                     $this->renderView(
+                        // This is the txt version (non-HTML)
                         'Emails/registration.txt.twig',
                         array('token' => $token)
                     ),

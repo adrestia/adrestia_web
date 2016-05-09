@@ -49,9 +49,14 @@ class Post
     private $score = 0;
   
     /** 
-    * @ORM\Column(name="reports", type="integer")
-    */
+     * @ORM\Column(name="reports", type="integer")
+     */
     private $reports = 0;
+    
+    /**
+     * @ORM\Column(name="hidden", type="boolean")
+     */
+    private $hidden = false;
     
     /**
      * @ORM\Column(name="ip_address", type="string", length=255, nullable=true)
@@ -388,5 +393,29 @@ class Post
     public function getCollege()
     {
         return $this->college;
+    }
+
+    /**
+     * Set hidden
+     *
+     * @param boolean $hidden
+     *
+     * @return Post
+     */
+    public function setHidden($hidden)
+    {
+        $this->hidden = $hidden;
+
+        return $this;
+    }
+
+    /**
+     * Get hidden
+     *
+     * @return boolean
+     */
+    public function getHidden()
+    {
+        return $this->hidden;
     }
 }
