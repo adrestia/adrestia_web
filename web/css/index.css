@@ -79,7 +79,7 @@ div.body {
     color: #FF4081;
 }
 
-.upvote, .downvote {
+.post_upvote, .post_downvote {
     cursor: pointer;
 }
 

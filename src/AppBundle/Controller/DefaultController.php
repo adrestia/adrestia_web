@@ -16,6 +16,7 @@ use AppBundle\Entity\User;
 use AppBundle\Entity\Post;
 use AppBundle\Entity\PostLikes;
 use AppBundle\Entity\Comment;
+use AppBundle\Helper\Utilities;
 
 /**
  * @Route("/")
@@ -28,9 +29,9 @@ class DefaultController extends Controller
      */
     public function indexAction(Request $request, $sorting)
     {
-        $em = self::getEntityManager();
+        $em = Utilities::getEntityManager($this);
         
-        $user = self::getCurrentUser($this);
+        $user = Utilities::getCurrentUser($this);
         
         /*
         EQUIVALENT QUERY TO BUILDER BELOW
@@ -136,54 +137,5 @@ class DefaultController extends Controller
      */
     public function contentAction(Request $request) {
         return $this->render('default/content.html.twig');
-    }
-    
-    /**
-     * @return Doctrine entity manager
-     */
-    protected function getEntityManager() {
-        return $this->get('doctrine')->getManager();
-    }
-    
-    /**
-     * @param $context – pss in $this as the variable
-     * @return IP Address from the request
-     */
-    protected function getCurrentIp($context) {
-        return $context->container->get('request_stack')->getMasterRequest()->getClientIp();
-    }
-    
-    /**
-     * @param $context – pass in $this as the variable
-     * @return the User object that is currently authenticated
-     */
-    protected function getCurrentUser($context) {
-        return $context->get('security.token_storage')->getToken()->getUser();
-    }
-    
-    /**
-     * The reddit hotness algorithm!
-     *
-     * @param $ups – Number of post upvotes
-     * @param $downs – Number of post downvotes
-     * @param $date – When the post was submitted
-     *
-     * @return calculated score of how hot a post is
-     */
-    private function hot($ups, $downs, $date) {
-        $score = $ups - $downs;
-        $order = log10(max(abs($score), 1));
-        
-        if($score > 0) {
-            $sign = 1;
-        } elseif($score < 0) {
-            $sign = -1;
-        } else {
-            $sign = 0;
-        }
-        
-        $seconds = $date->getTimestamp() - 1134028003;
-        
-        return round($order * $sign + $seconds / 45000, 7);
     }
 }

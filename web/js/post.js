@@ -43,9 +43,9 @@ $("#comment_form").submit(function(event) {
                                                  <a href=\"#\" class=\"report\" data-comment-id=\"" + data.comment_id + "\">Report</a> \
                                              </div> \
                                              <div class=\"small-1 columns score\"> \
-                                                 <i class=\"fi-arrow-up upvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
+                                                 <i class=\"fi-arrow-up comment_upvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
                                                  <span class=\"score_number\">0</span><br> \
-                                                 <i class=\"fi-arrow-down downvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
+                                                 <i class=\"fi-arrow-down comment_downvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
                                              </div> \
                                          </div> \
                                       </div> \
@@ -69,7 +69,7 @@ $("#comment_form").submit(function(event) {
   event.preventDefault();
 });
 
-$(".upvote").on('click', function() {
+$(".post_upvote").on('click', function() {
   var upvote = $(this); 
   var post_id = $(this).attr('data-post-id');
   
@@ -88,7 +88,7 @@ $(".upvote").on('click', function() {
     })
 });
 
-$(".downvote").on('click', function() {
+$(".post_downvote").on('click', function() {
   var downvote = $(this);
   var post_id = $(this).attr('data-post-id');
   

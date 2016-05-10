@@ -16,6 +16,7 @@ use AppBundle\Entity\User;
 use AppBundle\Entity\Post;
 use AppBundle\Entity\PostLikes;
 use AppBundle\Entity\Comment;
+use AppBundle\Helper\Utilities;
 
 /**
  * @Route("/")
@@ -36,10 +37,10 @@ class CommentController extends Controller
                  ->find($post_id);
 
         // Need to get the current user based on security acces
-        $user = self::getCurrentUser($this);
+        $user = Utilities::getCurrentUser($this);
 
         // Get the User's IP address
-        $comment_ip = self::getCurrentIp($this);
+        $comment_ip = Utilities::getCurrentIp($this);
     
         // Get the body of the comment from the request
         $body = $request->get('body');
@@ -47,7 +48,7 @@ class CommentController extends Controller
         // We have everything we need now
         // Time to add the post to the database
         try {
-            $em = self::getEntityManager();
+            $em = Utilities::getEntityManager($this);
             $comment = new Comment;
             $comment->setPost($post);
             $comment->setBody($body);
@@ -71,10 +72,10 @@ class CommentController extends Controller
         $post_id = $request->get("post_id");
         
         // Get current user
-        $user = self::getCurrentUser($this);
+        $user = Utilities::getCurrentUser($this);
         
         // Get the entity manager for Doctrine
-        $em = self::getEntityManager();
+        $em = Utilities::getEntityManager($this);
 
 		// Get the post from the post_id in the database
         $post = $em->getRepository('AppBundle:Post')
@@ -112,7 +113,7 @@ class CommentController extends Controller
                     $em->persist($like);
                 }
             }
-            $post->setScore(self::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
+            $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
             $em->persist($post);
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());
@@ -133,10 +134,10 @@ class CommentController extends Controller
         $post_id = $request->get('post_id');
         
         // Get current user
-        $user = self::getCurrentUser($this);
+        $user = Utilities::getCurrentUser($this);
         
         // Get the entity manager
-        $em = self::getEntityManager();
+        $em = Utilities::getEntityManager($this);
         
         // Get the post from the post_id in the database
         $post = $em->getRepository('AppBundle:Post')
@@ -175,7 +176,7 @@ class CommentController extends Controller
                     $post->removeLike($like);
                 }
             }
-            $post->setScore(self::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
+            $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
             $em->persist($post);
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());
@@ -219,7 +220,7 @@ class CommentController extends Controller
         
         // Time to delete the post to the database
         try {
-            $em = self::getEntityManager();
+            $em = Utilities::getEntityManager($this);
             $em->remove($post);
             $em->flush();
             return new JsonResponse(array('status' => 200, 'message' => 'Success'));
@@ -227,27 +228,4 @@ class CommentController extends Controller
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
         }   
     } 
-    
-    /**
-     * @return Doctrine entity manager
-     */
-    protected function getEntityManager() {
-        return $this->get('doctrine')->getManager();
-    }
-    
-    /**
-     * @param $context – pss in $this as the variable
-     * @return IP Address from the request
-     */
-    protected function getCurrentIp($context) {
-        return $context->container->get('request_stack')->getMasterRequest()->getClientIp();
-    }
-    
-    /**
-     * @param $context – pass in $this as the variable
-     * @return the User object that is currently authenticated
-     */
-    protected function getCurrentUser($context) {
-        return $context->get('security.token_storage')->getToken()->getUser();
-    }
 }

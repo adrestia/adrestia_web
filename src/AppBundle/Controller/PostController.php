@@ -16,6 +16,7 @@ use AppBundle\Entity\User;
 use AppBundle\Entity\Post;
 use AppBundle\Entity\PostLikes;
 use AppBundle\Entity\Comment;
+use AppBundle\Helper\Utilities;
 
 /**
  * @Route("/")
@@ -30,10 +31,10 @@ class PostController extends Controller
         // Only make the request submission on a POST request
         if($request->isMethod('POST')) {
             // Get the User's IP address
-            $post_ip = self::getCurrentIp($this);
+            $post_ip = Utilities::getCurrentIp($this);
         
             // Need to get the current user based on security acces
-            $user = self::getCurrentUser($this);
+            $user = Utilities::getCurrentUser($this);
         
             // Get the body of the post from the request
             $body = $request->get('body');
@@ -41,7 +42,7 @@ class PostController extends Controller
             // We have everything we need now
             // Time to add the post to the database
             try {
-                $em = self::getEntityManager();
+                $em = Utilities::getEntityManager($this);
                 $post = new Post;
                 $post->setBody($body);
                 $post->setIpAddress($post_ip);
@@ -63,9 +64,9 @@ class PostController extends Controller
      */
     public function viewPostAction(Request $request, $post_id) 
     {
-        $user = self::getCurrentUser($this);
+        $user = Utilities::getCurrentUser($this);
         
-        $em = self::getEntityManager();
+        $em = Utilities::getEntityManager($this);
         
         // Get the post from the post_id in the database
         $post = $em->getRepository('AppBundle:Post')
@@ -136,10 +137,10 @@ class PostController extends Controller
         $post_id = $request->get("post_id");
         
         // Get current user
-        $user = self::getCurrentUser($this);
+        $user = Utilities::getCurrentUser($this);
         
         // Get the entity manager for Doctrine
-        $em = self::getEntityManager();
+        $em = Utilities::getEntityManager($this);
 
 		// Get the post from the post_id in the database
         $post = $em->getRepository('AppBundle:Post')
@@ -177,7 +178,7 @@ class PostController extends Controller
                     $em->persist($like);
                 }
             }
-            $post->setScore(self::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
+            $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
             $em->persist($post);
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());
@@ -198,10 +199,10 @@ class PostController extends Controller
         $post_id = $request->get('post_id');
         
         // Get current user
-        $user = self::getCurrentUser($this);
+        $user = Utilities::getCurrentUser($this);
         
         // Get the entity manager
-        $em = self::getEntityManager();
+        $em = Utilities::getEntityManager($this);
         
         // Get the post from the post_id in the database
         $post = $em->getRepository('AppBundle:Post')
@@ -240,7 +241,7 @@ class PostController extends Controller
                     $post->removeLike($like);
                 }
             }
-            $post->setScore(self::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
+            $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
             $em->persist($post);
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());
@@ -273,7 +274,7 @@ class PostController extends Controller
             );
         }
         
-        if($post->getUser() !== self::getCurrentUser($this)) {
+        if($post->getUser() !== Utilities::getCurrentUser($this)) {
             return new JsonResponse(
                 array(
                     'status' => 403, 
@@ -284,7 +285,7 @@ class PostController extends Controller
         
         // Time to delete the post to the database
         try {
-            $em = self::getEntityManager();
+            $em = Utilities::getEntityManager($this);
             $post->setHidden(true);
             $em->persist($post);
             $em->flush();
@@ -293,27 +294,4 @@ class PostController extends Controller
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
         }   
     } 
-    
-    /**
-     * @return Doctrine entity manager
-     */
-    protected function getEntityManager() {
-        return $this->get('doctrine')->getManager();
-    }
-    
-    /**
-     * @param $context – pss in $this as the variable
-     * @return IP Address from the request
-     */
-    protected function getCurrentIp($context) {
-        return $context->container->get('request_stack')->getMasterRequest()->getClientIp();
-    }
-    
-    /**
-     * @param $context – pass in $this as the variable
-     * @return the User object that is currently authenticated
-     */
-    protected function getCurrentUser($context) {
-        return $context->get('security.token_storage')->getToken()->getUser();
-    }
 }
