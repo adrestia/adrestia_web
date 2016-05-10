@@ -70,10 +70,18 @@ class PostController extends Controller
         
         // Get the post from the post_id in the database
         $post = $em->getRepository('AppBundle:Post')
-                   ->find($post_id);
+                   ->findOneBy(array('id' => $post_id, 'hidden' => false));
         
         $like = $em->getRepository('AppBundle:PostLikes')
                    ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+        
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                "Post not found!"
+            );
+        }
         
         /*
         EQUIVALENT QUERY TO BUILDER BELOW
@@ -111,14 +119,6 @@ class PostController extends Controller
             ->orderBy('c.created', 'DESC');
                 
         $comments = $builder->getQuery()->getResult();
-    
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$post) {
-            throw $this->createNotFoundException(
-                "Post not found!"
-            );
-        }
         
         return $this->render('default/post.html.twig', [
             'post' => $post, 
