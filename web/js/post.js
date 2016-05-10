@@ -1,4 +1,4 @@
-  $(function() {
+$(function() {
   $("#post_submit_success").hide();
   $("#post_submit_error").hide();
 });
@@ -30,7 +30,7 @@ $("#post_form").submit(function(event) {
 $("#comment_form").submit(function(event) {
   var body = $("#comment_body");
   console.log(body);
-  $.post("/comments/new", {body: body.val(), post_id: body.attr('data-post-id') })
+  $.post("/comments", {body: body.val(), post_id: body.attr('data-post-id') })
     .done(function(data) {
       if(data.status === 200) {
         //pop a new row to show the comments that was made
@@ -67,13 +67,13 @@ $("#comment_form").submit(function(event) {
       console.error(data);
     });
   event.preventDefault();
-})
+});
 
 $(".upvote").on('click', function() {
   var upvote = $(this); 
   var post_id = $(this).attr('data-post-id');
   
-  $.post("/upvote", { post_id: post_id })
+  $.post("/posts/upvote", { post_id: post_id })
     .done(function(data) {
       if(data.status === 200) {
         $(".score_number[data-post-id=" + post_id + "]").text(data.score);
@@ -86,13 +86,13 @@ $(".upvote").on('click', function() {
     .error(function(data) {
       console.error(data.message);
     })
-})
+});
 
 $(".downvote").on('click', function() {
   var downvote = $(this);
   var post_id = $(this).attr('data-post-id');
   
-  $.post("/downvote", { post_id: post_id })
+  $.post("/posts/downvote", { post_id: post_id })
     .done(function(data) {
       if(data.status === 200) {
         $(".score_number[data-post-id=" + post_id + "]").text(data.score);
@@ -105,23 +105,27 @@ $(".downvote").on('click', function() {
     .error(function(data) {
       console.error(data.message);
     })
-})
+});
 
 $(".remove").on('click', function() {
   var confirmed = confirm("Are you sure you want to delete this post?");
   if(confirmed) {
     var post_id = $(this).attr('data-post-id');
-  
-    $.post("/remove", { post_id: post_id })
-      .done(function(data) {
-        if(data.status === 200) {
-          window.location = "/";
-        } else {
-          alert(data.message);
+    
+    $.ajax({
+        url: '/posts/remove',
+        type: 'DELETE',
+        data: { post_id: post_id },
+        success: function(data) {
+          if(data.status === 200) {
+            window.location = "/";
+          } else {
+            alert(data.message);
+          }
+        },
+        error: function(data) {
+          console.error(data.message);
         }
-      })
-      .error(function(data) {
-        console.error(data.message);
-      })
+    });
   }
-})
+});

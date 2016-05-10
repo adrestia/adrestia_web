@@ -6,6 +6,7 @@ use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
 use AppBundle\Entity\EmailAuth;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -75,6 +76,75 @@ class RegistrationController extends Controller
             'registration/register.html.twig',
             array('form' => $form->createView())
         );
+    }
+    
+    /**
+     * @Route("/confirm/{token}", name="confirm_email")
+     */
+    public function confirmEmailAction(Request $request, $token) {
+        
+        $em = self::getEntityManager();
+        
+        $auth = $em->getRepository("AppBundle:EmailAuth")
+                   ->findOneBy(array('token' => $token, 'verified' => false));
+        
+        if(!$auth) {
+            return $this->render(
+                'security/confirm.html.twig',
+                array(
+                    'error' => 'Token is invalid or has already been used',
+                )
+            );
+        }
+            
+        $user = $em->getRepository("AppBundle:User")
+                   ->find($auth->getUser());
+        
+        if(!$user) {
+            return $this->render(
+                'security/confirm.html.twig',
+                array(
+                    'error' => 'User could not be found. Please contact support at adrestiaweb@gmail.com.',
+                )
+            );
+        }
+        
+        $user->setEmailConfirmed(true);
+        $auth->setVerified(true);
+        $em->persist($user);
+        $em->persist($auth);
+        $em->flush();
+        
+        return $this->render(
+            'security/confirm.html.twig'
+        );
+    }
+    
+    /**
+     * @Route("/suffix", name="email_suffix")
+     * @Method({"POST"})
+     */
+    public function suffixAction(Request $request) {
+        $name = $request->get('college');
+        
+        try {
+            $em = self::getEntityManager();
+        
+            $college = $em->getRepository('AppBundle:College')
+                          ->findOneBy(array('name' => $name));
+            
+            if(!$college) {
+                throw $this->createNotFoundException(
+                    'No college found with name ' . $name
+                );
+            }
+            
+            $suffix = $college->getSuffix();
+            
+            return new JsonResponse(array('status' => 200, 'suffix' => $suffix));
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to get suffix.'));
+        }   
     }
     
     protected function guidv4()
