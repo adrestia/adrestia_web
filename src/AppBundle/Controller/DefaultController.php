@@ -55,6 +55,8 @@ class DefaultController extends Controller
             ->select('p', 'l')
             ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
             ->from('AppBundle:Post', 'p') 
+            ->where('p.college = :college AND p.hidden = false')
+            ->setParameter('college', $user->getCollege())
             ->leftJoin(
                 'p.likes',
                 'l',
@@ -151,8 +153,8 @@ class DefaultController extends Controller
                 $post = new Post;
                 $post->setBody($body);
                 $post->setIpAddress($post_ip);
+                $post->setCollege($user->getCollege());
                 $post->setUser($user);
-                $post->setScore(self::hot(0, 0, new \DateTime()));
                 $em->persist($post);
                 $em->flush();
                 return new JsonResponse(array('status' => 200, 'message' => 'Success'));
@@ -165,7 +167,7 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/posts/{post_id}", name="post_view")
+     * @Route("/posts/{post_id}", name="post_view", requirements={"post_id" = "\d+"})
      */
     public function viewPostAction(Request $request, $post_id) 
     {
@@ -376,6 +378,48 @@ class DefaultController extends Controller
     }
     
     /**
+     * @Route("/confirm/{token}", name="confirm_email")
+     */
+    public function confirmEmailAction(Request $request, $token) {
+        
+        $em = self::getEntityManager();
+        
+        $auth = $em->getRepository("AppBundle:EmailAuth")
+                   ->findOneBy(array('token' => $token, 'verified' => false));
+        
+        if(!$auth) {
+            return $this->render(
+                'security/confirm.html.twig',
+                array(
+                    'error' => 'Token is invalid or has already been used',
+                )
+            );
+        }
+            
+        $user = $em->getRepository("AppBundle:User")
+                   ->find($auth->getUser());
+        
+        if(!$user) {
+            return $this->render(
+                'security/confirm.html.twig',
+                array(
+                    'error' => 'User could not be found. Please contact support at adrestiaweb@gmail.com.',
+                )
+            );
+        }
+        
+        $user->setEmailConfirmed(true);
+        $auth->setVerified(true);
+        $em->persist($user);
+        $em->persist($auth);
+        $em->flush();
+        
+        return $this->render(
+            'security/confirm.html.twig'
+        );
+    }
+    
+    /**
      * @Route("/login_check", name="login_check")
      */
     public function loginCheckAction(Request $request) {
@@ -383,10 +427,51 @@ class DefaultController extends Controller
     }
     
     /**
+     * @Route("/suffix", name="email_suffix")
+     * @Method({"POST"})
+     */
+    public function suffixAction(Request $request) {
+        $name = $request->get('college');
+        
+        try {
+            $em = self::getEntityManager();
+        
+            $college = $em->getRepository('AppBundle:College')
+                          ->findOneBy(array('name' => $name));
+            
+            if(!$college) {
+                throw $this->createNotFoundException(
+                    'No college found with name ' . $name
+                );
+            }
+            
+            $suffix = $college->getSuffix();
+            
+            return new JsonResponse(array('status' => 200, 'suffix' => $suffix));
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to get suffix.'));
+        }   
+    }
+    
+    /**
      * @Route("/terms", name="terms")
      */
     public function termsAction(Request $request) {
         return $this->render('default/terms.html.twig');
+    }
+    
+    /**
+     * @Route("/privacy", name="privacy")
+     */
+    public function privacyAction(Request $request) {
+        return $this->render('default/privacy.html.twig');
+    }
+    
+    /**
+     * @Route("/content", name="content")
+     */
+    public function contentAction(Request $request) {
+        return $this->render('default/content.html.twig');
     }
     
     /**

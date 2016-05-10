@@ -32,7 +32,11 @@ security:
             anonymous: ~
             
         register_firewall:
-            pattern: ^/register$
+            pattern: ^/(register|confirm|suffix)
+            anonymous: ~
+            
+        policy_firewall:
+            pattern: ^/(privacy|content|terms)
             anonymous: ~
 
         api:

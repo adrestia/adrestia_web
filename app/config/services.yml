@@ -19,6 +19,10 @@ services:
     platform.user.provider:
         class: AppBundle\Provider\UserProvider
         arguments: ["@platform.user.repository"]
+        
+    security.user_checker:
+        class: AppBundle\Checker\UserChecker
+        arguments: [ %platform.entity.user.class% ]
     
     apikey_authenticator:
         class:  AppBundle\Security\ApiKeyAuthenticator

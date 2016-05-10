@@ -4,6 +4,8 @@ namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -67,6 +69,11 @@ class User implements UserInterface, \Serializable
      *    4 – Deleted by user
      */
     protected $account_status = 0;
+    
+    /**
+     * @ManyToOne(targetEntity="College")
+     */
+    private $college;
   
     /**
      * @ORM\Column(name="suspended", type="boolean")
@@ -93,11 +100,11 @@ class User implements UserInterface, \Serializable
     protected $posts;
   
     /**
-     * #@OneToMany(targetEntity="Like", mappedBy="user")
+     * #@OneToMany(targetEntity="PostLikes", mappedBy="user")
      *
      * This includes dislikes
      */
-     //protected $likes;
+    protected $post_likes;
   
     /**
      * @OneToMany(targetEntity="Comment", mappedBy="user")

@@ -49,9 +49,14 @@ class Post
     private $score = 0;
   
     /** 
-    * @ORM\Column(name="reports", type="integer")
-    */
+     * @ORM\Column(name="reports", type="integer")
+     */
     private $reports = 0;
+    
+    /**
+     * @ORM\Column(name="hidden", type="boolean")
+     */
+    private $hidden = false;
     
     /**
      * @ORM\Column(name="ip_address", type="string", length=255, nullable=true)
@@ -73,6 +78,11 @@ class Post
      * @OneToMany(targetEntity="PostLikes", mappedBy="post")
      */
     private $likes;
+    
+    /**
+     * @ManyToOne(targetEntity="College")
+     */
+    private $college;
   
     /**
     * @var \Datetime $created
@@ -360,4 +370,55 @@ class Post
     {
         return $this->likes;
     }
+
+    /**
+     * Set college
+     *
+     * @param \AppBundle\Entity\College $college
+     *
+     * @return Post
+     */
+    public function setCollege(\AppBundle\Entity\College $college = null)
+    {
+        $this->college = $college;
+
+        return $this;
+    }
+
+    /**
+     * Get college
+     *
+     * @return \AppBundle\Entity\College
+     */
+    public function getCollege()
+    {
+        return $this->college;
+    }
+<<<<<<< HEAD
+
+    /**
+     * Set hidden
+     *
+     * @param boolean $hidden
+     *
+     * @return Post
+     */
+    public function setHidden($hidden)
+    {
+        $this->hidden = $hidden;
+
+        return $this;
+    }
+
+    /**
+     * Get hidden
+     *
+     * @return boolean
+     */
+    public function getHidden()
+    {
+        return $this->hidden;
+    }
+=======
+>>>>>>> 95e26fa4cdc24391c407841279218da1c0c78e9e
 }
