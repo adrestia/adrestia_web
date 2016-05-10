@@ -100,11 +100,18 @@ class User implements UserInterface, \Serializable
     protected $posts;
   
     /**
-     * #@OneToMany(targetEntity="PostLikes", mappedBy="user")
+     * @OneToMany(targetEntity="PostLikes", mappedBy="user")
      *
      * This includes dislikes
      */
     protected $post_likes;
+    
+    /**
+     * @OneToMany(targetEntity="CommentLikes", mappedBy="user")
+     *
+     * This includes dislikes
+     */
+    protected $comment_likes;
   
     /**
      * @OneToMany(targetEntity="Comment", mappedBy="user")
@@ -587,5 +594,63 @@ class User implements UserInterface, \Serializable
     public function getComments()
     {
         return $this->comments;
+    }
+
+    /**
+     * Set college
+     *
+     * @param \AppBundle\Entity\College $college
+     *
+     * @return User
+     */
+    public function setCollege(\AppBundle\Entity\College $college = null)
+    {
+        $this->college = $college;
+
+        return $this;
+    }
+
+    /**
+     * Get college
+     *
+     * @return \AppBundle\Entity\College
+     */
+    public function getCollege()
+    {
+        return $this->college;
+    }
+
+    /**
+     * Add postLike
+     *
+     * @param \AppBundle\Entity\PostLikes $postLike
+     *
+     * @return User
+     */
+    public function addPostLike(\AppBundle\Entity\PostLikes $postLike)
+    {
+        $this->post_likes[] = $postLike;
+
+        return $this;
+    }
+
+    /**
+     * Remove postLike
+     *
+     * @param \AppBundle\Entity\PostLikes $postLike
+     */
+    public function removePostLike(\AppBundle\Entity\PostLikes $postLike)
+    {
+        $this->post_likes->removeElement($postLike);
+    }
+
+    /**
+     * Get postLikes
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getPostLikes()
+    {
+        return $this->post_likes;
     }
 }

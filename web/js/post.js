@@ -37,15 +37,15 @@ $("#comment_form").submit(function(event) {
         //console.log("Success Commented");
         var comment = $(".post_comment").before("<div class=\"row\"> \
                                      <div class=\"small-10 medium-8 small-centered columns\"> \
-                                        <div class=\"row comment\"> \
+                                        <div class=\"row comment\" data-comment-id=\"" + data.comment_id + "\"> \
                                              <div class=\"small-11 columns body\"> \
                                                  <p class=\"comment_body\">" + body.val() + "</p> \
-                                                 <a href=\"#\" class=\"report\">Report</a> \
+                                                 <a href=\"#\" class=\"report\" data-comment-id=\"" + data.comment_id + "\">Report</a> \
                                              </div> \
                                              <div class=\"small-1 columns score\"> \
-                                                 <i class=\"fi-arrow-up upvote\"></i><br> \
+                                                 <i class=\"fi-arrow-up upvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
                                                  <span class=\"score_number\">0</span><br> \
-                                                 <i class=\"fi-arrow-down downvote\"></i><br> \
+                                                 <i class=\"fi-arrow-down downvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
                                              </div> \
                                          </div> \
                                       </div> \

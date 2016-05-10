@@ -37,7 +37,7 @@ class PopulateCollegeCommand extends ContainerAwareCommand
         
         foreach($json as $key => $val) {
             try {
-                if($val->alpha_two_code === "US") {
+                if(@$val->alpha_two_code === "US") {
                     $college = new College();
                     $college->setName($val->name);
                     $college->setSuffix($val->domain);

@@ -40,6 +40,7 @@ class DefaultController extends Controller
                 p.created, l.is_like, l.user_id, 
                 l.post_id, SUM(p.upvotes - p.downvotes) AS top
          FROM posts p
+         WHERE p.college = :college AND p.hidden = false
          LEFT JOIN post_likes l
          ON p.id = l.post_id AND l.user_id = ? 
          GROUP BY p.id, p.user_id, p.body, p.upvotes
@@ -121,7 +122,7 @@ class DefaultController extends Controller
                 $comment->setUser($user);
                 $em->persist($comment);
                 $em->flush();
-                return new JsonResponse(array('status' => 200, 'message' => 'Success in posting comments'));
+                return new JsonResponse(array('status' => 200, 'message' => 'Success in posting comments', 'comment_id' => $comment->getId()));
             } catch (\Doctrine\DBAL\DBALException $e) {
                 return new JsonResponse(array('status' => 400, 'message' => 'Unable to comment.'));
             }   
@@ -173,14 +174,51 @@ class DefaultController extends Controller
     {
         $user = self::getCurrentUser($this);
         
-        // Get the post from the post_id in the database
-        $post = $this->getDoctrine()
-                     ->getRepository('AppBundle:Post')
-                     ->find($post_id);
+        $em = self::getEntityManager();
         
-        $like = $this->getDoctrine()
-                      ->getRepository('AppBundle:PostLikes')
-                      ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+        // Get the post from the post_id in the database
+        $post = $em->getRepository('AppBundle:Post')
+                   ->find($post_id);
+        
+        $like = $em->getRepository('AppBundle:PostLikes')
+                   ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+        
+        /*
+        EQUIVALENT QUERY TO BUILDER BELOW
+
+       "SELECT c.id, c.post_id, c.upvotes, 
+                c.downvotes, c.body, c.reports, 
+                p.created, l.is_like, l.user_id, 
+                l.comment_id
+         FROM comments c
+         WHERE c.post_id = :postid
+         LEFT JOIN comment_likes l
+         ON c.id = l.comment_id AND l.user_id = ? 
+         GROUP BY c.id, c.post_id, c.body, c.upvotes
+                  c.downvotes, c.reports,
+                  c.created, l.is_like, l.user_id,
+                  l.comment_id
+         ORDER BY created DESC;";
+        
+        */
+        
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('c', 'l')
+            ->from('AppBundle:Comment', 'c') 
+            ->where('c.post = :postid AND c.hidden = false')
+            ->setParameter('postid', $post->getId())
+            ->leftJoin(
+                'c.likes',
+                'l',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'c.id = l.comment AND l.user = :user'
+                )
+            ->setParameter('user', $user->getId())
+            ->groupBy('c', 'l')
+            ->orderBy('c.created', 'DESC');
+                
+        $comments = $builder->getQuery()->getResult();
     
         // If anything other than a post is returned (including null)
         // throw an error.
@@ -192,7 +230,8 @@ class DefaultController extends Controller
         
         return $this->render('default/post.html.twig', [
             'post' => $post, 
-            'like' => $like
+            'like' => $like,
+            'comments' => $comments
         ]);
     }
     

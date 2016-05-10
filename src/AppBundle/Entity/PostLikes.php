@@ -23,7 +23,7 @@ class PostLikes
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="post_likes")
      * @ORM\JoinColumn(nullable=false)
      */
     protected $user;
