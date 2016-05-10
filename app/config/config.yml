@@ -90,23 +90,10 @@ stof_doctrine_extensions:
             softdeleteable: true
             timestampable: true
 
-# FOS Auth Server Info
-
-fos_oauth_server:
-    db_driver: orm
-    client_class:        AppBundle\Entity\Client
-    access_token_class:  AppBundle\Entity\AccessToken
-    refresh_token_class: AppBundle\Entity\RefreshToken
-    auth_code_class:     AppBundle\Entity\AuthCode
-    service:
-        user_provider: platform.user.provider
-        options:
-            supported_scopes: user
 
 # Swiftmailer Configuration
 swiftmailer:
     transport: "%mailer_transport%"
-    host:      "%mailer_host%"
     username:  "%mailer_user%"
     password:  "%mailer_password%"
     spool:     { type: memory }

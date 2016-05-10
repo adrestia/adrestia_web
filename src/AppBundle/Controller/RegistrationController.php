@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 
 use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
+use AppBundle\Entity\EmailAuth;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,6 +23,7 @@ class RegistrationController extends Controller
         
         // Handle Request
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
             
             $em = $this->getDoctrine()->getManager();
@@ -30,26 +32,43 @@ class RegistrationController extends Controller
             $password = $this->get('security.password_encoder')
                 ->encodePassword($user, $user->getPlainPassword());
             $user->setPassword($password);
-            
+
+            // Get a unique API key
             do {
                 $apikey = self::guidv4();
                 $entity = $em->getRepository('AppBundle\Entity\User')->findOneBy(array('api_key' => $apikey));
             } while($entity !== null);
             
+            // Set their API key
             $user->setApiKey($apikey);
+            
+            // Create an email confirmation token
+            $email_auth = new EmailAuth();
+            
+            // Generate a new token for confirmation
+            do {
+                $token = self::guidv4();
+                $entity = $em->getRepository('AppBundle:EmailAuth')->findOneBy(array('token' => $token));
+            } while($entity !== null);
+            
+            // Configure the confirmation token
+            $email_auth->setToken($token);
+            $email_auth->setUser($user);
             
             // Save the user
             $em->persist($user);
+            $em->persist($email_auth);
             $em->flush();
             
-            // Log the user in 
-            $token = new UsernamePasswordToken($user, null, 'main', $user->getRoles());
-            $this->get('security.token_storage')->setToken($token);
-            $this->get('session')->set('_security_main',serialize($token));
+            // Send the confirmation email
+            self::sendEmail($user->getEmail(), $token);
             
-            //TODO: Send verification email here
-            
-            return $this->redirectToRoute('homepage');
+            // Show the confirmation email
+            return $this->render(
+                'registration/confirm.html.twig', [
+                    'email' => $user->getEmail()
+                ]
+            );
         }
         
         return $this->render(
@@ -58,7 +77,7 @@ class RegistrationController extends Controller
         );
     }
     
-    function guidv4()
+    protected function guidv4()
     {
         $data = openssl_random_pseudo_bytes(16);
         assert(strlen($data) == 16);
@@ -67,5 +86,29 @@ class RegistrationController extends Controller
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
 
         return vsprintf('%s%s%s%s%s%s%s%s', str_split(bin2hex($data), 4));
+    }
+    
+    protected function sendEmail($address, $token) {
+        $message = \Swift_Message::newInstance()
+                ->setSubject('Welcome to College Confessions!')
+                ->setFrom(array('adrestiaweb@gmail.com' => 'College Confessions'))
+                ->setTo($address)
+                ->setBody(
+                    $this->renderView(
+                        // app/Resources/views/Emails/registration.html.twig
+                        'Emails/registration.html.twig',
+                        array('token' => $token)
+                    ),
+                    'text/html'
+                )
+                ->addPart(
+                    $this->renderView(
+                        // This is the txt version (non-HTML)
+                        'Emails/registration.txt.twig',
+                        array('token' => $token)
+                    ),
+                    'text/plain'
+                );
+        $this->get('mailer')->send($message);
     }
 }

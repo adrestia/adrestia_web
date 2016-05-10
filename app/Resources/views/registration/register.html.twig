@@ -1,20 +1,77 @@
-{{ form_start(form) }}
-    <div class="email">
-        {{ form_row(form.email) }}
-    </div>
-    <div class="password">
-        {{ form_row(form.plainPassword.first) }}
-    </div>
-    <div class="password">
-        {{ form_row(form.plainPassword.second) }}
-    </div>
-    <div class="terms">
-        {% set terms_link %}
-            I agree to the <a title="{% trans %}Terms and Conditions{% endtrans %}" href="{{ path('terms') }}">{% trans %}Terms and Conditions{% endtrans %}</a>
-        {% endset %}
-        <label for="{{ form.termsAccepted.vars.id }}">{{ terms_link|raw }}</label>
-        {{ form_widget(form.termsAccepted) }}
-    </div>        
+{% extends 'base.html.twig' %}
 
-    <button type="submit">Register!</button>
-{{ form_end(form) }}
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/register.css" type="text/css" media="screen">
+{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+    <div class="row">
+        <div class="small-10 small-centered columns">
+            <h1 class="title">Register</h1>
+        </div>
+    </div>
+    {{ form_start(form) }}
+        <div class="row">
+            <div class="small-10 medium-6 small-centered columns">
+                <div class="college">
+                    {{ form_row(form.college) }}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-10 medium-6 small-centered columns">
+                <label>
+                    {{ form_label(form.email) }}
+                    <div class="input-group">
+                        {{ form_widget(form.email, {'attr' : {'class' : 'input-group-field', 'disabled' : ''}}) }}
+                        <span class="input-group-label" id="email_suffix">@school.edu</span>
+                        {{ form_widget(form.suffix) }}
+                    </div>
+                    {{ form_errors(form.email) }}
+                </label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-10 medium-6 small-centered columns">
+                <div class="password">
+                    {{ form_row(form.plainPassword.first, { 'attr' : {'disabled' : ''}}) }}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-10 medium-6 small-centered columns">
+                <div class="password">
+                    {{ form_row(form.plainPassword.second, { 'attr' : {'disabled' : ''}}) }}
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-10 medium-6 small-centered columns">
+                <div class="terms">
+                    By signing up you agree to our 
+                    <a title="Terms" href="{{ path('terms') }}">{% trans %}Terms{% endtrans %}</a> 
+                    and that you have read our 
+                    <a title="Privacy" href="{{ path('privacy') }}">{% trans %}Privacy Policy{% endtrans %}</a>
+                    and
+                    <a title="Content" href="{{ path('content') }}">{% trans %}Content Policy{% endtrans %}</a>.
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-10 medium-6 small-centered columns">
+                <button id="submit" type="submit" class="button regular expanded" disabled>Register!</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-10 medium-6 small-centered columns">
+                <a href="{{ path('login')}}" class="button primary hollow expanded">Login</a>
+            </div>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="/js/register.js"></script>
+{% endblock %}

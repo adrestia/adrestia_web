@@ -78,3 +78,12 @@ div.body {
 .pink {
     color: #FF4081;
 }
+
+.upvote, .downvote {
+    cursor: pointer;
+}
+
+.tabs-row {
+    padding: 0;
+    background: #FFF;
+}

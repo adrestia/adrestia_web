@@ -3,6 +3,7 @@
 namespace AppBundle\Controller;
 
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -14,6 +15,7 @@ use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Post;
 use AppBundle\Entity\PostLikes;
+use AppBundle\Entity\Comment;
 
 /**
  * @Route("/")
@@ -21,26 +23,111 @@ use AppBundle\Entity\PostLikes;
 class DefaultController extends Controller
 {
     /**
-     * @Route("/", name="homepage")
+     * @Route("/{sorting}", name="homepage", defaults={"sorting":"hot"}, requirements={"sorting":"top|new|hot|^$"})
+     * @Method({"GET"})
      */
-    public function indexAction(Request $request)
+    public function indexAction(Request $request, $sorting)
     {
         $em = self::getEntityManager();
         
-        $sql =  "SELECT p FROM AppBundle\Entity\Post p ORDER BY p.created DESC";
+        $user = self::getCurrentUser($this);
+        
+        /*
+        EQUIVALENT QUERY TO BUILDER BELOW
+
+       "SELECT p.id, p.user_id, p.body, p.upvotes, 
+                p.downvotes, p.score, p.reports, 
+                p.created, l.is_like, l.user_id, 
+                l.post_id, SUM(p.upvotes - p.downvotes) AS top
+         FROM posts p
+         LEFT JOIN post_likes l
+         ON p.id = l.post_id AND l.user_id = ? 
+         GROUP BY p.id, p.user_id, p.body, p.upvotes
+                  p.downvotes, p.score, p.reports,
+                  p.created, l.is_like, l.user_id,
+                  l.post_id
+         ORDER BY created DESC;";
+        
+        */
                  
-        $query = $em->createQuery($sql)
-                    ->setFirstResult(0)
-                    ->setMaxResults(100);
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('p', 'l')
+            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
+            ->from('AppBundle:Post', 'p') 
+            ->where('p.college = :college AND p.hidden = false')
+            ->setParameter('college', $user->getCollege())
+            ->leftJoin(
+                'p.likes',
+                'l',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'p.id = l.post AND l.user = :user'
+                )
+            ->setParameter('user', $user->getId())
+            ->groupBy('p', 'l');
         
-        $paginator = new Paginator($query, $fetchJoinCollection = false);
+        $sorting = strtolower($sorting);
+        if($sorting === "new") {
+            $builder->orderBy('p.created', 'DESC');
+        } elseif ($sorting === "top") {
+            $builder->orderBy('top', 'DESC');
+        } elseif ($sorting === "hot") {
+            $builder->orderBy('p.score', 'DESC');
+        } else {
+            $sorting === "hot";
+            $builder->orderBy('p.created', 'DESC');
+        }
+                
+        $posts = $builder->getQuery()->getResult();
         
-        $c = count($paginator);
-        
-        // replace this example code with whatever you need
         return $this->render('default/index.html.twig', [
-            'posts' => $paginator
+            'posts' => $posts,
+            'sorting' => $sorting
         ]);
+    }
+    
+    /**
+     * @Route("/comments/new", name="new_comment")
+     */
+    public function newCommentAction(Request $request) 
+    {
+        // Only make the request submission on a POST request
+        if($request->isMethod('POST')) {
+
+            $post_id = $request->get('post_id');
+
+            // Get the Post Number
+            $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+
+            // Need to get the current user based on security acces
+            $user = self::getCurrentUser($this);
+
+            // Get the User's IP address
+            $comment_ip = self::getCurrentIp($this);
+        
+            // Get the body of the comment from the request
+            $body = $request->get('body');
+        
+            // We have everything we need now
+            // Time to add the post to the database
+            try {
+                $em = self::getEntityManager();
+                $comment = new Comment;
+                $comment->setPost($post);
+                $comment->setBody($body);
+                $comment->setIpAddress($comment_ip);
+                $comment->setUser($user);
+                $em->persist($comment);
+                $em->flush();
+                return new JsonResponse(array('status' => 200, 'message' => 'Success in posting comments'));
+            } catch (\Doctrine\DBAL\DBALException $e) {
+                return new JsonResponse(array('status' => 400, 'message' => 'Unable to comment.'));
+            }   
+        } else {
+            return $this->render('post/post.html.twig');
+        }
     }
     
     /**
@@ -66,6 +153,7 @@ class DefaultController extends Controller
                 $post = new Post;
                 $post->setBody($body);
                 $post->setIpAddress($post_ip);
+                $post->setCollege($user->getCollege());
                 $post->setUser($user);
                 $em->persist($post);
                 $em->flush();
@@ -79,7 +167,7 @@ class DefaultController extends Controller
     }
 
     /**
-     * @Route("/posts/{post_id}", name="post_view")
+     * @Route("/posts/{post_id}", name="post_view", requirements={"post_id" = "\d+"})
      */
     public function viewPostAction(Request $request, $post_id) 
     {
@@ -103,7 +191,8 @@ class DefaultController extends Controller
         }
         
         return $this->render('default/post.html.twig', [
-            'post' => $post, 'like' => $like
+            'post' => $post, 
+            'like' => $like
         ]);
     }
     
@@ -115,6 +204,9 @@ class DefaultController extends Controller
 	{
         // Get post id from the request
         $post_id = $request->get("post_id");
+        
+        // Get current user
+        $user = self::getCurrentUser($this);
         
         // Get the entity manager for Doctrine
         $em = self::getEntityManager();
@@ -133,7 +225,7 @@ class DefaultController extends Controller
 
         try{
             $like = $em->getRepository('AppBundle:PostLikes')
-                       ->findOneBy(array('post' => $post_id));
+                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
             
             if(!isset($like)) {
                 $like = new PostLikes;
@@ -141,10 +233,12 @@ class DefaultController extends Controller
                 $like->setUser(self::getCurrentUser($this));
                 $like->setPost($post);
                 $post->setUpvotes($post->getUpvotes() + 1);
+                $post->addLike($like);
                 $em->persist($like);
             } else {
                 if($like->getIsLike()) {
                     $post->setUpvotes($post->getUpvotes() - 1);
+                    $post->removeLike($like);
                     $em->remove($like);
                 } else {
                     $post->setUpvotes($post->getUpvotes() + 1);
@@ -153,6 +247,7 @@ class DefaultController extends Controller
                     $em->persist($like);
                 }
             }
+            $post->setScore(self::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
             $em->persist($post);
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());
@@ -172,6 +267,9 @@ class DefaultController extends Controller
         // Get the post_id
         $post_id = $request->get('post_id');
         
+        // Get current user
+        $user = self::getCurrentUser($this);
+        
         // Get the entity manager
         $em = self::getEntityManager();
         
@@ -190,7 +288,7 @@ class DefaultController extends Controller
         // Try to add the downvote
         try {
             $like = $em->getRepository('AppBundle:PostLikes')
-                       ->findOneBy(array('post' => $post_id));
+                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
 
             if(!isset($like)) {
                 $dislike = new PostLikes;
@@ -198,6 +296,7 @@ class DefaultController extends Controller
                 $dislike->setUser(self::getCurrentUser($this));
                 $dislike->setPost($post);
                 $post->setDownvotes($post->getDownvotes() + 1);
+                $post->addLike($dislike);
                 $em->persist($dislike);
             } else {
                 if($like->getIsLike()) {
@@ -208,8 +307,10 @@ class DefaultController extends Controller
                 } else {
                     $post->setDownvotes($post->getDownvotes() - 1);
                     $em->remove($like);
+                    $post->removeLike($like);
                 }
             }
+            $post->setScore(self::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
             $em->persist($post);
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());
@@ -277,6 +378,48 @@ class DefaultController extends Controller
     }
     
     /**
+     * @Route("/confirm/{token}", name="confirm_email")
+     */
+    public function confirmEmailAction(Request $request, $token) {
+        
+        $em = self::getEntityManager();
+        
+        $auth = $em->getRepository("AppBundle:EmailAuth")
+                   ->findOneBy(array('token' => $token, 'verified' => false));
+        
+        if(!$auth) {
+            return $this->render(
+                'security/confirm.html.twig',
+                array(
+                    'error' => 'Token is invalid or has already been used',
+                )
+            );
+        }
+            
+        $user = $em->getRepository("AppBundle:User")
+                   ->find($auth->getUser());
+        
+        if(!$user) {
+            return $this->render(
+                'security/confirm.html.twig',
+                array(
+                    'error' => 'User could not be found. Please contact support at adrestiaweb@gmail.com.',
+                )
+            );
+        }
+        
+        $user->setEmailConfirmed(true);
+        $auth->setVerified(true);
+        $em->persist($user);
+        $em->persist($auth);
+        $em->flush();
+        
+        return $this->render(
+            'security/confirm.html.twig'
+        );
+    }
+    
+    /**
      * @Route("/login_check", name="login_check")
      */
     public function loginCheckAction(Request $request) {
@@ -284,10 +427,51 @@ class DefaultController extends Controller
     }
     
     /**
+     * @Route("/suffix", name="email_suffix")
+     * @Method({"POST"})
+     */
+    public function suffixAction(Request $request) {
+        $name = $request->get('college');
+        
+        try {
+            $em = self::getEntityManager();
+        
+            $college = $em->getRepository('AppBundle:College')
+                          ->findOneBy(array('name' => $name));
+            
+            if(!$college) {
+                throw $this->createNotFoundException(
+                    'No college found with name ' . $name
+                );
+            }
+            
+            $suffix = $college->getSuffix();
+            
+            return new JsonResponse(array('status' => 200, 'suffix' => $suffix));
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to get suffix.'));
+        }   
+    }
+    
+    /**
      * @Route("/terms", name="terms")
      */
     public function termsAction(Request $request) {
         return $this->render('default/terms.html.twig');
+    }
+    
+    /**
+     * @Route("/privacy", name="privacy")
+     */
+    public function privacyAction(Request $request) {
+        return $this->render('default/privacy.html.twig');
+    }
+    
+    /**
+     * @Route("/content", name="content")
+     */
+    public function contentAction(Request $request) {
+        return $this->render('default/content.html.twig');
     }
     
     /**
@@ -311,5 +495,31 @@ class DefaultController extends Controller
      */
     protected function getCurrentUser($context) {
         return $context->get('security.token_storage')->getToken()->getUser();
+    }
+    
+    /**
+     * The reddit hotness algorithm!
+     *
+     * @param $ups – Number of post upvotes
+     * @param $downs – Number of post downvotes
+     * @param $date – When the post was submitted
+     *
+     * @return calculated score of how hot a post is
+     */
+    private function hot($ups, $downs, $date) {
+        $score = $ups - $downs;
+        $order = log10(max(abs($score), 1));
+        
+        if($score > 0) {
+            $sign = 1;
+        } elseif($score < 0) {
+            $sign = -1;
+        } else {
+            $sign = 0;
+        }
+        
+        $seconds = $date->getTimestamp() - 1134028003;
+        
+        return round($order * $sign + $seconds / 45000, 7);
     }
 }
