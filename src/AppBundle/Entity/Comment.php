@@ -301,7 +301,7 @@ class Comment
      *
      * @return Comment
      */
-    public function addLike(\AppBundle\Entity\PostLikes $like)
+    public function addLike(\AppBundle\Entity\CommentLikes $like)
     {
         $this->likes[] = $like;
 
@@ -313,7 +313,7 @@ class Comment
      *
      * @param \AppBundle\Entity\PostLikes $like
      */
-    public function removeLike(\AppBundle\Entity\PostLikes $like)
+    public function removeLike(\AppBundle\Entity\CommentLikes $like)
     {
         $this->likes->removeElement($like);
     }

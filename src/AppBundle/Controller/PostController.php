@@ -161,7 +161,7 @@ class PostController extends Controller
             if(!isset($like)) {
                 $like = new PostLikes;
                 $like->setIsLike(true);
-                $like->setUser(self::getCurrentUser($this));
+                $like->setUser(Utilities::getCurrentUser($this));
                 $like->setPost($post);
                 $post->setUpvotes($post->getUpvotes() + 1);
                 $post->addLike($like);
@@ -224,7 +224,7 @@ class PostController extends Controller
             if(!isset($like)) {
                 $dislike = new PostLikes;
                 $dislike->setIsLike(false);
-                $dislike->setUser(self::getCurrentUser($this));
+                $dislike->setUser(Utilities::getCurrentUser($this));
                 $dislike->setPost($post);
                 $post->setDownvotes($post->getDownvotes() + 1);
                 $post->addLike($dislike);

@@ -15,18 +15,27 @@ div.body {
     word-wrap: break-word;
 }
 
-.report {
+.post_report, .comment_report {
     font-size: .75em;
     position: absolute;
     bottom: 10px;
 }
 
-.remove {
+.post_remove {
     font-size: .75em;
     color: #F2363F;
     position: absolute;
     bottom: 10px;
     left: 70px;
+}
+
+.post_remove:hover {
+    text-decoration: underline;
+    color: #F2363F;
+}
+
+.post_report:hover {
+    text-decoration: underline;
 }
 
 .entered_comment {

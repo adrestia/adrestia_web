@@ -13,9 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Security;
 use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
-use AppBundle\Entity\Post;
-use AppBundle\Entity\PostLikes;
 use AppBundle\Entity\Comment;
+use AppBundle\Entity\Post;
+use AppBundle\Entity\CommentLikes;
 use AppBundle\Helper\Utilities;
 
 /**
@@ -33,8 +33,8 @@ class CommentController extends Controller
 
         // Get the Post Number
         $post = $this->getDoctrine()
-                 ->getRepository('AppBundle:Post')
-                 ->find($post_id);
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
 
         // Need to get the current user based on security acces
         $user = Utilities::getCurrentUser($this);
@@ -69,7 +69,7 @@ class CommentController extends Controller
     public function upvoteCommentAction(Request $request) 
 	{
         // Get post id from the request
-        $post_id = $request->get("post_id");
+        $comment_id = $request->get("comment_id");
         
         // Get current user
         $user = Utilities::getCurrentUser($this);
@@ -78,45 +78,44 @@ class CommentController extends Controller
         $em = Utilities::getEntityManager($this);
 
 		// Get the post from the post_id in the database
-        $post = $em->getRepository('AppBundle:Post')
-                   ->find($post_id);
+        $comment = $em->getRepository('AppBundle:Comment')
+                      ->find($comment_id);
     
         // If anything other than a post is returned (including null)
         // throw an error.
-        if (!$post) {
+        if (!$comment) {
             throw $this->createNotFoundException(
-                'No post found for id ' . $id
+                'No comment found for id ' . $id
             );
         }
 
         try{
-            $like = $em->getRepository('AppBundle:PostLikes')
-                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+            $like = $em->getRepository('AppBundle:CommentLikes')
+                       ->findOneBy(array('comment' => $comment_id, 'user' => $user->getId()));
             
             if(!isset($like)) {
-                $like = new PostLikes;
+                $like = new CommentLikes;
                 $like->setIsLike(true);
-                $like->setUser(self::getCurrentUser($this));
-                $like->setPost($post);
-                $post->setUpvotes($post->getUpvotes() + 1);
-                $post->addLike($like);
+                $like->setUser(Utilities::getCurrentUser($this));
+                $like->setComment($comment);
+                $comment->setUpvotes($comment->getUpvotes() + 1);
+                $comment->addLike($like);
                 $em->persist($like);
             } else {
                 if($like->getIsLike()) {
-                    $post->setUpvotes($post->getUpvotes() - 1);
-                    $post->removeLike($like);
+                    $comment->setUpvotes($comment->getUpvotes() - 1);
+                    $comment->removeLike($like);
                     $em->remove($like);
                 } else {
-                    $post->setUpvotes($post->getUpvotes() + 1);
-                    $post->setDownvotes($post->getDownvotes() - 1);
+                    $comment->setUpvotes($comment->getUpvotes() + 1);
+                    $comment->setDownvotes($comment->getDownvotes() - 1);
                     $like->setIsLike(true);
                     $em->persist($like);
                 }
             }
-            $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
-            $em->persist($post);
+            $em->persist($comment);
             $em->flush();
-            $score = ($post->getUpvotes() - $post->getDownvotes());
+            $score = ($comment->getUpvotes() - $comment->getDownvotes());
         } catch (\Docrine\DBAL\DBALException $e) {
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
         }
@@ -131,7 +130,7 @@ class CommentController extends Controller
     public function downvoteCommentAction(Request $request) 
     {
         // Get the post_id
-        $post_id = $request->get('post_id');
+        $comment_id = $request->get('comment_id');
         
         // Get current user
         $user = Utilities::getCurrentUser($this);
@@ -140,12 +139,12 @@ class CommentController extends Controller
         $em = Utilities::getEntityManager($this);
         
         // Get the post from the post_id in the database
-        $post = $em->getRepository('AppBundle:Post')
-                   ->find($post_id);
+        $comment = $em->getRepository('AppBundle:Comment')
+                      ->find($comment_id);
         
         // If anything other than a post is returned (including null)
         // throw an error.
-        if (!$post) {
+        if (!$comment) {
             throw $this->createNotFoundException(
                 'No post found for id ' . $id
             );
@@ -153,33 +152,32 @@ class CommentController extends Controller
 
         // Try to add the downvote
         try {
-            $like = $em->getRepository('AppBundle:PostLikes')
-                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+            $like = $em->getRepository('AppBundle:CommentLikes')
+                       ->findOneBy(array('comment' => $comment_id, 'user' => $user->getId()));
 
             if(!isset($like)) {
-                $dislike = new PostLikes;
+                $dislike = new CommentLikes;
                 $dislike->setIsLike(false);
-                $dislike->setUser(self::getCurrentUser($this));
-                $dislike->setPost($post);
-                $post->setDownvotes($post->getDownvotes() + 1);
-                $post->addLike($dislike);
+                $dislike->setUser(Utilities::getCurrentUser($this));
+                $dislike->setComment($comment);
+                $comment->setDownvotes($comment->getDownvotes() + 1);
+                $comment->addLike($dislike);
                 $em->persist($dislike);
             } else {
                 if($like->getIsLike()) {
-                    $post->setUpvotes($post->getUpvotes() - 1);
-                    $post->setDownvotes($post->getDownvotes() + 1);
+                    $comment->setUpvotes($comment->getUpvotes() - 1);
+                    $comment->setDownvotes($comment->getDownvotes() + 1);
                     $like->setIsLike(false);
                     $em->persist($like);
                 } else {
-                    $post->setDownvotes($post->getDownvotes() - 1);
+                    $comment->setDownvotes($comment->getDownvotes() - 1);
                     $em->remove($like);
-                    $post->removeLike($like);
+                    $comment->removeLike($like);
                 }
             }
-            $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
-            $em->persist($post);
+            $em->persist($comment);
             $em->flush();
-            $score = ($post->getUpvotes() - $post->getDownvotes());
+            $score = ($comment->getUpvotes() - $comment->getDownvotes());
         } catch (\Doctrine\DBAL\DBALException $e) {
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike. $e->message'));  
         }
@@ -194,26 +192,26 @@ class CommentController extends Controller
     public function removeCommentAction(Request $request) 
     {
          // Get post id from the request
-        $post_id = $request->get("post_id");
+        $comment_id = $request->get("comment_id");
 
         // Get the post from the post_id in the database
-        $post = $this->getDoctrine()
-                     ->getRepository('AppBundle:Post')
-                     ->find($post_id);
+        $comment = $this->getDoctrine()
+                        ->getRepository('AppBundle:Comment')
+                        ->find($comment_id);
     
         // If anything other than a post is returned (including null)
         // throw an error.
-        if (!$post) {
+        if (!$comment) {
             throw $this->createNotFoundException(
                 'No post found for id ' . $id
             );
         }
         
-        if($post->getUser() !== self::getCurrentUser($this)) {
+        if($comment->getUser() !== Utilities::getCurrentUser($this)) {
             return new JsonResponse(
                 array(
                     'status' => 403, 
-                    'message' => strtr("That is not your post. -_-"),
+                    'message' => strtr("That is not your comment. -_-"),
                     )
             );
         }
@@ -221,11 +219,12 @@ class CommentController extends Controller
         // Time to delete the post to the database
         try {
             $em = Utilities::getEntityManager($this);
-            $em->remove($post);
+            $comment->setHidden(true);
+            $em->persist($comment);
             $em->flush();
             return new JsonResponse(array('status' => 200, 'message' => 'Success'));
         } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete comment.'));
         }   
     } 
 }
