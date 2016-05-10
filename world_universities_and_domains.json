@@ -2,6 +2,12 @@
   {
       "alpha_two_code": "US",
       "country": "United States",
+      "domain": "school.edu",
+      "name": "Select College"
+  },
+  {
+      "alpha_two_code": "US",
+      "country": "United States",
       "domain": "acu.edu",
       "name": "Abilene Christian University",
       "web_page": "http://www.acu.edu/"

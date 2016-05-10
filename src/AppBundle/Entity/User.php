@@ -100,11 +100,18 @@ class User implements UserInterface, \Serializable
     protected $posts;
   
     /**
-     * #@OneToMany(targetEntity="PostLikes", mappedBy="user")
+     * @OneToMany(targetEntity="PostLikes", mappedBy="user")
      *
      * This includes dislikes
      */
     protected $post_likes;
+    
+    /**
+     * @OneToMany(targetEntity="CommentLikes", mappedBy="user")
+     *
+     * This includes dislikes
+     */
+    protected $comment_likes;
   
     /**
      * @OneToMany(targetEntity="Comment", mappedBy="user")
@@ -611,5 +618,73 @@ class User implements UserInterface, \Serializable
     public function getCollege()
     {
         return $this->college;
+    }
+
+    /**
+     * Add postLike
+     *
+     * @param \AppBundle\Entity\PostLikes $postLike
+     *
+     * @return User
+     */
+    public function addPostLike(\AppBundle\Entity\PostLikes $postLike)
+    {
+        $this->post_likes[] = $postLike;
+
+        return $this;
+    }
+
+    /**
+     * Remove postLike
+     *
+     * @param \AppBundle\Entity\PostLikes $postLike
+     */
+    public function removePostLike(\AppBundle\Entity\PostLikes $postLike)
+    {
+        $this->post_likes->removeElement($postLike);
+    }
+
+    /**
+     * Get postLikes
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getPostLikes()
+    {
+        return $this->post_likes;
+    }
+
+    /**
+     * Add commentLike
+     *
+     * @param \AppBundle\Entity\CommentLikes $commentLike
+     *
+     * @return User
+     */
+    public function addCommentLike(\AppBundle\Entity\CommentLikes $commentLike)
+    {
+        $this->comment_likes[] = $commentLike;
+
+        return $this;
+    }
+
+    /**
+     * Remove commentLike
+     *
+     * @param \AppBundle\Entity\CommentLikes $commentLike
+     */
+    public function removeCommentLike(\AppBundle\Entity\CommentLikes $commentLike)
+    {
+        $this->comment_likes->removeElement($commentLike);
+    }
+
+    /**
+     * Get commentLikes
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getCommentLikes()
+    {
+        return $this->comment_likes;
     }
 }

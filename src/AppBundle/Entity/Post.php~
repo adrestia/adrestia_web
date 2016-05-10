@@ -394,4 +394,28 @@ class Post
     {
         return $this->college;
     }
+
+    /**
+     * Set hidden
+     *
+     * @param boolean $hidden
+     *
+     * @return Post
+     */
+    public function setHidden($hidden)
+    {
+        $this->hidden = $hidden;
+
+        return $this;
+    }
+
+    /**
+     * Get hidden
+     *
+     * @return boolean
+     */
+    public function getHidden()
+    {
+        return $this->hidden;
+    }
 }

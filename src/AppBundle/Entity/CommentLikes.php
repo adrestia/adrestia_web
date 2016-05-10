@@ -23,13 +23,14 @@ class CommentLikes
     protected $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="comment_likes")
      * @ORM\JoinColumn(nullable=false)
      */
     protected $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Comment")
+     * @ORM\ManyToOne(targetEntity="Comment", inversedBy="likes")
+     * @ORM\JoinColumn(nullable=false)
      */
     protected $comment;
     
