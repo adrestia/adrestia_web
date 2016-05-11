@@ -1,5 +1,10 @@
 {% extends 'base.html.twig' %}
 
+{% block left_menu %}
+    <a class="button primary" href="{{ path('homepage')}}">Home</a>
+{% endblock %}
+{% block search %}{% endblock %}
+
 {% block body %}
     <div class="row">
         <div class="small-8 small-centered columns">

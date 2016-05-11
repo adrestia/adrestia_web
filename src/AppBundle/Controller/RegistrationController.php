@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use AppBundle\Helper\Utilities;
 
 class RegistrationController extends Controller
 {
@@ -83,7 +84,7 @@ class RegistrationController extends Controller
      */
     public function confirmEmailAction(Request $request, $token) {
         
-        $em = self::getEntityManager();
+        $em = Utilities::getEntityManager($this);
         
         $auth = $em->getRepository("AppBundle:EmailAuth")
                    ->findOneBy(array('token' => $token, 'verified' => false));

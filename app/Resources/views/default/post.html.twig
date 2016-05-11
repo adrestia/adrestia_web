@@ -5,10 +5,11 @@
     <link rel="stylesheet" href="/css/post.css" type="text/css" media="screen">
 {% endblock %}
 
+{% block left_menu %}
+<a class="button primary" href="{{ path('homepage')}}">Home</a>
+{% endblock %}
+
 {% block body %}
-    <div class="row">
-        <a class="button primary" href="{{ path('homepage')}}">Back</a>
-    </div>
     <div class="row wrapper">
         <div class="small-10 medium-8 small-centered columns">
             <div class="row post" data-post-id="{{post.id}}">

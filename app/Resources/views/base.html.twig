@@ -11,8 +11,37 @@
         {% block stylesheets %}{% endblock %}
     </head>
     <body>
+        <div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
+            <button class="menu-icon" type="button" data-toggle></button>
+            <div class="title-bar-title">Menu</div>
+        </div>
+
+        <div class="top-bar" id="example-menu">
+            <div class="top-bar-left">
+                <ul class="dropdown menu" data-dropdown-menu>
+                    <li class="menu-text">College Confessions</li>
+                    <li>
+                        {% block left_menu %}{% endblock %}
+                    </li>
+                </ul>
+            </div>
+            <div class="top-bar-right">
+                <ul class="menu">
+                    {% block right_menu %}{% endblock %}
+                    {% block search %}
+                        <li><input type="search" placeholder="Search"></li>
+                        <li><button type="button" class="button">Search</button></li>
+                    {% endblock %}
+                </ul>
+            </div>
+        </div>
         {% block body %}{% endblock %}
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.1/foundation.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $(document).foundation();
+            });
+        </script>
         {% block javascripts %}{% endblock %}
     </body>
 </html>

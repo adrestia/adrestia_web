@@ -9,3 +9,33 @@
   font-weight: 400;
   src: url("https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-regular-webfont.woff");
 }
+
+.no-js .top-bar {
+  display: none;
+}
+
+@media screen and (min-width: 40em) {
+  .no-js .top-bar {
+    display: block;
+  }
+
+  .no-js .title-bar {
+    display: none;
+  }
+}
+
+.top-bar {
+    box-shadow: 0px 0px 5px #000;   
+}
+
+.top-bar, .top-bar ul {
+    background-color: #fff;
+}
+
+.is-active{
+    background-color: #EFEFEF;
+}
+
+.tab:hover {
+    background-color: #F6F6F6;
+}
