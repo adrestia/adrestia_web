@@ -19,7 +19,7 @@
         <div class="top-bar" id="example-menu">
             <div class="top-bar-left">
                 <ul class="dropdown menu" data-dropdown-menu>
-                    <li class="menu-text">College Confessions</li>
+                    <li class="menu-text"><a class="menu-text" href="{{ path('homepage') }}">College Confessions</a></li>
                     <li>
                         {% block left_menu %}{% endblock %}
                     </li>
@@ -32,6 +32,11 @@
                         <li><input type="search" placeholder="Search"></li>
                         <li><button type="button" class="button">Search</button></li>
                     {% endblock %}
+                    <li>
+                        <div class="verticalLine">
+                            <a class="button hollow" href="#">Profile</a>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </div>
