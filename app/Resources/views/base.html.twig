@@ -32,11 +32,16 @@
                         <li><input type="search" placeholder="Search"></li>
                         <li><button type="button" class="button">Search</button></li>
                     {% endblock %}
+                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
                     <li>
                         <div class="verticalLine">
                             <a class="button hollow" href="#">Profile</a>
                         </div>
                     </li>
+                    <li>
+                        <a class="button hollow alert" href="/logout">Log out</a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>

@@ -45,12 +45,13 @@ class PostController extends Controller
                 $em = Utilities::getEntityManager($this);
                 $post = new Post;
                 $post->setBody($body);
+                $post->setScore(Utilities::hot(0, 0, new \DateTime('NOW')));
                 $post->setIpAddress($post_ip);
                 $post->setCollege($user->getCollege());
                 $post->setUser($user);
                 $em->persist($post);
                 $em->flush();
-                return new JsonResponse(array('status' => 200, 'message' => 'Success'));
+                return new JsonResponse(array('status' => 200, 'message' => 'Success', 'post_id' => $post->getId()));
             } catch (\Doctrine\DBAL\DBALException $e) {
                 return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
             }   
@@ -116,7 +117,7 @@ class PostController extends Controller
                 )
             ->setParameter('user', $user->getId())
             ->groupBy('c', 'l')
-            ->orderBy('c.created', 'DESC');
+            ->orderBy('c.created', 'ASC');
                 
         $comments = $builder->getQuery()->getResult();
         

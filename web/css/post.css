@@ -1,3 +1,7 @@
+.wrapper {
+    padding-top: 40px;
+}
+
 .comment, .new_comment {
 	position: relative;
     background-color: #F8F8F8;
@@ -47,4 +51,12 @@ div.body {
 .post_upvote, .post_downvote,
 .comment_upvote, .comment_downvote {
     cursor: pointer;
+}
+
+.op_row {
+    background-color: #2099E8;
+}
+
+.op {
+    margin-left: -.5rem !important;
 }

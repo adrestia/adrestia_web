@@ -29,17 +29,25 @@
     {% for comment in comments %}
         <div class="row">
             <div class="small-10 medium-8 small-centered columns">
-                <div class="row comment" data-comment-id="{{comment.id}}">
-                    <div class="small-11 columns body">
-                        <p class="comment_body">{{ comment.body }}</p>
-                        <a href="#" class="comment_report" data-comment-id="{{comment.id}}">Report</a>
-                    </div>
-                    <div class="small-1 columns score">
-                        <i class="fi-arrow-up comment_upvote {% if comment.likes|length > 0 and comment.likes.first.getIsLike %}blue{% endif %}" data-comment-id="{{comment.id}}"></i><br>
-                        <span class="score_number" data-comment-id="{{comment.id}}">{{ comment.upvotes - comment.downvotes }}</span><br>
-                        <i class="fi-arrow-down comment_downvote {% if comment.likes|length > 0 and not comment.likes.first.getIsLike %}pink{% endif %}" data-comment-id="{{comment.id}}"></i><br>
+                {% if comment.user.id == post.user.id %}
+                <div class="op_row row">
+                    <div class="small-12 columns">
+                {% endif %}
+                        <div class="row comment {% if comment.user.id == post.user.id %}op{% endif %}" data-comment-id="{{comment.id}}">
+                            <div class="small-11 columns body">
+                                <p class="comment_body">{{ comment.body }}</p>
+                                <a href="#" class="comment_report" data-comment-id="{{comment.id}}">Report</a>
+                            </div>
+                            <div class="small-1 columns score">
+                                <i class="fi-arrow-up comment_upvote {% if comment.likes|length > 0 and comment.likes.first.getIsLike %}blue{% endif %}" data-comment-id="{{comment.id}}"></i><br>
+                                <span class="score_number" data-comment-id="{{comment.id}}">{{ comment.upvotes - comment.downvotes }}</span><br>
+                                <i class="fi-arrow-down comment_downvote {% if comment.likes|length > 0 and not comment.likes.first.getIsLike %}pink{% endif %}" data-comment-id="{{comment.id}}"></i><br>
+                            </div>
+                        </div>
+                {% if comment.user.id == post.user.id %}
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     {% endfor %}
