@@ -168,7 +168,7 @@ class RegistrationController extends Controller
                 ->setBody(
                     $this->renderView(
                         // app/Resources/views/Emails/registration.html.twig
-                        'Emails/registration.html.twig',
+                        'emails/registration.html.twig',
                         array('token' => $token)
                     ),
                     'text/html'
@@ -176,7 +176,7 @@ class RegistrationController extends Controller
                 ->addPart(
                     $this->renderView(
                         // This is the txt version (non-HTML)
-                        'Emails/registration.txt.twig',
+                        'emails/registration.txt.twig',
                         array('token' => $token)
                     ),
                     'text/plain'
