@@ -10,6 +10,11 @@
   src: url("https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-regular-webfont.woff");
 }
 
+html, body {
+    background: #EFEFEF;
+    font-family: 'San Francisco';
+}
+
 .no-js .top-bar {
   display: none;
 }
@@ -53,4 +58,8 @@ li.menu-text {
     padding: 0px 10px;
     border-left: thin solid #CCC;
     line-height: 1.2;
+}
+
+.centered {
+    text-align: center;
 }

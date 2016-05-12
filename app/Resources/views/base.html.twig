@@ -28,18 +28,31 @@
             <div class="top-bar-right">
                 <ul class="menu">
                     {% block right_menu %}{% endblock %}
+                    <li>{% if app.user %} {{ app.user.getCollege.getName }} {% endif %}</li>
                     {% block search %}
+                        {#
                         <li><input type="search" placeholder="Search"></li>
                         <li><button type="button" class="button">Search</button></li>
+                        #}
                     {% endblock %}
-                    {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    
+                    {% if app.user %}
                     <li>
                         <div class="verticalLine">
-                            <a class="button hollow" href="#">Profile</a>
+                            <a class="button hollow" href="/profile">Profile</a>
                         </div>
                     </li>
                     <li>
                         <a class="button hollow alert" href="/logout">Log out</a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <div class="verticalLine">
+                            <a class="button primary" href="/register">Sign Up</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a class="button hollow" href="/login">Login</a>
                     </li>
                     {% endif %}
                 </ul>

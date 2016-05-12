@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Security;
+use AppBundle\Form\ChangePasswordType;
+use AppBundle\Form\Model\ChangePassword;
 use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Post;
@@ -86,6 +88,41 @@ class DefaultController extends Controller
             'posts' => $posts,
             'sorting' => $sorting
         ]);
+    }
+    
+    /**
+     * @Route("/profile", name="profile")
+     */
+    public function profileAction(Request $request) 
+    {
+        $changePasswordModel = new ChangePassword();
+        $form = $this->createForm(ChangePasswordType::class, $changePasswordModel);
+
+        $form->handleRequest($request);
+        
+        $em = Utilities::getEntityManager($this);
+        $user = Utilities::getCurrentUser($this);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $password = $this->get('security.password_encoder')
+                ->encodePassword($user, $changePasswordModel->getNewPassword());
+            $user->setPassword($password);
+            $em->persist($user);
+            $em->flush();
+            
+            return $this->render(
+                'default/profile.html.twig', array(
+                    'form' => $form->createView(),
+                    'flash' => "Successfully Updated Password!",
+                )
+            );
+        }
+
+        return $this->render(
+            'default/profile.html.twig', array(
+                'form' => $form->createView(),
+            )
+        );
     }
     
     /**
