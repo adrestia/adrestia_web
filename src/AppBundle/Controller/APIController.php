@@ -228,7 +228,7 @@ class APIController extends Controller
         if(!$user) {
             return new JsonResponse(
                 array(
-                    'status' => 400, 
+                    'status' => 401, 
                     'error' => 'Username or password incorrect.'
                 )
             ); 
