@@ -129,7 +129,7 @@ class RegistrationController extends Controller
         $name = $request->get('college');
         
         try {
-            $em = self::getEntityManager();
+            $em = Utilities::getEntityManager($this);
         
             $college = $em->getRepository('AppBundle:College')
                           ->findOneBy(array('name' => $name));
