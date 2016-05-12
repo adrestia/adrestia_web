@@ -44,6 +44,9 @@ class CommentController extends Controller
     
         // Get the body of the comment from the request
         $body = $request->get('body');
+        
+        // Check if the person commenting is the OP on the post
+        $is_op = $post->getUser()->getId() === $user->getId();
     
         // We have everything we need now
         // Time to add the post to the database
@@ -56,7 +59,7 @@ class CommentController extends Controller
             $comment->setUser($user);
             $em->persist($comment);
             $em->flush();
-            return new JsonResponse(array('status' => 200, 'message' => 'Success in posting comments', 'comment_id' => $comment->getId()));
+            return new JsonResponse(array('status' => 200, 'message' => 'Success in posting comments', 'comment_id' => $comment->getId(), 'is_op' => $is_op));
         } catch (\Doctrine\DBAL\DBALException $e) {
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to comment.'));
         }   

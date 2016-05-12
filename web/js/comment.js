@@ -4,32 +4,44 @@ $("#comment_form").submit(function(event) {
   $.post("/comments", {body: body.val(), post_id: body.attr('data-post-id') })
     .done(function(data) {
       if(data.status === 200) {
-        //pop a new row to show the comments that was made
-        //console.log("Success Commented");
-        var comment = $(".post_comment").before("<div class=\"row\"> \
-                                     <div class=\"small-10 medium-8 small-centered columns\"> \
-                                        <div class=\"op_row row\"> \
-                                          <div class=\"small-12 columns\"> \
-                                            <div class=\"row comment op\" data-comment-id=\"" + data.comment_id + "\"> \
-                                                 <div class=\"small-11 columns body\"> \
-                                                     <p class=\"comment_body\">" + body.val() + "</p> \
-                                                     <a href=\"#\" class=\"comment_report\" data-comment-id=\"" + data.comment_id + "\">Report</a> \
-                                                 </div> \
-                                                 <div class=\"small-1 columns score\"> \
-                                                     <i class=\"fi-arrow-up comment_upvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
-                                                     <span class=\"score_number\" data-comment-id=\"" + data.comment_id + "\">0</span><br> \
-                                                     <i class=\"fi-arrow-down comment_downvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
-                                                 </div> \
-                                             </div> \
+        if(data.is_op) {
+          var comment = $(".post_comment").before("<div class=\"row\"> \
+                                       <div class=\"small-10 medium-8 small-centered columns\"> \
+                                          <div class=\"op_row row\"> \
+                                            <div class=\"small-12 columns\"> \
+                                              <div class=\"row comment op\" data-comment-id=\"" + data.comment_id + "\"> \
+                                                   <div class=\"small-11 columns body\"> \
+                                                       <p class=\"comment_body\">" + body.val() + "</p> \
+                                                       <a href=\"#\" class=\"comment_report\" data-comment-id=\"" + data.comment_id + "\">Report</a> \
+                                                   </div> \
+                                                   <div class=\"small-1 columns score\"> \
+                                                       <i class=\"fi-arrow-up comment_upvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
+                                                       <span class=\"score_number\" data-comment-id=\"" + data.comment_id + "\">0</span><br> \
+                                                       <i class=\"fi-arrow-down comment_downvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
+                                                   </div> \
+                                               </div> \
+                                            </div> \
                                           </div> \
                                         </div> \
-                                      </div> \
-                                    </div>");
+                                      </div>");
+        } else {
+          var comment = $(".post_comment").before("<div class=\"row\"> \
+                                       <div class=\"small-10 medium-8 small-centered columns\"> \
+                                          <div class=\"row comment\" data-comment-id=\"" + data.comment_id + "\"> \
+                                               <div class=\"small-11 columns body\"> \
+                                                   <p class=\"comment_body\">" + body.val() + "</p> \
+                                                   <a href=\"#\" class=\"comment_report\" data-comment-id=\"" + data.comment_id + "\">Report</a> \
+                                               </div> \
+                                               <div class=\"small-1 columns score\"> \
+                                                   <i class=\"fi-arrow-up comment_upvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
+                                                   <span class=\"score_number\" data-comment-id=\"" + data.comment_id + "\">0</span><br> \
+                                                   <i class=\"fi-arrow-down comment_downvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
+                                               </div> \
+                                           </div> \
+                                        </div> \
+                                      </div>");
+        }
         body.val("");
-        setTimeout(function() {
-          
-        })
-        console.log(comment);
       } else {
         $("#comment_submit_error").show();
         setTimeout(function() {
