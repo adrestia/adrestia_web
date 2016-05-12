@@ -2,6 +2,8 @@
 
 namespace AppBundle\Controller;
 
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Email as EmailConstraint;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -9,7 +11,12 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use AppBundle\Controller\RegistrationController;
 use AppBundle\Entity\Post;
+use AppBundle\Entity\User;
+use AppBundle\Entity\College;
+use AppBundle\Entity\EmailAuth;
+use AppBundle\Helper\Utilities;
 
 /**
  * @Route("/api")
@@ -22,6 +29,143 @@ class APIController extends Controller
     public function indexAction(Request $request)
     {
         return new JsonResponse(array('name' => $name));
+    }
+    
+    /**
+     * @Route("/register", name="api_register")
+     * @Method({"POST"})
+     */
+    public function registerAction(Request $request)
+    {
+        $email = $request->get('email');
+        $plain_password = $request->get('password');
+        $college_id = $request->get('college_id');
+        
+        // Validation checks
+        $emailConstraint = new EmailConstraint();
+        $emailConstraint->message = "Not a valid email address.";
+        
+        $errors = $this->get('validator')->validate(
+            $email,
+            $emailConstraint 
+        );
+        
+        // Make sure email is valid
+        if(count($errors) > 0) {
+            return new JsonResponse(
+                array(
+                    'status' => 403, 
+                    'error' => (string)$errors,
+                )
+            );
+        }
+        
+        // Make sure email ends in .edu
+        $edu_pattern = "/\.edu$/";
+        if(!preg_match($edu_pattern, $email)) {
+            return new JsonResponse(
+                array(
+                    'status' => 403, 
+                    'error' => $email . ' is not a .edu email address.'
+                )
+            );
+        }
+        
+        // Make sure password is at least 8 characters
+        if(strlen($plain_password) < 8) {
+            return new JsonResponse(
+                array(
+                    'status' => 403, 
+                    'error' => 'Password must be at least 8 characters.'
+                )
+            );
+        }
+
+        $em = Utilities::getEntityManager($this);
+        
+        // Make sure user doesn't already exist in the database
+        $user = $em->getRepository('AppBundle:User')
+                   ->findOneBy(array('email' => $email));
+        
+        if($user) {
+            return new JsonResponse(
+                array(
+                    'status' => 403, 
+                    'error' => 'User already exists.'
+                )
+            ); 
+        }
+        
+        // Passed validation. Create the user.
+        $user = new User();
+        
+        $user->setEmail($email);
+        
+        // Encode the password
+        $password = $this->get('security.password_encoder')
+            ->encodePassword($user, $plain_password);
+        $user->setPassword($password);
+        
+        // Set the college of the user
+        $college = $em->getRepository('AppBundle:College')
+                      ->find($college_id);
+        
+        if(!$college) {
+            return new JsonResponse(
+                array(
+                    'status' => 403, 
+                    'error' => 'Error looking up college in database.'
+                )
+            );
+        }
+        
+        $user->setCollege($college);
+        
+        // Get a unique API key
+        do {
+            $apikey = RegistrationController::guidv4();
+            $entity = $em->getRepository('AppBundle\Entity\User')->findOneBy(array('api_key' => $apikey));
+        } while($entity !== null);
+        
+        // Set their API key
+        $user->setApiKey($apikey);
+        
+        // Create an email confirmation token
+        $email_auth = new EmailAuth();
+        
+        // Generate a new token for confirmation
+        do {
+            $token = RegistrationController::guidv4();
+            $entity = $em->getRepository('AppBundle:EmailAuth')->findOneBy(array('token' => $token));
+        } while($entity !== null);
+        
+        // Configure the confirmation token
+        $email_auth->setToken($token);
+        $email_auth->setUser($user);
+        
+        // Save the user
+        $em->persist($user);
+        $em->persist($email_auth);
+        $em->flush();
+        
+        // Send the confirmation email
+        $sent = RegistrationController::sendEmail($user->getEmail(), $token);
+        
+        if($sent) {
+            return new JsonResponse(
+                array(
+                    'status' => 200, 
+                    'message' => 'Email has been sent to ' . $email,
+                )
+            ); 
+        } else {
+            return new JsonResponse(
+                array(
+                    'status' => 500, 
+                    'error' => 'Unable to send email.'
+                )
+            ); 
+        }
     }
     
     /**

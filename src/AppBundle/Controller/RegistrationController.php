@@ -149,7 +149,7 @@ class RegistrationController extends Controller
         }   
     }
     
-    protected function guidv4()
+    public function guidv4()
     {
         $data = openssl_random_pseudo_bytes(16);
         assert(strlen($data) == 16);
@@ -160,7 +160,7 @@ class RegistrationController extends Controller
         return vsprintf('%s%s%s%s%s%s%s%s', str_split(bin2hex($data), 4));
     }
     
-    protected function sendEmail($address, $token) {
+    public function sendEmail($address, $token) {
         $message = \Swift_Message::newInstance()
                 ->setSubject('Welcome to College Confessions!')
                 ->setFrom(array('adrestiaweb@gmail.com' => 'College Confessions'))
@@ -181,6 +181,6 @@ class RegistrationController extends Controller
                     ),
                     'text/plain'
                 );
-        $this->get('mailer')->send($message);
+        return $this->get('mailer')->send($message);
     }
 }

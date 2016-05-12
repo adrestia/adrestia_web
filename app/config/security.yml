@@ -38,6 +38,10 @@ security:
         policy_firewall:
             pattern: ^/(privacy|content|terms)
             anonymous: ~
+            
+        api_register_firewall:
+            pattern: ^/api/(register)
+            anonymous: ~
 
         api:
             pattern:    ^/api
