@@ -99,23 +99,27 @@ class CommentController extends Controller
             if(!isset($like)) {
                 $like = new CommentLikes;
                 $like->setIsLike(true);
-                $like->setUser(Utilities::getCurrentUser($this));
+                $like->setUser($user);
                 $like->setComment($comment);
                 $comment->setUpvotes($comment->getUpvotes() + 1);
+                $user->setScore($user->getScore() + 1);
                 $comment->addLike($like);
                 $em->persist($like);
             } else {
                 if($like->getIsLike()) {
                     $comment->setUpvotes($comment->getUpvotes() - 1);
+                    $user->setScore($user->getScore() - 1);
                     $comment->removeLike($like);
                     $em->remove($like);
                 } else {
                     $comment->setUpvotes($comment->getUpvotes() + 1);
                     $comment->setDownvotes($comment->getDownvotes() - 1);
+                    $user->setScore($user->getScore() + 2);
                     $like->setIsLike(true);
                     $em->persist($like);
                 }
             }
+            $em->persist($user);
             $em->persist($comment);
             $em->flush();
             $score = ($comment->getUpvotes() - $comment->getDownvotes());
@@ -161,23 +165,27 @@ class CommentController extends Controller
             if(!isset($like)) {
                 $dislike = new CommentLikes;
                 $dislike->setIsLike(false);
-                $dislike->setUser(Utilities::getCurrentUser($this));
+                $dislike->setUser($user);
                 $dislike->setComment($comment);
                 $comment->setDownvotes($comment->getDownvotes() + 1);
+                $user->setScore($user->getScore() - 1);
                 $comment->addLike($dislike);
                 $em->persist($dislike);
             } else {
                 if($like->getIsLike()) {
                     $comment->setUpvotes($comment->getUpvotes() - 1);
                     $comment->setDownvotes($comment->getDownvotes() + 1);
+                    $user->setScore($user->getScore() - 2);
                     $like->setIsLike(false);
                     $em->persist($like);
                 } else {
                     $comment->setDownvotes($comment->getDownvotes() - 1);
+                    $user->setScore($user->getScore() + 1);
                     $em->remove($like);
                     $comment->removeLike($like);
                 }
             }
+            $em->persist($user);
             $em->persist($comment);
             $em->flush();
             $score = ($comment->getUpvotes() - $comment->getDownvotes());
