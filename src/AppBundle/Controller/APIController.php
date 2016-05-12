@@ -54,7 +54,7 @@ class APIController extends Controller
         if(count($errors) > 0) {
             return new JsonResponse(
                 array(
-                    'status' => 403, 
+                    'status' => 400, 
                     'error' => (string)$errors,
                 )
             );
@@ -65,7 +65,7 @@ class APIController extends Controller
         if(!preg_match($edu_pattern, $email)) {
             return new JsonResponse(
                 array(
-                    'status' => 403, 
+                    'status' => 400, 
                     'error' => $email . ' is not a .edu email address.'
                 )
             );
@@ -75,7 +75,7 @@ class APIController extends Controller
         if(strlen($plain_password) < 8) {
             return new JsonResponse(
                 array(
-                    'status' => 403, 
+                    'status' => 400, 
                     'error' => 'Password must be at least 8 characters.'
                 )
             );
@@ -90,7 +90,7 @@ class APIController extends Controller
         if($user) {
             return new JsonResponse(
                 array(
-                    'status' => 403, 
+                    'status' => 400, 
                     'error' => 'User already exists.'
                 )
             ); 
@@ -113,7 +113,7 @@ class APIController extends Controller
         if(!$college) {
             return new JsonResponse(
                 array(
-                    'status' => 403, 
+                    'status' => 500, 
                     'error' => 'Error looking up college in database.'
                 )
             );
@@ -165,6 +165,89 @@ class APIController extends Controller
                     'error' => 'Unable to send email.'
                 )
             ); 
+        }
+    }
+    
+    /**
+     * @Route("/login", name="api_login")
+     * @Method({"POST"})
+     */
+    public function loginAction(Request $request)
+    {
+        $email = $request->get('email');
+        $plain_password = $request->get('password');
+        
+        // Validation checks
+        $emailConstraint = new EmailConstraint();
+        $emailConstraint->message = "Not a valid email address.";
+        
+        $errors = $this->get('validator')->validate(
+            $email,
+            $emailConstraint 
+        );
+        
+        // Make sure email is valid
+        if(count($errors) > 0) {
+            return new JsonResponse(
+                array(
+                    'status' => 400, 
+                    'error' => (string)$errors,
+                )
+            );
+        }
+        
+        // Make sure email ends in .edu
+        $edu_pattern = "/\.edu$/";
+        if(!preg_match($edu_pattern, $email)) {
+            return new JsonResponse(
+                array(
+                    'status' => 400, 
+                    'error' => $email . ' is not a .edu email address.'
+                )
+            );
+        }
+        
+        // Make sure password is at least 8 characters
+        if(strlen($plain_password) < 8) {
+            return new JsonResponse(
+                array(
+                    'status' => 400, 
+                    'error' => 'Password must be at least 8 characters.'
+                )
+            );
+        }
+        
+        // Password and Email have passed basic checks
+        // Time to find the data
+        $em = Utilities::getEntityManager($this);
+        
+        // Find a user
+        $user = $em->getRepository('AppBundle:User')
+                   ->findOneBy(array('email' => $email, 'is_active' => 1));
+        
+        if(!$user) {
+            return new JsonResponse(
+                array(
+                    'status' => 400, 
+                    'error' => 'Username or password incorrect.'
+                )
+            ); 
+        }
+        
+        if(password_verify($plain_password, $user->getPassword())) {
+            return new JsonResponse(
+                array(
+                    'status' => 200, 
+                    'api_key' => $user->getApiKey(),
+                )
+            );
+        } else {
+            return new JsonResponse(
+                array(
+                    'status' => 401, 
+                    'error' => 'Username or password incorrect.',
+                )
+            );
         }
     }
     
