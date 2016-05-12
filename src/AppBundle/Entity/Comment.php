@@ -43,11 +43,6 @@ class Comment
     * @ORM\Column(name="downvotes", type="integer")
     */
     private $downvotes = 0;
-    
-    /**
-    * @ORM\Column(name="score", type="integer")
-    */
-    private $score = 0;
   
     /** 
     * @ORM\Column(name="reports", type="integer")
@@ -70,6 +65,16 @@ class Comment
      * @JoinColumn(name="post_id", referencedColumnName="id")
      */
     private $post;
+    
+    /**
+     * @OneToMany(targetEntity="CommentLikes", mappedBy="comment")
+     */
+    private $likes;
+    
+    /**
+     * @ORM\Column(name="hidden", type="boolean")
+     */
+    private $hidden = false;
   
     /**
     * @var \Datetime $created
@@ -78,6 +83,14 @@ class Comment
     * @ORM\Column(type="datetime")
     */
     private $created;
+    
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->likes = new \Doctrine\Common\Collections\ArrayCollection();
+    }
 
     /**
      * Get id
@@ -159,30 +172,6 @@ class Comment
     public function getDownvotes()
     {
         return $this->downvotes;
-    }
-
-    /**
-     * Set score
-     *
-     * @param integer $score
-     *
-     * @return Comment
-     */
-    public function setScore($score)
-    {
-        $this->score = $score;
-
-        return $this;
-    }
-
-    /**
-     * Get score
-     *
-     * @return integer
-     */
-    public function getScore()
-    {
-        return $this->score;
     }
 
     /**
@@ -303,5 +292,63 @@ class Comment
     public function getPost()
     {
         return $this->post;
+    }
+
+    /**
+     * Add like
+     *
+     * @param \AppBundle\Entity\PostLikes $like
+     *
+     * @return Comment
+     */
+    public function addLike(\AppBundle\Entity\CommentLikes $like)
+    {
+        $this->likes[] = $like;
+
+        return $this;
+    }
+
+    /**
+     * Remove like
+     *
+     * @param \AppBundle\Entity\PostLikes $like
+     */
+    public function removeLike(\AppBundle\Entity\CommentLikes $like)
+    {
+        $this->likes->removeElement($like);
+    }
+
+    /**
+     * Get likes
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getLikes()
+    {
+        return $this->likes;
+    }
+
+    /**
+     * Set hidden
+     *
+     * @param boolean $hidden
+     *
+     * @return Comment
+     */
+    public function setHidden($hidden)
+    {
+        $this->hidden = $hidden;
+
+        return $this;
+    }
+
+    /**
+     * Get hidden
+     *
+     * @return boolean
+     */
+    public function getHidden()
+    {
+        return $this->hidden;
     }
 }

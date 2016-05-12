@@ -1,10 +1,5 @@
-html, body {
-    background: #F1F1F1;
-    font-family: 'San Francisco';
-}
-
 .wrapper {
-    margin-top: 100px;
+    margin-top: 40px;
 }
 
 .post {
@@ -27,24 +22,25 @@ div.body {
     word-wrap: break-word;
 }
 
-.report {
+.post_report {
     font-size: .75em;
     position: absolute;
     bottom: 10px;
 }
 
-.remove {
+.post_remove {
     font-size: .75em;
     color: #F2363F;
     position: absolute;
     bottom: 10px;
     left: 70px;
 }
-.remove:hover {
+
+.post_remove:hover {
     text-decoration: underline;
 }
 
-.report:hover {
+.post_report:hover {
     text-decoration: underline;
 }
 
@@ -79,7 +75,7 @@ div.body {
     color: #FF4081;
 }
 
-.upvote, .downvote {
+.post_upvote, .post_downvote {
     cursor: pointer;
 }
 

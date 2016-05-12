@@ -11,11 +11,14 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Security;
+use AppBundle\Form\ChangePasswordType;
+use AppBundle\Form\Model\ChangePassword;
 use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Post;
 use AppBundle\Entity\PostLikes;
 use AppBundle\Entity\Comment;
+use AppBundle\Helper\Utilities;
 
 /**
  * @Route("/")
@@ -28,9 +31,9 @@ class DefaultController extends Controller
      */
     public function indexAction(Request $request, $sorting)
     {
-        $em = self::getEntityManager();
+        $em = Utilities::getEntityManager($this);
         
-        $user = self::getCurrentUser($this);
+        $user = Utilities::getCurrentUser($this);
         
         /*
         EQUIVALENT QUERY TO BUILDER BELOW
@@ -40,6 +43,7 @@ class DefaultController extends Controller
                 p.created, l.is_like, l.user_id, 
                 l.post_id, SUM(p.upvotes - p.downvotes) AS top
          FROM posts p
+         WHERE p.college = :college AND p.hidden = false
          LEFT JOIN post_likes l
          ON p.id = l.post_id AND l.user_id = ? 
          GROUP BY p.id, p.user_id, p.body, p.upvotes
@@ -87,272 +91,39 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/comments/new", name="new_comment")
+     * @Route("/profile", name="profile")
      */
-    public function newCommentAction(Request $request) 
+    public function profileAction(Request $request) 
     {
-        // Only make the request submission on a POST request
-        if($request->isMethod('POST')) {
+        $changePasswordModel = new ChangePassword();
+        $form = $this->createForm(ChangePasswordType::class, $changePasswordModel);
 
-            $post_id = $request->get('post_id');
+        $form->handleRequest($request);
+        
+        $em = Utilities::getEntityManager($this);
+        $user = Utilities::getCurrentUser($this);
 
-            // Get the Post Number
-            $post = $this->getDoctrine()
-                     ->getRepository('AppBundle:Post')
-                     ->find($post_id);
-
-            // Need to get the current user based on security acces
-            $user = self::getCurrentUser($this);
-
-            // Get the User's IP address
-            $comment_ip = self::getCurrentIp($this);
-        
-            // Get the body of the comment from the request
-            $body = $request->get('body');
-        
-            // We have everything we need now
-            // Time to add the post to the database
-            try {
-                $em = self::getEntityManager();
-                $comment = new Comment;
-                $comment->setPost($post);
-                $comment->setBody($body);
-                $comment->setIpAddress($comment_ip);
-                $comment->setUser($user);
-                $em->persist($comment);
-                $em->flush();
-                return new JsonResponse(array('status' => 200, 'message' => 'Success in posting comments'));
-            } catch (\Doctrine\DBAL\DBALException $e) {
-                return new JsonResponse(array('status' => 400, 'message' => 'Unable to comment.'));
-            }   
-        } else {
-            return $this->render('post/post.html.twig');
-        }
-    }
-    
-    /**
-     * @Route("/posts/new", name="new_post")
-     */
-    public function newPostAction(Request $request) 
-    {
-        // Only make the request submission on a POST request
-        if($request->isMethod('POST')) {
-            // Get the User's IP address
-            $post_ip = self::getCurrentIp($this);
-        
-            // Need to get the current user based on security acces
-            $user = self::getCurrentUser($this);
-        
-            // Get the body of the post from the request
-            $body = $request->get('body');
-        
-            // We have everything we need now
-            // Time to add the post to the database
-            try {
-                $em = self::getEntityManager();
-                $post = new Post;
-                $post->setBody($body);
-                $post->setIpAddress($post_ip);
-                $post->setCollege($user->getCollege());
-                $post->setUser($user);
-                $em->persist($post);
-                $em->flush();
-                return new JsonResponse(array('status' => 200, 'message' => 'Success'));
-            } catch (\Doctrine\DBAL\DBALException $e) {
-                return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
-            }   
-        } else {
-            return $this->render('default/new_post.html.twig');
-        }
-    }
-
-    /**
-     * @Route("/posts/{post_id}", name="post_view", requirements={"post_id" = "\d+"})
-     */
-    public function viewPostAction(Request $request, $post_id) 
-    {
-        $user = self::getCurrentUser($this);
-        
-        // Get the post from the post_id in the database
-        $post = $this->getDoctrine()
-                     ->getRepository('AppBundle:Post')
-                     ->find($post_id);
-        
-        $like = $this->getDoctrine()
-                      ->getRepository('AppBundle:PostLikes')
-                      ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
-    
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$post) {
-            throw $this->createNotFoundException(
-                "Post not found!"
-            );
-        }
-        
-        return $this->render('default/post.html.twig', [
-            'post' => $post, 
-            'like' => $like
-        ]);
-    }
-    
-     /**
-     * @Route("/upvote", name="upvote")
-     * @Method({"POST"})
-     */
-    public function upvoteAction(Request $request) 
-	{
-        // Get post id from the request
-        $post_id = $request->get("post_id");
-        
-        // Get current user
-        $user = self::getCurrentUser($this);
-        
-        // Get the entity manager for Doctrine
-        $em = self::getEntityManager();
-
-		// Get the post from the post_id in the database
-        $post = $em->getRepository('AppBundle:Post')
-                   ->find($post_id);
-    
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$post) {
-            throw $this->createNotFoundException(
-                'No post found for id ' . $id
-            );
-        }
-
-        try{
-            $like = $em->getRepository('AppBundle:PostLikes')
-                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+        if ($form->isSubmitted() && $form->isValid()) {
+            $password = $this->get('security.password_encoder')
+                ->encodePassword($user, $changePasswordModel->getNewPassword());
+            $user->setPassword($password);
+            $em->persist($user);
+            $em->flush();
             
-            if(!isset($like)) {
-                $like = new PostLikes;
-                $like->setIsLike(true);
-                $like->setUser(self::getCurrentUser($this));
-                $like->setPost($post);
-                $post->setUpvotes($post->getUpvotes() + 1);
-                $post->addLike($like);
-                $em->persist($like);
-            } else {
-                if($like->getIsLike()) {
-                    $post->setUpvotes($post->getUpvotes() - 1);
-                    $post->removeLike($like);
-                    $em->remove($like);
-                } else {
-                    $post->setUpvotes($post->getUpvotes() + 1);
-                    $post->setDownvotes($post->getDownvotes() - 1);
-                    $like->setIsLike(true);
-                    $em->persist($like);
-                }
-            }
-            $post->setScore(self::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
-            $em->persist($post);
-            $em->flush();
-            $score = ($post->getUpvotes() - $post->getDownvotes());
-        } catch (\Docrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
-        }
-        
-        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
-	}
-    
-    /**
-     * @Route("/downvote", name="downvote")
-     * @Method({"POST"})
-     */
-    public function downvoteAction(Request $request) 
-    {
-        // Get the post_id
-        $post_id = $request->get('post_id');
-        
-        // Get current user
-        $user = self::getCurrentUser($this);
-        
-        // Get the entity manager
-        $em = self::getEntityManager();
-        
-        // Get the post from the post_id in the database
-        $post = $em->getRepository('AppBundle:Post')
-                   ->find($post_id);
-        
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$post) {
-            throw $this->createNotFoundException(
-                'No post found for id ' . $id
+            return $this->render(
+                'default/profile.html.twig', array(
+                    'form' => $form->createView(),
+                    'flash' => "Successfully Updated Password!",
+                )
             );
         }
 
-        // Try to add the downvote
-        try {
-            $like = $em->getRepository('AppBundle:PostLikes')
-                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
-
-            if(!isset($like)) {
-                $dislike = new PostLikes;
-                $dislike->setIsLike(false);
-                $dislike->setUser(self::getCurrentUser($this));
-                $dislike->setPost($post);
-                $post->setDownvotes($post->getDownvotes() + 1);
-                $post->addLike($dislike);
-                $em->persist($dislike);
-            } else {
-                if($like->getIsLike()) {
-                    $post->setUpvotes($post->getUpvotes() - 1);
-                    $post->setDownvotes($post->getDownvotes() + 1);
-                    $like->setIsLike(false);
-                    $em->persist($like);
-                } else {
-                    $post->setDownvotes($post->getDownvotes() - 1);
-                    $em->remove($like);
-                    $post->removeLike($like);
-                }
-            }
-            $post->setScore(self::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
-            $em->persist($post);
-            $em->flush();
-            $score = ($post->getUpvotes() - $post->getDownvotes());
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike. $e->message'));  
-        }
-
-        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting', 'score' => $score));
+        return $this->render(
+            'default/profile.html.twig', array(
+                'form' => $form->createView(),
+            )
+        );
     }
-    
-    /**
-     * @Route("/remove", name="remove")
-     * @Method({"POST"})
-     */
-    public function removePost(Request $request) 
-    {
-         // Get post id from the request
-        $post_id = $request->get("post_id");
-
-        // Get the post from the post_id in the database
-        $post = $this->getDoctrine()
-                     ->getRepository('AppBundle:Post')
-                     ->find($post_id);
-    
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$post) {
-            throw $this->createNotFoundException(
-                'No post found for id ' . $id
-            );
-        }
-        
-        // Time to delete the post to the database
-        try {
-            $em = self::getEntityManager();
-            $em->remove($post);
-            $em->flush();
-            return new JsonResponse(array('status' => 200, 'message' => 'Success'));
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
-        }   
-    } 
     
     /**
      * @Route("/login", name="login")
@@ -378,79 +149,10 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/confirm/{token}", name="confirm_email")
-     */
-    public function confirmEmailAction(Request $request, $token) {
-        
-        $em = self::getEntityManager();
-        
-        $auth = $em->getRepository("AppBundle:EmailAuth")
-                   ->findOneBy(array('token' => $token, 'verified' => false));
-        
-        if(!$auth) {
-            return $this->render(
-                'security/confirm.html.twig',
-                array(
-                    'error' => 'Token is invalid or has already been used',
-                )
-            );
-        }
-            
-        $user = $em->getRepository("AppBundle:User")
-                   ->find($auth->getUser());
-        
-        if(!$user) {
-            return $this->render(
-                'security/confirm.html.twig',
-                array(
-                    'error' => 'User could not be found. Please contact support at adrestiaweb@gmail.com.',
-                )
-            );
-        }
-        
-        $user->setEmailConfirmed(true);
-        $auth->setVerified(true);
-        $em->persist($user);
-        $em->persist($auth);
-        $em->flush();
-        
-        return $this->render(
-            'security/confirm.html.twig'
-        );
-    }
-    
-    /**
      * @Route("/login_check", name="login_check")
      */
     public function loginCheckAction(Request $request) {
         
-    }
-    
-    /**
-     * @Route("/suffix", name="email_suffix")
-     * @Method({"POST"})
-     */
-    public function suffixAction(Request $request) {
-        $name = $request->get('college');
-        
-        try {
-            $em = self::getEntityManager();
-        
-            $college = $em->getRepository('AppBundle:College')
-                          ->findOneBy(array('name' => $name));
-            
-            if(!$college) {
-                throw $this->createNotFoundException(
-                    'No college found with name ' . $name
-                );
-            }
-            
-            $suffix = $college->getSuffix();
-            
-            return new JsonResponse(array('status' => 200, 'suffix' => $suffix));
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to get suffix.'));
-        }   
     }
     
     /**
@@ -472,54 +174,5 @@ class DefaultController extends Controller
      */
     public function contentAction(Request $request) {
         return $this->render('default/content.html.twig');
-    }
-    
-    /**
-     * @return Doctrine entity manager
-     */
-    protected function getEntityManager() {
-        return $this->get('doctrine')->getManager();
-    }
-    
-    /**
-     * @param $context – pss in $this as the variable
-     * @return IP Address from the request
-     */
-    protected function getCurrentIp($context) {
-        return $context->container->get('request_stack')->getMasterRequest()->getClientIp();
-    }
-    
-    /**
-     * @param $context – pass in $this as the variable
-     * @return the User object that is currently authenticated
-     */
-    protected function getCurrentUser($context) {
-        return $context->get('security.token_storage')->getToken()->getUser();
-    }
-    
-    /**
-     * The reddit hotness algorithm!
-     *
-     * @param $ups – Number of post upvotes
-     * @param $downs – Number of post downvotes
-     * @param $date – When the post was submitted
-     *
-     * @return calculated score of how hot a post is
-     */
-    private function hot($ups, $downs, $date) {
-        $score = $ups - $downs;
-        $order = log10(max(abs($score), 1));
-        
-        if($score > 0) {
-            $sign = 1;
-        } elseif($score < 0) {
-            $sign = -1;
-        } else {
-            $sign = 0;
-        }
-        
-        $seconds = $date->getTimestamp() - 1134028003;
-        
-        return round($order * $sign + $seconds / 45000, 7);
     }
 }

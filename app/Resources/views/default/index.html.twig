@@ -4,29 +4,39 @@
     <link rel="stylesheet" href="/css/index.css" type="text/css" media="screen">
 {% endblock %}
 
+{% block left_menu %}
+{% if sorting == "hot" %}
+    <a href="/hot">Hot</a>
+{% elseif sorting == "new" %}
+    <a href="/new">New</a>
+{% else %}
+    <a href="/top">Top</a>
+{% endif %}
+<ul class="menu vertical">
+    <li class="tab {% if sorting == "hot" %}is-active{% endif %}"><a href="/hot" {% if sorting == "hot" %}aria-selected="true"{% endif %}>Hot</a></li>
+    <li class="tab {% if sorting == "new" %}is-active{% endif %}"><a href="/new" {% if sorting == "new" %}aria-selected="true"{% endif %}>New</a></li>
+    <li class="tab {% if sorting == "top" %}is-active{% endif %}"><a href="/top" {% if sorting == "top" %}aria-selected="true"{% endif %}>Top</a></li>
+</ul>
+{% endblock %}
+
+{% block right_menu %}
+    <li><a class="tab" href="{{ path('new_post')}}">New Post</a></li>
+{% endblock %}
+
 {% block body %}
-    <div class="row">
-        <div class="small-10 medium-8 small-centered tabs-row columns">
-            <ul class="tabs" data-tabs id="example-tabs">
-              <li class="tabs-title {% if sorting == "hot" %}is-active{% endif %}"><a href="/hot" {% if sorting == "hot" %}aria-selected="true"{% endif %}>Hot</a></li>
-              <li class="tabs-title {% if sorting == "new" %}is-active{% endif %}"><a href="/new" {% if sorting == "new" %}aria-selected="true"{% endif %}>New</a></li>
-              <li class="tabs-title {% if sorting == "top" %}is-active{% endif %}"><a href="/top" {% if sorting == "top" %}aria-selected="true"{% endif %}>Top</a></li>
-            </ul>
-        </div>
-    </div>
     <div class="row wrapper">
         <div class="small-10 medium-8 small-centered columns">
             {% for post in posts %}
                 <div class="row post" data-post-id="{{post.id}}">
                     <div class="small-11 columns body">
                         <p class="post_body">{{ post.body }}</p>
-                        <a href="#" class="report" data-post-id="{{post.id}}">Report</a>
+                        <a href="#" class="post_report" data-post-id="{{post.id}}">Report</a>
                         <a href="{{ path('post_view', {'post_id': post.id }) }}" class="view_post">Comments ({{ post.comments|length }})</a>
                     </div>
                     <div class="small-1 columns score">
-                        <i class="fi-arrow-up upvote {% if post.likes|length > 0 and post.likes.first.getIsLike %}blue{% endif %}" data-post-id="{{post.id}}"></i><br>
+                        <i class="fi-arrow-up post_upvote {% if post.likes|length > 0 and post.likes.first.getIsLike %}blue{% endif %}" data-post-id="{{post.id}}"></i><br>
                         <span class="score_number" data-post-id="{{post.id}}">{{ post.upvotes - post.downvotes }}</span><br>
-                        <i class="fi-arrow-down downvote {% if post.likes|length > 0 and not post.likes.first.getIsLike %}pink{% endif %}" data-post-id="{{post.id}}"></i><br>
+                        <i class="fi-arrow-down post_downvote {% if post.likes|length > 0 and not post.likes.first.getIsLike %}pink{% endif %}" data-post-id="{{post.id}}"></i><br>
                     </div>
                 </div>
             {% endfor %}

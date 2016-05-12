@@ -394,7 +394,6 @@ class Post
     {
         return $this->college;
     }
-<<<<<<< HEAD
 
     /**
      * Set hidden
@@ -419,6 +418,4 @@ class Post
     {
         return $this->hidden;
     }
-=======
->>>>>>> 95e26fa4cdc24391c407841279218da1c0c78e9e
 }
