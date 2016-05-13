@@ -80,9 +80,15 @@ doctrine:
             softdeleteable:
                 class: Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter
                 enabled: true
+                
+# Doctrine Migrations
+doctrine_migrations:
+    dir_name: "%kernel.root_dir%/DoctrineMigrations"
+    namespace: Application\Migrations
+    table_name: migration_versions
+    name: Application Migrations
 
 # Stof Doctrine Extensions
-
 stof_doctrine_extensions:
     default_locale: en_US
     orm:

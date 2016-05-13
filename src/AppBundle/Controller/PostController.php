@@ -162,24 +162,28 @@ class PostController extends Controller
             if(!isset($like)) {
                 $like = new PostLikes;
                 $like->setIsLike(true);
-                $like->setUser(Utilities::getCurrentUser($this));
+                $like->setUser($user);
                 $like->setPost($post);
                 $post->setUpvotes($post->getUpvotes() + 1);
+                $user->setScore($user->getScore() + 1);
                 $post->addLike($like);
                 $em->persist($like);
             } else {
                 if($like->getIsLike()) {
                     $post->setUpvotes($post->getUpvotes() - 1);
+                    $user->setScore($user->getScore() - 1);
                     $post->removeLike($like);
                     $em->remove($like);
                 } else {
                     $post->setUpvotes($post->getUpvotes() + 1);
                     $post->setDownvotes($post->getDownvotes() - 1);
+                    $user->setScore($user->getScore() + 2);
                     $like->setIsLike(true);
                     $em->persist($like);
                 }
             }
             $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
+            $em->persist($user);
             $em->persist($post);
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());
@@ -225,24 +229,28 @@ class PostController extends Controller
             if(!isset($like)) {
                 $dislike = new PostLikes;
                 $dislike->setIsLike(false);
-                $dislike->setUser(Utilities::getCurrentUser($this));
+                $dislike->setUser($user);
                 $dislike->setPost($post);
                 $post->setDownvotes($post->getDownvotes() + 1);
+                $user->setScore($user->getScore() - 1);
                 $post->addLike($dislike);
                 $em->persist($dislike);
             } else {
                 if($like->getIsLike()) {
                     $post->setUpvotes($post->getUpvotes() - 1);
                     $post->setDownvotes($post->getDownvotes() + 1);
+                    $user->setScore($user->getScore() - 2);
                     $like->setIsLike(false);
                     $em->persist($like);
                 } else {
                     $post->setDownvotes($post->getDownvotes() - 1);
+                    $user->setScore($user->getScore() + 1);
                     $em->remove($like);
                     $post->removeLike($like);
                 }
             }
             $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
+            $em->persist($user);
             $em->persist($post);
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());

@@ -25,6 +25,14 @@ div.body {
     bottom: 10px;
 }
 
+.post_time {
+    font-size: .75em;
+    color: #808080;
+    position: absolute;
+    bottom: 10px;
+    left: 120px;
+}
+
 .post_remove {
     font-size: .75em;
     color: #F2363F;
@@ -59,4 +67,12 @@ div.body {
 
 .op {
     margin-left: -.5rem !important;
+}
+
+.comment_time {
+    font-size: .75em;
+    color: #808080;
+    position: absolute;
+    bottom: 10px;
+    left: 65px;
 }
