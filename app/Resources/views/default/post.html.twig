@@ -17,6 +17,7 @@
                     <p class="post_body">{{ post.body }}</p>
                     <a href="#" class="post_report" data-post-id="{{post.id}}">Report</a>
                     <a href="#" class="post_remove" data-post-id="{{post.id}}">Remove</a>
+                    <span class="post_time" data-post-id="{{post.id}}">{{ post.created|date('m/d H:i') }}</span>
                 </div>
                 <div class="small-1 columns score">
                     <i class="fi-arrow-up post_upvote {% if like is not null and like.getIsLike %}blue{% endif %}" data-post-id="{{post.id}}"></i><br>
@@ -37,6 +38,7 @@
                             <div class="small-11 columns body">
                                 <p class="comment_body">{{ comment.body }}</p>
                                 <a href="#" class="comment_report" data-comment-id="{{comment.id}}">Report</a>
+                                <span class="comment_time" data-comment-id="{{comment.id}}">{{ comment.created|date('m/d H:i') }}</span>
                             </div>
                             <div class="small-1 columns score">
                                 <i class="fi-arrow-up comment_upvote {% if comment.likes|length > 0 and comment.likes.first.getIsLike %}blue{% endif %}" data-comment-id="{{comment.id}}"></i><br>
