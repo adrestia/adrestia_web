@@ -107,6 +107,7 @@ class DefaultController extends Controller
             $password = $this->get('security.password_encoder')
                 ->encodePassword($user, $changePasswordModel->getNewPassword());
             $user->setPassword($password);
+            $user->setUpdated(new \DateTime);
             $em->persist($user);
             $em->flush();
             

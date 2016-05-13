@@ -25,10 +25,14 @@
                     </li>
                 </ul>
             </div>
+            <div class="top-bar-middle">
+                <ul class="menu">
+                    <li>{% if app.user %} {{ app.user.getCollege.getName }} {% endif %}</li>
+                </ul>
+            </div>
             <div class="top-bar-right">
                 <ul class="menu">
                     {% block right_menu %}{% endblock %}
-                    <li>{% if app.user %} {{ app.user.getCollege.getName }} {% endif %}</li>
                     {% block search %}
                         {#
                         <li><input type="search" placeholder="Search"></li>
