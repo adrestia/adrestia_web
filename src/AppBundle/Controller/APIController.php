@@ -24,14 +24,6 @@ use AppBundle\Helper\Utilities;
 class APIController extends Controller
 {
     /**
-     * @Route("/", name="api_home")
-     */
-    public function indexAction(Request $request)
-    {
-        return new JsonResponse(array('name' => $name));
-    }
-    
-    /**
      * @Route("/register", name="api_register")
      * @Method({"POST"})
      */
@@ -252,27 +244,37 @@ class APIController extends Controller
     }
     
     /**
-     * @Route("/users/{user_id}", name="get_user", requirements={"id" = "\d+"})
-     */ 
-    public function getUserAction(Request $request, $user_id)
+     * @Route("/posts", name="api_new_post")
+     * @Method({"POST"})
+     */
+    public function newPostAction(Request $request) 
     {
-        // Get the user by their user_id from the database
-        $user = $this->getDoctrine()
-                     ->getRepository('AppBundle:User')
-                     ->find($user_id);
+        // Get the User's IP address
+        $post_ip = Utilities::getCurrentIp($this);
     
-        // If something other than a user is returned (incuding null)
-        // throw an error.
-        if (!$user) {
-            throw $this->createNotFoundException(
-                'No user found for id ' . $user_id
-            );
+        // Need to get the current user based on security acces
+        $user = Utilities::getCurrentUser($this);
+    
+        // Get the body of the post from the request
+        $body = $request->get('body');
+    
+        // We have everything we need now
+        // Time to add the post to the database
+        try {
+            $em = Utilities::getEntityManager($this);
+            $post = new Post;
+            $post->setBody($body);
+            $post->setScore(Utilities::hot(0, 0, new \DateTime('NOW')));
+            $post->setIpAddress($post_ip);
+            $post->setCollege($user->getCollege());
+            $post->setUser($user);
+            $em->persist($post);
+            $em->flush();
+            return new JsonResponse(array('status' => 200, 'message' => 'Success', 'post_id' => $post->getId()));
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
         }
-        
-        $serializer = $this->container->get('serializer');
-        $reports = $serializer->serialize($user, 'json');
-        return new Response($reports);
-    }    
+    }
     
     /**
      * @Route("/posts/{post_id}", name="get_post", requirements={"id" = "\d+"})
@@ -295,37 +297,6 @@ class APIController extends Controller
         $serializer = $this->container->get('serializer');
         $reports = $serializer->serialize($post, 'json');
         return new Response($reports);
-    }
-    
-    /**
-     * @Route("/posts", name="new_post")
-     * @Method({"POST"})
-     */
-    public function newPostAction(Request $request) 
-    {
-        // Get the User's IP address
-        $post_ip = self::getCurrentIp($this);
-        
-        // Need to get the current user based on security acces
-        $user = self::getCurrentUser($this);
-        
-        // Get the body of the post from the request
-        $body = $request->get('body');
-        
-        // We have everything we need now
-        // Time to add the post to the database
-        try {
-            $em = self::getEntityManager();
-            $post = new Post;
-            $post->setBody($body);
-            $post->setIpAddress($post_ip);
-            $post->setUser($user);
-            $em->persist($post);
-            $em->flush();
-            return new JsonResponse(array('status' => 200, 'message' => 'Success'));
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
-        }   
     }
     
     /**
