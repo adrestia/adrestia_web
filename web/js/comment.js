@@ -14,12 +14,15 @@ $("#comment_form").submit(function(event) {
         var m = today.getMinutes();
         var i = today.getSeconds();
         if(dd<10) {
-            dd='0'+dd
+          dd='0'+dd;
         } 
         if(mm<10) {
-            mm='0'+mm
+          mm='0'+mm;
         } 
-        var now = dd+'/'+mm+'/'+yyyy+' '+H+':'+m+':'+i;
+        if(i<10) {
+          i='0'+i;
+        }
+        var now = yyyy+'-'+mm+'-'+dd+' '+H+':'+m+':'+i;
         
         if(data.is_op) {
           var comment = $(".post_comment").before("<div class=\"row\"> \
