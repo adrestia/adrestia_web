@@ -76,3 +76,8 @@ div.body {
     bottom: 10px;
     left: 65px;
 }
+
+#textarea {
+    resize: none;
+    height: 10em;
+}

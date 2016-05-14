@@ -91,3 +91,7 @@ div.body {
     padding: 0;
     background: #FFF;
 }
+
+.post_body {
+    white-space: pre-wrap;
+}
