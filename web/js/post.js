@@ -4,7 +4,7 @@ $(function() {
 });
 
 $("#post_form").submit(function(event) {
-  var body = $("textarea");
+  var body = $("#textarea");
   $.post("/posts/new", { body: body.val() })
     .done(function( data ) {
       if(data.status === 200) {
@@ -20,6 +20,25 @@ $("#post_form").submit(function(event) {
       console.error(data);
     });
   event.preventDefault();
+});
+
+$("#textarea").bind('input propertychange', function(event) {
+  var remaining = 1024 - $(this).val().length;
+  $("#c_count").html(remaining);
+  
+  if(remaining <= 0) {
+    $("#c_count").removeClass().addClass('alert');
+  } else if(remaining < 100) {
+    $("#c_count").removeClass().addClass('warning');
+  } else {
+    $("#c_count").removeClass();
+  }
+  
+  if(remaining < 0) {
+    $("#post_submit").prop('disabled', true);
+  } else {
+    $("#post_submit").prop('disabled', false);
+  }
 });
 
 $(document).on('click', ".post_upvote", function() {

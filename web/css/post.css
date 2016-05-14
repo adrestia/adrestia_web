@@ -81,3 +81,15 @@ div.body {
     resize: none;
     height: 10em;
 }
+
+#c_count {
+    float: right;
+}
+
+#c_count.warning {
+    color: #FDAD2A;
+}
+
+#c_count.alert {
+    color: #EA5946;
+}
