@@ -36,6 +36,14 @@ div.body {
     left: 70px;
 }
 
+.post_time {
+    font-size: .75em;
+    color: #808080;
+    position: absolute;
+    bottom: 10px;
+    left: 160px;
+}
+
 .post_remove:hover {
     text-decoration: underline;
 }
