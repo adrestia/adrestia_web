@@ -32,7 +32,7 @@
                         <p class="post_body">{{ post.body }}</p>
                         <a href="#" class="post_report" data-post-id="{{post.id}}">Report</a>
                         <a href="{{ path('post_view', {'post_id': post.id }) }}" class="view_post">Comments ({{ post.comments|length }})</a>
-                        <span class="post_time" data-post-id="{{post.id}}" alt="{{post.created|date('m/d H:i')}}">{{ post.created|time_diff }}</span>
+                        <span class="post_time" data-post-id="{{post.id}}" title="{{post.created|date('Y-m-d H:i:s')}}">{{ post.created|time_diff }}</span>
                     </div>
                     <div class="small-1 columns score">
                         <i class="fi-arrow-up post_upvote {% if post.likes|length > 0 and post.likes.first.getIsLike %}blue{% endif %}" data-post-id="{{post.id}}"></i><br>
