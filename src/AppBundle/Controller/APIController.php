@@ -257,6 +257,8 @@ class APIController extends Controller
     
         // Get the body of the post from the request
         $body = $request->get('body');
+        
+        $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
     
         // We have everything we need now
         // Time to add the post to the database
