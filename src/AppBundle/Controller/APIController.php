@@ -31,7 +31,7 @@ class APIController extends Controller
     {
         $email = $request->get('email');
         $plain_password = $request->get('password');
-        $college_id = $request->get('college_id');
+        $college_name = $request->get('college_name');
         
         // Validation checks
         $emailConstraint = new EmailConstraint();
@@ -100,7 +100,7 @@ class APIController extends Controller
         
         // Set the college of the user
         $college = $em->getRepository('AppBundle:College')
-                      ->find($college_id);
+                      ->findOneBy(array('name' => $college_name));
         
         if(!$college) {
             return new JsonResponse(
