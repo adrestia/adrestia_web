@@ -33,9 +33,9 @@ class DeleteUserCommand extends ContainerAwareCommand
         $em = $this->getContainer()->get('doctrine')->getManager();
         $user = $em->getRepository("AppBundle:User")->findOneBy(array('email' => $email));
          
-         // Delete the user
-         $em->remove($user);
-         $em->flush();
+        // Delete the user
+        $em->remove($user);
+        $em->flush();
         
         $output->writeln("Successfully deleted " . $user->getEmail() . " from database.");
     }
