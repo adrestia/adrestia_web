@@ -114,7 +114,7 @@ class APIController extends Controller
         $user->setCollege($college);
         
         // Get a unique API key
-        do {
+        do { 
             $apikey = RegistrationController::guidv4();
             $entity = $em->getRepository('AppBundle\Entity\User')->findOneBy(array('api_key' => $apikey));
         } while($entity !== null);
@@ -279,7 +279,7 @@ class APIController extends Controller
     }
     
     /**
-     * @Route("/posts/{post_id}", name="get_post", requirements={"id" = "\d+"})
+     * @Route("/posts/{post_id}", name="get_post", requirements={"post_id" = "\d+"})
      */
     public function getPostAction(Request $request, $post_id)
     {
@@ -302,12 +302,12 @@ class APIController extends Controller
     }
       /**
      * @Route("/posts/remove", name="api_remove_post")
-     * @Method({"DELETE"})
+     * @Method({"POST"})
      */
     public function removePostAction(Request $request) 
     {
          // Get post id from the request
-        $post_id = $request->get("post_id");
+        $post_id = $request->request->get("post_id");
 
         // Get the post from the post_id in the database
         $post = $this->getDoctrine()
