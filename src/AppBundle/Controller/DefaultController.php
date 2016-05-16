@@ -6,11 +6,11 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Security;
 use AppBundle\Form\ChangePasswordType;
 use AppBundle\Form\Model\ChangePassword;
 use AppBundle\Form\UserType;
@@ -24,13 +24,75 @@ use AppBundle\Helper\Utilities;
  * @Route("/")
  */
 class DefaultController extends Controller
-{
+{   
     /**
      * @Route("/{sorting}", name="homepage", defaults={"sorting":"hot"}, requirements={"sorting":"top|new|hot|^$"})
      * @Method({"GET"})
      */
     public function indexAction(Request $request, $sorting)
-    {
+    {   
+        // Need to see if there is a user that is logged in
+        // If not, then present them with the homepage :)
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_USER')) {
+            
+            $user = new User();
+            $form = $this->createForm(UserType::class, $user);
+    
+            // Handle Request
+            $form->handleRequest($request);
+
+            if ($form->isSubmitted() && $form->isValid()) {
+        
+                $em = $this->getDoctrine()->getManager();
+        
+                // Encode the password
+                $password = $this->get('security.password_encoder')
+                    ->encodePassword($user, $user->getPlainPassword());
+                $user->setPassword($password);
+
+                // Get a unique API key
+                do {
+                    $apikey = self::guidv4();
+                    $entity = $em->getRepository('AppBundle\Entity\User')->findOneBy(array('api_key' => $apikey));
+                } while($entity !== null);
+        
+                // Set their API key
+                $user->setApiKey($apikey);
+        
+                // Create an email confirmation token
+                $email_auth = new EmailAuth();
+        
+                // Generate a new token for confirmation
+                do {
+                    $token = self::guidv4();
+                    $entity = $em->getRepository('AppBundle:EmailAuth')->findOneBy(array('token' => $token));
+                } while($entity !== null);
+        
+                // Configure the confirmation token
+                $email_auth->setToken($token);
+                $email_auth->setUser($user);
+        
+                // Save the user
+                $em->persist($user);
+                $em->persist($email_auth);
+                $em->flush();
+        
+                // Send the confirmation email
+                self::sendEmail($user->getEmail(), $token);
+        
+                // Show the confirmation email
+                return $this->render(
+                    'registration/confirm.html.twig', [
+                        'email' => $user->getEmail()
+                    ]
+                );
+            }
+        
+            return $this->render('default/home.html.twig', array(
+                'form' => $form->createView(),
+            )); 
+        }
+        
         $em = Utilities::getEntityManager($this);
         
         $user = Utilities::getCurrentUser($this);
@@ -88,7 +150,7 @@ class DefaultController extends Controller
             'sorting' => $sorting
         ]);
     }
-    
+
     /**
      * @Route("/college/{college_id}/{sorting}", name="college_page", defaults={"sorting":"hot"}, requirements={"sorting":"top|new|hot|^$", "college_id" : "\d+"})
      */

@@ -20,28 +20,11 @@ security:
     role_hierarchy:
         ROLE_ADMIN:       ROLE_USER
         ROLE_SUPER_ADMIN: ROLE_ADMIN
-    
 
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-            
-        login_firewall:
-            pattern: ^/login$
-            anonymous: ~
-            
-        register_firewall:
-            pattern: ^/(register|confirm|suffix)
-            anonymous: ~
-            
-        policy_firewall:
-            pattern: ^/(privacy|content|terms)
-            anonymous: ~
-            
-        api_register_firewall:
-            pattern: ^/api/(register|login)
-            anonymous: ~
 
         api:
             pattern:    ^/api
@@ -52,6 +35,7 @@ security:
         
         main:
             pattern: ^/
+            anonymous: ~
             form_login:
                 provider:   user_provider
                 login_path: login
@@ -59,3 +43,11 @@ security:
             logout:
                 path:   /logout
                 target: /
+                
+    access_control:
+        - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/(privacy|content|terms)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/(register|confirm|suffix)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/(register|login)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, roles: ROLE_USER }

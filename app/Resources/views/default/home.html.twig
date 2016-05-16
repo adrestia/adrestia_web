@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/register.css" type="text/css" media="screen">
+{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+    <div class="row">
+        <div class="small-10 small-centered columns">
+            <h1 class="title">Welcome to College Confessions!</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-10 medium-6 small-centered medium-uncentered columns">
+            <h4>College Confessions is a website made by students like you.</h4>
+            <br />
+            <p>
+                Had a tough day and need to vent? Have a story you'd like to tell?
+                Have a juicy secret you'd like known? Anything you'd like to get off your chest?
+            </p>
+            <p>
+                Well this is the place for you.
+            </p>
+            <p>
+                College Confessions is a completely anonymous social network
+                made exclusively for college students. In fact, you can't even
+                register if you aren't in college. Your information is never 
+                revealed to anyone on the site, and the only data we need from
+                you to sign up is your confirmed college email, which no one
+                will ever see on the site. So sit back, relax, and rant away.
+            </p>
+        </div>
+        <div class="small-10 medium-6 small-centered medium-uncentered columns">
+            <h4 class="center"> Register </h4>
+            {{ form_start(form) }}
+                <div class="row">
+                    <div class="small-12 small-centered columns">
+                        <div class="college">
+                            {{ form_row(form.college) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="small-12 small-centered columns">
+                        <label>
+                            {{ form_label(form.email) }}
+                            <div class="input-group">
+                                {{ form_widget(form.email, {'attr' : {'class' : 'input-group-field', 'disabled' : ''}}) }}
+                                <span class="input-group-label" id="email_suffix">@school.edu</span>
+                                {{ form_widget(form.suffix) }}
+                            </div>
+                            {{ form_errors(form.email) }}
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="small-12 small-centered columns">
+                        <div class="password">
+                            {{ form_row(form.plainPassword.first, { 'attr' : {'disabled' : ''}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="small-12 small-centered columns">
+                        <div class="password">
+                            {{ form_row(form.plainPassword.second, { 'attr' : {'disabled' : ''}}) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="small-12 small-centered columns">
+                        <div class="terms">
+                            By signing up you agree to our 
+                            <a title="Terms" href="{{ path('terms') }}">{% trans %}Terms{% endtrans %}</a> 
+                            and that you have read our 
+                            <a title="Privacy" href="{{ path('privacy') }}">{% trans %}Privacy Policy{% endtrans %}</a>
+                            and
+                            <a title="Content" href="{{ path('content') }}">{% trans %}Content Policy{% endtrans %}</a>.
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="small-12 small-centered columns">
+                        <button id="submit" type="submit" class="button regular expanded" disabled>Register!</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="small-12 small-centered columns">
+                        <a href="{{ path('login')}}" class="button primary hollow expanded">Login</a>
+                    </div>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="/js/register.js"></script>
+{% endblock %}
