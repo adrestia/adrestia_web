@@ -96,3 +96,8 @@ div.body {
     margin-bottom: 2rem;
     white-space: pre-wrap;
 }
+
+#college_home {
+    margin-left: 20px !important;
+    margin-right: -50px !important;
+}

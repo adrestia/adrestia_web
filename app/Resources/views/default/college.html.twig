@@ -25,7 +25,7 @@
     <li class="tab {% if sorting == "new" %}is-active{% endif %}"><a href="/college/{{college.id}}/new" {% if sorting == "new" %}aria-selected="true"{% endif %}>New</a></li>
     <li class="tab {% if sorting == "top" %}is-active{% endif %}"><a href="/college/{{college.id}}/top" {% if sorting == "top" %}aria-selected="true"{% endif %}>Top</a></li>
 </ul>
-<a class="button primary" href="{{ path('homepage')}}">Back</a>
+<li><a class="button primary" id="college_home" href="{{ path('homepage')}}">Home</a></li>
 {% endblock %}
 
 {% block right_menu %}
