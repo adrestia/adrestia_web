@@ -292,7 +292,7 @@ class APIController extends Controller
         // throw an error.
         if (!$post) {
             throw $this->createNotFoundException(
-                'No post found for id ' . $id
+                'No post found for id ' //. $id
             );
         }
         
@@ -300,6 +300,50 @@ class APIController extends Controller
         $reports = $serializer->serialize($post, 'json');
         return new Response($reports);
     }
+      /**
+     * @Route("/posts/remove", name="api_remove_post")
+     * @Method({"DELETE"})
+     */
+    public function removePostAction(Request $request) 
+    {
+         // Get post id from the request
+        $post_id = $request->get("post_id");
+
+        // Get the post from the post_id in the database
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+    
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+        
+        if($post->getUser() !== Utilities::getCurrentUser($this)) {
+            return new JsonResponse(
+                array(
+                    'status' => 403, 
+                    'message' => strtr("That is not your post. -_-"),
+                    )
+            );
+        }
+        
+        // Time to delete the post to the database
+        try {
+            $em = Utilities::getEntityManager($this);
+            $post->setHidden(true);
+            $em->persist($post);
+            $em->flush();
+            return new JsonResponse(array('status' => 200, 'message' => 'Success'));
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
+        }   
+    } 
+
+
     
     /**
      * @return Doctrine entity manager
