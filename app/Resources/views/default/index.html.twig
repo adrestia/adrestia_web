@@ -26,6 +26,9 @@
 {% block body %}
     <div class="row wrapper">
         <div class="small-10 medium-8 small-centered columns">
+            {% if posts|length == 0 %}
+                <h4> There doesn't seem to be anything here! </h4>
+            {% else %}
             {% for post in posts %}
                 <div class="row post" data-post-id="{{post.id}}">
                     <div class="small-11 columns body">
@@ -45,6 +48,7 @@
                     </div>
                 </div>
             {% endfor %}
+            {% endif %}
         </div>
     </div>
 {% endblock %}

@@ -1,6 +1,5 @@
 $("#comment_form").submit(function(event) {
   var body = $("#comment_body");
-  console.log(body);
   $.post("/comments", {body: body.val(), post_id: body.attr('data-post-id') })
     .done(function(data) {
       if(data.status === 200) {
@@ -23,7 +22,7 @@ $("#comment_form").submit(function(event) {
           i='0'+i;
         }
         var now = yyyy+'-'+mm+'-'+dd+' '+H+':'+m+':'+i;
-        
+        body.val(encodeHTML(body.val()));
         if(data.is_op) {
           var comment = $(".post_comment").before("<div class=\"row\"> \
                                        <div class=\"small-10 medium-8 small-centered columns\"> \
@@ -138,3 +137,7 @@ $(document).on('click', ".comment_remove", function() {
     });
   }
 });
+
+function encodeHTML(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+}

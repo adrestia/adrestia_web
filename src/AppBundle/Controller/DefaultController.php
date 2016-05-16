@@ -51,7 +51,6 @@ class DefaultController extends Controller
                   p.created, l.is_like, l.user_id,
                   l.post_id
          ORDER BY created DESC;";
-        
         */
                  
         $builder = $em->createQueryBuilder();
@@ -87,6 +86,61 @@ class DefaultController extends Controller
         return $this->render('default/index.html.twig', [
             'posts' => $posts,
             'sorting' => $sorting
+        ]);
+    }
+    
+    /**
+     * @Route("/college/{college_id}/{sorting}", name="college_page", defaults={"sorting":"hot"}, requirements={"sorting":"top|new|hot|^$", "college_id" : "\d+"})
+     */
+    public function collegePageAction(Request $request, $college_id, $sorting)
+    {
+        $em = Utilities::getEntityManager($this);
+        $user = Utilities::getCurrentUser($this);
+        
+        /*
+        EQUIVALENT QUERY TO BUILDER BELOW
+
+       "SELECT p.id, p.user_id, p.body, p.upvotes, 
+                p.downvotes, p.score, p.reports, 
+                p.created, SUM(p.upvotes - p.downvotes) AS top
+         FROM posts p
+         WHERE p.college = :college AND p.hidden = false
+         GROUP BY p.id, p.user_id, p.body, p.upvotes
+                  p.downvotes, p.score, p.reports,
+                  p.created
+         ORDER BY created DESC;";
+        */
+                 
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('p')
+            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
+            ->from('AppBundle:Post', 'p') 
+            ->where('p.college = :college AND p.hidden = false')
+            ->setParameter('college', $college_id)
+            ->groupBy('p');
+        
+        $college = $em->getRepository('AppBundle:College')
+                      ->find($college_id);
+        
+        $sorting = strtolower($sorting);
+        if($sorting === "new") {
+            $builder->orderBy('p.created', 'DESC');
+        } elseif ($sorting === "top") {
+            $builder->orderBy('top', 'DESC');
+        } elseif ($sorting === "hot") {
+            $builder->orderBy('p.score', 'DESC');
+        } else {
+            $sorting === "hot";
+            $builder->orderBy('p.created', 'DESC');
+        }
+                
+        $posts = $builder->getQuery()->getResult();
+        
+        return $this->render('default/college.html.twig', [
+            'posts' => $posts,
+            'sorting' => $sorting,
+            'college' => $college,
         ]);
     }
     

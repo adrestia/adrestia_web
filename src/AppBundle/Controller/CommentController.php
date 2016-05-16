@@ -45,6 +45,8 @@ class CommentController extends Controller
         // Get the body of the comment from the request
         $body = $request->get('body');
         
+        $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
+        
         // Check if the person commenting is the OP on the post
         $is_op = $post->getUser()->getId() === $user->getId();
     

@@ -130,6 +130,67 @@ class PostController extends Controller
         ]);
     }
     
+    /**
+     * @Route("/college/{college_id}/posts/{post_id}", name="college_post_view", requirements={"college_id":"\d+", "post_id":"\d+"})
+     */
+    public function collegeViewPostAction(Request $request, $college_id, $post_id) 
+    {
+        $user = Utilities::getCurrentUser($this);
+        $em = Utilities::getEntityManager($this);
+        
+        // Get the college
+        $college = $em->getRepository('AppBundle:College')
+                      ->find($college_id);
+        
+        // Get the post from the post_id in the database
+        $post = $em->getRepository('AppBundle:Post')
+                   ->findOneBy(array('id' => $post_id, 'hidden' => false));
+        
+        $like = $em->getRepository('AppBundle:PostLikes')
+                   ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+        
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                "Post not found!"
+            );
+        }
+        
+        /*
+        EQUIVALENT QUERY TO BUILDER BELOW
+
+       "SELECT c.id, c.post_id, c.upvotes, 
+                c.downvotes, c.body, c.reports, 
+                p.created,
+         FROM comments c
+         WHERE c.post_id = :postid
+         GROUP BY c.id, c.post_id, c.body, c.upvotes
+                  c.downvotes, c.reports,
+                  c.created
+         ORDER BY created DESC;";
+        
+        */
+        
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('c')
+            ->from('AppBundle:Comment', 'c') 
+            ->where('c.post = :postid AND c.hidden = false')
+            ->setParameter('postid', $post->getId())
+            ->groupBy('c')
+            ->orderBy('c.created', 'ASC');
+                
+        $comments = $builder->getQuery()->getResult();
+        
+        return $this->render('default/post.html.twig', [
+            'post' => $post, 
+            'comments' => $comments,
+            'like' => $like,
+            'college' => $college,
+        ]);
+    }
+    
      /**
      * @Route("/posts/upvote", name="upvote_post")
      * @Method({"POST"})

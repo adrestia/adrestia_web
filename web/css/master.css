@@ -10,9 +10,21 @@
   src: url("https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-regular-webfont.woff");
 }
 
+@font-face {
+  font-family: "Gotham";
+  font-weight: 200;
+  src: url("/fonts/Gotham Light.ttf")
+}
+
+@font-face {
+  font-family: "Gotham";
+  font-weight: 400;
+  src: url("/fonts/Gotham Book.ttf")
+}
+
 html, body {
     background: #EFEFEF;
-    font-family: 'San Francisco';
+    font-family: 'Gotham';
 }
 
 .no-js .top-bar {
@@ -38,9 +50,30 @@ html, body {
     background-color: #fff;
 }
 
-.top-bar-middle {
+@media screen and (min-width: 640px) {
+    .top-bar-middle {
+        display: inline-block;
+        font-size: 1.25rem;
+        margin: 5px 0px;
+    }
+}
+
+@media screen and (max-width: 640px) {
+    .top-bar-middle {
+        display: none;
+    }
+}
+
+.title-bar-college {
     display: inline-block;
-    font-size: 1.25rem;
+    vertical-align: middle;
+    float: right;
+}
+
+.title-bar-center {
+    display: inline-block;
+    font-size: 1rem;
+    margin: auto auto;
 }
 
 .is-active{

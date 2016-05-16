@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/index.css" type="text/css" media="screen">
+{% endblock %}
+
+{% block college_name %}
+    <li>{{ college.name }}</li>
+{% endblock %}
+
+{% block title_college %}
+    {{ college.name }}
+{% endblock %}
+
+{% block left_menu %}
+{% if sorting == "hot" %}
+    <a href="/hot">Hot</a>
+{% elseif sorting == "new" %}
+    <a href="/new">New</a>
+{% else %}
+    <a href="/top">Top</a>
+{% endif %}
+<ul class="menu vertical">
+    <li class="tab {% if sorting == "hot" %}is-active{% endif %}"><a href="/college/{{college.id}}/hot" {% if sorting == "hot" %}aria-selected="true"{% endif %}>Hot</a></li>
+    <li class="tab {% if sorting == "new" %}is-active{% endif %}"><a href="/college/{{college.id}}/new" {% if sorting == "new" %}aria-selected="true"{% endif %}>New</a></li>
+    <li class="tab {% if sorting == "top" %}is-active{% endif %}"><a href="/college/{{college.id}}/top" {% if sorting == "top" %}aria-selected="true"{% endif %}>Top</a></li>
+</ul>
+<a class="button primary" href="{{ path('homepage')}}">Back</a>
+{% endblock %}
+
+{% block right_menu %}
+    {% if college.id == app.user.getCollege.getId %}
+        <li><a class="tab button hollow" href="{{ path('new_post')}}">New Post</a></li>
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="row wrapper">
+        <div class="small-10 medium-8 small-centered columns">
+            {% if posts|length == 0 %}
+                <h4 class="centered"> There doesn't seem to be anything here! </h4>
+                {% if college.id == app.user.getCollege.getId %}
+                    <h5> Feel free to get things started by submitting a new post! </h5>
+                {% endif %}
+            {% else %}
+            {% for post in posts %}
+                <div class="row post" data-post-id="{{post.id}}">
+                    <div class="small-11 columns body">
+                        {% if post.body|length > 150 %} 
+                            <p class="post_body">{{ post.body|slice(0, 140) }} <a href="{{ path('post_view', {'post_id' : post.id }) }}"> More...</a></p>
+                        {% else %}
+                            <p class="post_body">{{ post.body }}</p>
+                        {% endif %}
+                        <a href="#" class="post_report" data-post-id="{{post.id}}">Report</a>
+                        <a href="{{ path('college_post_view', {'college_id' : college.id, 'post_id': post.id }) }}" class="view_post">Comments ({{ post.comments|length }})</a>
+                        <span class="post_time" data-post-id="{{post.id}}" title="{{ post.created|date('Y-m-d H:i:s') }}">{{ post.created|time_diff }}</span>
+                    </div>
+                    <div class="small-1 columns score">
+                        {% if college.id == app.user.getCollege.getId %}
+                            <i class="fi-arrow-up post_upvote {% if post.likes|length > 0 and post.likes.first.getIsLike %}blue{% endif %}" data-post-id="{{post.id}}"></i><br>
+                        {% endif %}
+                        <span class="score_number" data-post-id="{{post.id}}">{{ post.upvotes - post.downvotes }}</span><br>
+                        {% if college.id == app.user.getCollege.getId %}
+                            <i class="fi-arrow-down post_downvote {% if post.likes|length > 0 and not post.likes.first.getIsLike %}pink{% endif %}" data-post-id="{{post.id}}"></i><br>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="/js/index.js"></script>
+{% endblock %}
