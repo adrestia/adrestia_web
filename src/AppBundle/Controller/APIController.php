@@ -292,7 +292,7 @@ class APIController extends Controller
         // throw an error.
         if (!$post) {
             throw $this->createNotFoundException(
-                'No post found for id ' //. $id
+                'No post found for id ' . $id
             );
         }
         
@@ -302,7 +302,7 @@ class APIController extends Controller
     }
       /**
      * @Route("/posts/remove", name="api_remove_post")
-     * @Method({"POST"})
+     * @Method({"DELETE"})
      */
     public function removePostAction(Request $request) 
     {
