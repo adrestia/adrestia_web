@@ -342,27 +342,4 @@ class APIController extends Controller
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
         }   
     } 
-    
-    /**
-     * @return Doctrine entity manager
-     */
-    protected function getEntityManager() {
-        return $this->get('doctrine')->getManager();
-    }
-    
-    /**
-     * @param $context – pss in $this as the variable
-     * @return IP Address from the request
-     */
-    protected function getCurrentIp($context) {
-        return $context->container->get('request_stack')->getMasterRequest()->getClientIp();
-    }
-    
-    /**
-     * @param $context – pass in $this as the variable
-     * @return the User object that is currently authenticated
-     */
-    protected function getCurrentUser($context) {
-        return $context->get('security.token_storage')->getToken()->getUser();
-    }
 }

@@ -17,8 +17,24 @@ use Symfony\Component\Security\Http\HttpUtils;
 
 class ApiKeyAuthenticator implements SimplePreAuthenticatorInterface, AuthenticationFailureHandlerInterface
 {
+    protected $httpUtils;
+    
+    public function __construct(HttpUtils $httpUtils) {
+        $this->httpUtils = $httpUtils;
+    }
+    
     public function createToken(Request $request, $providerKey)
     {   
+        $targetUrl = '/register';
+        if (!$this->httpUtils->checkRequestPath($request, $targetUrl)) {
+            return;
+        }
+        
+        $targetUrl = '/login';
+        if (!$this->httpUtils->checkRequestPath($request, $targetUrl)) {
+            return;
+        }
+                
         // look for an apikey query parameter
         $apiKey = $request->query->get('apikey');
 
@@ -35,6 +51,8 @@ class ApiKeyAuthenticator implements SimplePreAuthenticatorInterface, Authentica
 
     public function authenticateToken(TokenInterface $token, UserProviderInterface $userProvider, $providerKey)
     {
+        $apiKey = $token->getCredentials();
+        
         if (!$userProvider instanceof UserProvider) {
             throw new \InvalidArgumentException(
                 sprintf(
@@ -43,8 +61,7 @@ class ApiKeyAuthenticator implements SimplePreAuthenticatorInterface, Authentica
                 )
             );
         }
-
-        $apiKey = $token->getCredentials();
+        
         $user = $userProvider->getUserByApiKey($apiKey);
 
         if (!$user) {

@@ -28,6 +28,7 @@ security:
 
         api:
             pattern:    ^/api
+            anonymous: ~
             simple_preauth:
                 authenticator: apikey_authenticator
             provider: api_user_provider
@@ -48,6 +49,7 @@ security:
         - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/(privacy|content|terms)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/(register|confirm|suffix)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/api/(register|login)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/(register|confirm|suffix), roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api/(register|login), roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/api, roles: ROLE_USER }
         - { path: ^/, roles: ROLE_USER }

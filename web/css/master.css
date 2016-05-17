@@ -52,6 +52,7 @@ html, body {
 
 @media screen and (min-width: 640px) {
     .top-bar-middle {
+        position: absolute;
         display: inline-block;
         font-size: 1.25rem;
         margin: 5px 0px;
@@ -93,7 +94,6 @@ li.menu-text {
 }
 
 .verticalLine {
-    margin: 0px 10px;
     padding: 0px 10px;
     border-left: thin solid #CCC;
     line-height: 1.2;
