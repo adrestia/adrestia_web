@@ -242,6 +242,18 @@ class APIController extends Controller
             );
         }
     }
+
+    /**
+     * @Route("/{sorting}", name="homepage", requirements={"sorting":"top|new|hot|^$"})
+     * @Method({"GET"})
+     */
+    public function indexAction(Request $request, $sorting)
+    {   
+        
+    }
+    
+
+
     
     /**
      * @Route("/posts", name="api_new_post")
