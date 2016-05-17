@@ -31,7 +31,7 @@ class APIController extends Controller
     {
         $email = $request->get('email');
         $plain_password = $request->get('password');
-        $college_id = $request->get('college_id');
+        $college_name = $request->get('college_name');
         
         // Validation checks
         $emailConstraint = new EmailConstraint();
@@ -100,7 +100,7 @@ class APIController extends Controller
         
         // Set the college of the user
         $college = $em->getRepository('AppBundle:College')
-                      ->find($college_id);
+                      ->findOneBy(array('name' => $college_name));
         
         if(!$college) {
             return new JsonResponse(
@@ -114,7 +114,7 @@ class APIController extends Controller
         $user->setCollege($college);
         
         // Get a unique API key
-        do {
+        do { 
             $apikey = RegistrationController::guidv4();
             $entity = $em->getRepository('AppBundle\Entity\User')->findOneBy(array('api_key' => $apikey));
         } while($entity !== null);
@@ -257,6 +257,8 @@ class APIController extends Controller
     
         // Get the body of the post from the request
         $body = $request->get('body');
+        
+        $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
     
         // We have everything we need now
         // Time to add the post to the database
@@ -277,7 +279,7 @@ class APIController extends Controller
     }
     
     /**
-     * @Route("/posts/{post_id}", name="get_post", requirements={"id" = "\d+"})
+     * @Route("/posts/{post_id}", name="get_post", requirements={"post_id" = "\d+"})
      */
     public function getPostAction(Request $request, $post_id)
     {
@@ -298,6 +300,48 @@ class APIController extends Controller
         $reports = $serializer->serialize($post, 'json');
         return new Response($reports);
     }
+      /**
+     * @Route("/posts", name="api_remove_post")
+     * @Method({"DELETE"})
+     */
+    public function removePostAction(Request $request) 
+    {
+         // Get post id from the request
+        $post_id = $request->request->get("post_id");
+
+        // Get the post from the post_id in the database
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+    
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+        
+        if($post->getUser() !== Utilities::getCurrentUser($this)) {
+            return new JsonResponse(
+                array(
+                    'status' => 403, 
+                    'message' => strtr("That is not your post. -_-"),
+                    )
+            );
+        }
+        
+        // Time to delete the post to the database
+        try {
+            $em = Utilities::getEntityManager($this);
+            $post->setHidden(true);
+            $em->persist($post);
+            $em->flush();
+            return new JsonResponse(array('status' => 200, 'message' => 'Success'));
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
+        }   
+    } 
     
     /**
      * @return Doctrine entity manager

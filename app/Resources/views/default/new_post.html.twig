@@ -4,6 +4,10 @@
     <link rel="stylesheet" href="/css/post.css" type="text/css" media="screen">
 {% endblock %}
 
+{% block left_menu %}
+<a class="button primary" href="{{ path('homepage')}}">Home</a>
+{% endblock %}
+
 {% block body %}
 <div class="row wrapper">
     <div class="small-10 medium-6 small-centered columns">
@@ -11,9 +15,10 @@
             <div class="row">
                 <div class="small-12 columns">
                     <label> What's on your mind?
-                        <textarea name="body" placeholder="Today..."></textarea>
+                        <textarea id="textarea" name="body" placeholder="Today..." maxlength="1024"></textarea>
                     </label>
                     <input id="post_submit" type="submit" class="button" value="Post">
+                    <span id="c_count">1024</span>
                 </div>
             </div>
         </form>

@@ -56,13 +56,13 @@ class Comment
     
     /**
      * @ManyToOne(targetEntity="User", inversedBy="comments")
-     * @JoinColumn(name="user_id", referencedColumnName="id")
+     * @JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $user;
 
     /**
      * @ManyToOne(targetEntity="Post", inversedBy="comments")
-     * @JoinColumn(name="post_id", referencedColumnName="id")
+     * @JoinColumn(name="post_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $post;
     

@@ -1,9 +1,28 @@
 $("#comment_form").submit(function(event) {
   var body = $("#comment_body");
-  console.log(body);
   $.post("/comments", {body: body.val(), post_id: body.attr('data-post-id') })
     .done(function(data) {
       if(data.status === 200) {
+        
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.getMonth()+1; 
+
+        var yyyy = today.getFullYear();
+        var H = today.getHours();
+        var m = today.getMinutes();
+        var i = today.getSeconds();
+        if(dd<10) {
+          dd='0'+dd;
+        } 
+        if(mm<10) {
+          mm='0'+mm;
+        } 
+        if(i<10) {
+          i='0'+i;
+        }
+        var now = yyyy+'-'+mm+'-'+dd+' '+H+':'+m+':'+i;
+        body.val(encodeHTML(body.val()));
         if(data.is_op) {
           var comment = $(".post_comment").before("<div class=\"row\"> \
                                        <div class=\"small-10 medium-8 small-centered columns\"> \
@@ -13,6 +32,7 @@ $("#comment_form").submit(function(event) {
                                                    <div class=\"small-11 columns body\"> \
                                                        <p class=\"comment_body\">" + body.val() + "</p> \
                                                        <a href=\"#\" class=\"comment_report\" data-comment-id=\"" + data.comment_id + "\">Report</a> \
+                                                       <span class=\"comment_time\" data-post-id=\"" + data.comment_id + "\" title=\"" + now + "\">Just now</span> \
                                                    </div> \
                                                    <div class=\"small-1 columns score\"> \
                                                        <i class=\"fi-arrow-up comment_upvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
@@ -31,6 +51,7 @@ $("#comment_form").submit(function(event) {
                                                <div class=\"small-11 columns body\"> \
                                                    <p class=\"comment_body\">" + body.val() + "</p> \
                                                    <a href=\"#\" class=\"comment_report\" data-comment-id=\"" + data.comment_id + "\">Report</a> \
+                                                   <span class=\"comment_time\" data-post-id=\"" + data.comment_id + "\" title=\"" + now + "\">Just now</span> \
                                                </div> \
                                                <div class=\"small-1 columns score\"> \
                                                    <i class=\"fi-arrow-up comment_upvote\" data-comment-id=\"" + data.comment_id + "\"></i><br> \
@@ -116,3 +137,7 @@ $(document).on('click', ".comment_remove", function() {
     });
   }
 });
+
+function encodeHTML(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+}

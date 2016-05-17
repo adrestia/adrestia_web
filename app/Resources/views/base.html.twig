@@ -14,27 +14,17 @@
         <div class="title-bar" data-responsive-toggle="example-menu" data-hide-for="medium">
             <button class="menu-icon" type="button" data-toggle></button>
             <div class="title-bar-title">Menu</div>
+            <div class="title-bar-college">
+                {% block title_college %}
+                    <div class="title-bar-center">{% if app.user %} {{ app.user.getCollege.getName }} {% endif %}</div>
+                {% endblock %}
+            </div>
         </div>
 
         <div class="top-bar" id="example-menu">
-            <div class="top-bar-left">
-                <ul class="dropdown menu" data-dropdown-menu>
-                    <li class="menu-text"><a class="menu-text" href="{{ path('homepage') }}">College Confessions</a></li>
-                    <li>
-                        {% block left_menu %}{% endblock %}
-                    </li>
-                </ul>
-            </div>
             <div class="top-bar-right">
                 <ul class="menu">
                     {% block right_menu %}{% endblock %}
-                    <li>{% if app.user %} {{ app.user.getCollege.getName }} {% endif %}</li>
-                    {% block search %}
-                        {#
-                        <li><input type="search" placeholder="Search"></li>
-                        <li><button type="button" class="button">Search</button></li>
-                        #}
-                    {% endblock %}
                     
                     {% if app.user %}
                     <li>
@@ -55,6 +45,21 @@
                         <a class="button hollow" href="/login">Login</a>
                     </li>
                     {% endif %}
+                </ul>
+            </div>
+            <div class="top-bar-middle">
+                <ul class="menu">
+                    {% block college_name %}
+                        <li>{% if app.user %} {{ app.user.getCollege.getName }} {% endif %}</li>
+                    {% endblock %}
+                </ul>
+            </div>
+            <div class="top-bar-left">
+                <ul class="dropdown menu" data-dropdown-menu>
+                    <li class="menu-text"><a class="menu-text" href="{{ path('homepage') }}">College Confessions</a></li>
+                    <li>
+                        {% block left_menu %}{% endblock %}
+                    </li>
                 </ul>
             </div>
         </div>

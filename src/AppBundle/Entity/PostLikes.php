@@ -24,13 +24,13 @@ class PostLikes
 
     /**
      * @ORM\ManyToOne(targetEntity="User", inversedBy="post_likes")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     protected $user;
 
     /**
      * @ORM\ManyToOne(targetEntity="Post", inversedBy="likes")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=false, onDelete="CASCADE")
      */
     protected $post;
     

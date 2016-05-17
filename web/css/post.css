@@ -1,5 +1,5 @@
-.wrapper {
-    padding-top: 40px;
+.row_wrapper {
+    margin-top: 40px;
 }
 
 .comment, .new_comment {
@@ -25,25 +25,23 @@ div.body {
     bottom: 10px;
 }
 
-.post_time {
-    font-size: .75em;
-    color: #808080;
-    position: absolute;
-    bottom: 10px;
-    left: 120px;
-}
-
 .post_remove {
     font-size: .75em;
     color: #F2363F;
     position: absolute;
     bottom: 10px;
-    left: 70px;
+    left: 75px;
+}
+
+.post_time {
+    font-size: .75em;
+    color: #808080;
+    position: absolute;
+    bottom: 30px;
 }
 
 .post_remove:hover {
     text-decoration: underline;
-    color: #F2363F;
 }
 
 .post_report:hover {
@@ -75,4 +73,21 @@ div.body {
     position: absolute;
     bottom: 10px;
     left: 65px;
+}
+
+#textarea {
+    resize: none;
+    height: 10em;
+}
+
+#c_count {
+    float: right;
+}
+
+#c_count.warning {
+    color: #FDAD2A;
+}
+
+#c_count.alert {
+    color: #EA5946;
 }

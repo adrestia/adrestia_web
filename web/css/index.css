@@ -1,5 +1,6 @@
 .wrapper {
     margin-top: 40px;
+    padding-bottom: 40px;
 }
 
 .post {
@@ -40,8 +41,7 @@ div.body {
     font-size: .75em;
     color: #808080;
     position: absolute;
-    bottom: 10px;
-    left: 160px;
+    bottom: 30px;
 }
 
 .post_remove:hover {
@@ -90,4 +90,14 @@ div.body {
 .tabs-row {
     padding: 0;
     background: #FFF;
+}
+
+.post_body {
+    margin-bottom: 2rem;
+    white-space: pre-wrap;
+}
+
+#college_home {
+    margin-left: 20px !important;
+    margin-right: -50px !important;
 }

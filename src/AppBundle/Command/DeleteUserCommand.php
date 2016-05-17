@@ -18,7 +18,7 @@ class DeleteUserCommand extends ContainerAwareCommand
             ->setName('adrestia:delete-user')
             ->setDescription('Deletes a user. Better than removing from database manually.')    
             ->addArgument(
-                'user_id',
+                'email',
                 InputArgument::REQUIRED,
                 'Add in the id of the user. Get from database if unknown.'
             );
@@ -27,15 +27,15 @@ class DeleteUserCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // Get the argument
-        $user_id = $input->getArgument('user_id');
+        $email = $input->getArgument('email');
         
         // Get the user
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $user = $em->getRepository("AppBundle:User")->find($user_id);
+        $user = $em->getRepository("AppBundle:User")->findOneBy(array('email' => $email));
          
-         // Delete the user
-         $em->remove($user);
-         $em->flush();
+        // Delete the user
+        $em->remove($user);
+        $em->flush();
         
         $output->writeln("Successfully deleted " . $user->getEmail() . " from database.");
     }
