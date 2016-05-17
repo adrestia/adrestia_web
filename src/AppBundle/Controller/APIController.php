@@ -301,7 +301,7 @@ class APIController extends Controller
         return new Response($reports);
     }
       /**
-     * @Route("/posts/remove", name="api_remove_post")
+     * @Route("/posts", name="api_remove_post")
      * @Method({"DELETE"})
      */
     public function removePostAction(Request $request) 
@@ -342,8 +342,6 @@ class APIController extends Controller
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
         }   
     } 
-
-
     
     /**
      * @return Doctrine entity manager
