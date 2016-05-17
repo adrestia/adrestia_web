@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/college.css" type="text/css" media="screen">
+{% endblock %}
+
+{% block left_menu %}
+    <li><a class="button primary" id="college_home" href="{{ path('homepage')}}">Home</a></li>
+{% endblock %}
+
+{% block right_menu %}
+<li>
+    <a class="tab button hollow" href="{{ path('new_post')}}">New Post</a>
+</li>
+{% endblock %}
+
+{% block body %}
+    <div class="row wrapper">
+        <div class="small-10 medium-10 small-centered columns">
+            <div class="selector">
+                <label>Visit College Page
+                  <select id="user_college">
+                      {% for college in colleges %}
+                      <option value="{{ college.id }}">{{ college.name }}</option>
+                      {% endfor %}
+                  </select>
+              </label>
+            </div>
+            <div class='title'>
+                <h3> Most popular posts right now! </h3>
+                <h5> Top trending posts from every college. </h5>
+            </div>
+            {% for post in posts %}
+                <div class="row post" data-post-id="{{post.id}}">
+                    <div class="small-11 columns body">
+                        {% if post.body|length > 150 %} 
+                            <p class="post_body">{{ post.body|slice(0, 140) }} <a href="{{ path('post_view', {'post_id' : post.id }) }}"> More...</a></p>
+                        {% else %}
+                            <p class="post_body">{{ post.body }}</p>
+                        {% endif %}
+                        <a href="{{ path('college_post_view', {'post_id': post.id, 'college_id': post.getCollege.getId }) }}" class="view_post">Comments ({{ post.comments|length }})</a>
+                        <span class="post_time" data-post-id="{{post.id}}" title="{{ post.created|date('Y-m-d H:i:s') }}">{{ post.created|time_diff }}</span>
+                        <span class="post_college" data-post-id="{{post.id}}">{{ post.college.getName }}</span>
+                    </div>
+                    <div class="small-1 columns score">
+                            <span class="score_number" data-post-id="{{post.id}}">{{ post.upvotes - post.downvotes }}</span><br>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="/js/index.js"></script>
+    <script type="text/javascript" src="/js/college.js"></script>
+{% endblock %}
