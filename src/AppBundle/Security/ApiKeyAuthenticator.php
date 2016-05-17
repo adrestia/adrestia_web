@@ -25,12 +25,12 @@ class ApiKeyAuthenticator implements SimplePreAuthenticatorInterface, Authentica
     
     public function createToken(Request $request, $providerKey)
     {   
-        $targetUrl = '/register';
+        $targetUrl = '/api/register';
         if ($this->httpUtils->checkRequestPath($request, $targetUrl)) {
             return;
         }
         
-        $targetUrl = '/login';
+        $targetUrl = '/api/login';
         if ($this->httpUtils->checkRequestPath($request, $targetUrl)) {
             return;
         }
