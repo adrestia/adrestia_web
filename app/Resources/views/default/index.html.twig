@@ -20,7 +20,16 @@
 {% endblock %}
 
 {% block right_menu %}
-    <li><a class="tab button hollow" href="{{ path('new_post')}}">New Post</a></li>
+<li>
+    <div id="select_college">
+        <a class="tab button hollow warning" href="#">Colleges</a>
+    </div>
+</li>
+<li>
+    <div class="verticalLine">
+        <a class="tab button hollow" href="{{ path('new_post')}}">New Post</a>
+    </div>
+</li>
 {% endblock %}
 
 {% block body %}

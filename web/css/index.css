@@ -101,3 +101,7 @@ div.body {
     margin-left: 20px !important;
     margin-right: -50px !important;
 }
+
+#select_college {
+    margin: 0 10px 0 0;
+}
