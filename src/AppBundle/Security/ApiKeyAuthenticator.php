@@ -26,12 +26,12 @@ class ApiKeyAuthenticator implements SimplePreAuthenticatorInterface, Authentica
     public function createToken(Request $request, $providerKey)
     {   
         $targetUrl = '/register';
-        if (!$this->httpUtils->checkRequestPath($request, $targetUrl)) {
+        if ($this->httpUtils->checkRequestPath($request, $targetUrl)) {
             return;
         }
         
         $targetUrl = '/login';
-        if (!$this->httpUtils->checkRequestPath($request, $targetUrl)) {
+        if ($this->httpUtils->checkRequestPath($request, $targetUrl)) {
             return;
         }
                 
@@ -50,9 +50,7 @@ class ApiKeyAuthenticator implements SimplePreAuthenticatorInterface, Authentica
     }
 
     public function authenticateToken(TokenInterface $token, UserProviderInterface $userProvider, $providerKey)
-    {
-        $apiKey = $token->getCredentials();
-        
+    {   
         if (!$userProvider instanceof UserProvider) {
             throw new \InvalidArgumentException(
                 sprintf(
@@ -62,6 +60,7 @@ class ApiKeyAuthenticator implements SimplePreAuthenticatorInterface, Authentica
             );
         }
         
+        $apiKey = $token->getCredentials();
         $user = $userProvider->getUserByApiKey($apiKey);
 
         if (!$user) {
