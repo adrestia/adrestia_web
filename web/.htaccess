@@ -53,6 +53,11 @@ DirectoryIndex app.php
     RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^ - [L]
 
+    # Rewrite requests to the IP address to instead be resolved
+    # to the domain name. e.g. 104.236.153.36 -> collegeconfessions.party
+    RewriteCond %{HTTP_HOST} ^104\.236\.153\.36$ [NC]
+    RewriteRule ^(.*)$ https://collegeconfessions.party/app.php [R=301,L]
+
     # Rewrite all other queries to the front controller.
     RewriteRule ^ %{ENV:BASE}/app.php [L]
 </IfModule>
