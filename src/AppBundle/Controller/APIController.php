@@ -16,6 +16,7 @@ use AppBundle\Entity\Post;
 use AppBundle\Entity\User;
 use AppBundle\Entity\College;
 use AppBundle\Entity\EmailAuth;
+use AppBundle\Entity\PostLikes;
 use AppBundle\Helper\Utilities;
 
 /**
@@ -421,4 +422,71 @@ class APIController extends Controller
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
         }   
     } 
+
+ /**
+     * @Route("/posts/upvote", name="api_upvote_post")
+     * @Method({"POST"})
+     */
+    public function upvotePostAction(Request $request) 
+    {
+        // Get post id from the request
+        $post_id = $request->request->get("post_id");
+        
+        // Get current user
+        $user = Utilities::getCurrentUser($this);
+        
+        // Get the entity manager for Doctrine
+        $em = Utilities::getEntityManager($this);
+
+        // Get the post from the post_id in the database
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+    
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+
+        try{
+            $like = $em->getRepository('AppBundle:PostLikes')
+                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+            
+            if(!isset($like)) {
+                $like = new PostLikes;
+                $like->setIsLike(true);
+                $like->setUser($user);
+                $like->setPost($post);
+                $post->setUpvotes($post->getUpvotes() + 1);
+                $user->setScore($user->getScore() + 1);
+                $post->addLike($like);
+                $em->persist($like);
+            } else {
+                if($like->getIsLike()) {
+                    $post->setUpvotes($post->getUpvotes() - 1);
+                    $user->setScore($user->getScore() - 1);
+                    $post->removeLike($like);
+                    $em->remove($like);
+                } else {
+                    $post->setUpvotes($post->getUpvotes() + 1);
+                    $post->setDownvotes($post->getDownvotes() - 1);
+                    $user->setScore($user->getScore() + 2);
+                    $like->setIsLike(true);
+                    $em->persist($like);
+                }
+            }
+            $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
+            $em->persist($user);
+            $em->persist($post);
+            $em->flush();
+            $score = ($post->getUpvotes() - $post->getDownvotes());
+        } catch (\Docrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
+        }
+        
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
+    }
 }
