@@ -29,9 +29,14 @@
 {% endblock %}
 
 {% block right_menu %}
-    {% if college.id == app.user.getCollege.getId %}
-        <li><a class="tab button hollow" href="{{ path('new_post')}}">New Post</a></li>
-    {% endif %}
+<li>
+    <div id="select_college">
+        <a class="tab button hollow warning" href="{{ path('college_home') }}">Colleges</a>
+    </div>
+</li>
+{% if college.id == app.user.getCollege.getId %}
+    <li><a class="tab button hollow" href="{{ path('new_post')}}">New Post</a></li>
+{% endif %}
 {% endblock %}
 
 {% block body %}

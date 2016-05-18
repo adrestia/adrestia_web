@@ -22,7 +22,7 @@
 {% block right_menu %}
 <li>
     <div id="select_college">
-        <a class="tab button hollow warning" href="#">Colleges</a>
+        <a class="tab button hollow warning" href="{{ path('college_home') }}">Colleges</a>
     </div>
 </li>
 <li>
@@ -34,7 +34,7 @@
 
 {% block body %}
     <div class="row wrapper">
-        <div class="small-10 medium-8 small-centered columns">
+        <div class="small-10 medium-10 small-centered columns">
             {% if posts|length == 0 %}
                 <h4> There doesn't seem to be anything here! </h4>
             {% else %}

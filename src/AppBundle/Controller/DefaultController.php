@@ -150,6 +150,53 @@ class DefaultController extends Controller
             'sorting' => $sorting
         ]);
     }
+    
+    /**
+     * @Route("/colleges", name="college_home")
+     */
+    public function collegePickAction(Request $request)
+    {
+        $em = Utilities::getEntityManager($this);
+        
+        $user = Utilities::getCurrentUser($this);
+        
+        /*
+        EQUIVALENT QUERY TO BUILDER BELOW
+
+       "SELECT p.id, p.user_id, p.body, p.upvotes, 
+                p.downvotes, p.score, p.reports, 
+                p.created, SUM(p.upvotes - p.downvotes) AS top
+         FROM posts p
+         WHERE p.hidden = false
+         GROUP BY p.id, p.user_id, p.body, p.upvotes
+                  p.downvotes, p.score, p.reports,
+                  p.created
+         ORDER BY hot DESC
+         LIMIT 25;"
+        */
+                 
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('p')
+            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
+            ->from('AppBundle:Post', 'p') 
+            ->where('p.hidden = false')
+            ->groupBy('p')
+            ->setMaxResults(25)
+            ->orderBy('p.score', 'DESC');
+        
+        $posts = $builder->getQuery()->getResult();
+        
+        
+        // Simply selecting all colleges
+        $builder = $em->createQueryBuilder()->select('c')->from('AppBundle:College', 'c');
+        $colleges = $builder->getQuery()->getResult();
+                
+        return $this->render('default/college_view.html.twig', [
+            'posts' => $posts,
+            'colleges' => $colleges,
+        ]);
+    }
 
     /**
      * @Route("/college/{college_id}/{sorting}", name="college_page", defaults={"sorting":"hot"}, requirements={"sorting":"top|new|hot|^$", "college_id" : "\d+"})

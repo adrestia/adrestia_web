@@ -24,18 +24,12 @@ div.body {
     word-wrap: break-word;
 }
 
-.post_report {
-    font-size: .75em;
+.post_college {
+    font-size: 0.7rem;
     position: absolute;
     bottom: 10px;
-}
-
-.post_remove {
-    font-size: .75em;
-    color: #F2363F;
-    position: absolute;
-    bottom: 10px;
-    left: 70px;
+    right: 10px;
+    color: #888;
 }
 
 .post_time {
@@ -45,52 +39,14 @@ div.body {
     bottom: 30px;
 }
 
-.post_remove:hover {
-    text-decoration: underline;
-}
-
-.post_report:hover {
-    text-decoration: underline;
-}
-
 .view_post {
     font-size: .75em;
     position: absolute;
     bottom: 10px;
-    left: 75px;
 }
 
 .view_post:hover {
     text-decoration: underline;
-}
-
-.fi-arrow-up {
-    text-align: center;
-    font-size: 1.5em;
-    color: #DCDCDC;
-}
-
-.fi-arrow-down {
-    text-align: center;
-    font-size: 1.5em;
-    color: #DCDCDC;
-}
-
-.blue {
-    color: #3F51B5;
-}
-
-.pink {
-    color: #FF4081;
-}
-
-.post_upvote, .post_downvote {
-    cursor: pointer;
-}
-
-.tabs-row {
-    padding: 0;
-    background: #FFF;
 }
 
 .post_body {
@@ -105,4 +61,9 @@ div.body {
 
 #select_college {
     margin: 0 10px 0 0;
+}
+
+.title {
+    text-align: center;
+    padding: 5vh 0;
 }
