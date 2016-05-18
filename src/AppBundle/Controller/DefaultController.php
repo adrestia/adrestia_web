@@ -52,7 +52,7 @@ class DefaultController extends Controller
 
                 // Get a unique API key
                 do {
-                    $apikey = self::guidv4();
+                    $apikey = Utilities::guidv4();
                     $entity = $em->getRepository('AppBundle\Entity\User')->findOneBy(array('api_key' => $apikey));
                 } while($entity !== null);
         
@@ -64,7 +64,7 @@ class DefaultController extends Controller
         
                 // Generate a new token for confirmation
                 do {
-                    $token = self::guidv4();
+                    $token = Utilities::guidv4();
                     $entity = $em->getRepository('AppBundle:EmailAuth')->findOneBy(array('token' => $token));
                 } while($entity !== null);
         
@@ -78,7 +78,7 @@ class DefaultController extends Controller
                 $em->flush();
         
                 // Send the confirmation email
-                self::sendEmail($user->getEmail(), $token);
+                Utilities::sendEmail($user->getEmail(), $token);
         
                 // Show the confirmation email
                 return $this->render(
@@ -129,6 +129,7 @@ class DefaultController extends Controller
                 'p.id = l.post AND l.user = :user'
                 )
             ->setParameter('user', $user->getId())
+            ->setMaxResults(25)
             ->groupBy('p', 'l');
         
         $sorting = strtolower($sorting);

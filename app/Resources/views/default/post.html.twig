@@ -12,6 +12,10 @@
 {% block body %}
     <div class="row row_wrapper">
         <div class="small-10 medium-8 small-centered columns">
+            <div id="college_header">
+                {{ app.user.getCollege.getName }}
+                <hr width="40%">
+            </div>
             <div class="row post" data-post-id="{{post.id}}">
                 <div class="small-11 columns body">
                     <p class="post_body">{{ post.body }}</p>

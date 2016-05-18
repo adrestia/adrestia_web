@@ -2,10 +2,6 @@
     margin-top: 40px;
 }
 
-#post_form {
-    padding-top: 10vh;
-}
-
 .comment, .new_comment {
 	position: relative;
     background-color: #F8F8F8;

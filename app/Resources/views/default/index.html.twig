@@ -35,11 +35,15 @@
 {% block body %}
     <div class="row wrapper">
         <div class="small-10 medium-10 small-centered columns">
+            <div id="college_header">
+                {{ app.user.getCollege.getName }}
+                <hr width="40%">
+            </div>
             {% if posts|length == 0 %}
                 <h4> There doesn't seem to be anything here! </h4>
             {% else %}
             {% for post in posts %}
-                <div class="row post" data-post-id="{{post.id}}">
+                <div class="row post" data-post-id="{{post.id}}" data-post-count="{{ loop.index0 }}">
                     <div class="small-11 columns body">
                         {% if post.body|length > 150 %} 
                             <p class="post_body">{{ post.body|slice(0, 140) }} <a href="{{ path('post_view', {'post_id' : post.id }) }}"> More...</a></p>
