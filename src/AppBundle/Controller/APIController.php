@@ -342,4 +342,70 @@ class APIController extends Controller
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
         }   
     } 
+     /**
+     * @Route("/posts/downvote", name="api_downvote_post")
+     * @Method({"POST"})
+     */
+    public function downvotePostAction(Request $request) 
+    {
+        // Get the post_id
+        $post_id = $request->request->get("post_id");
+        
+        // Get current user
+        $user = Utilities::getCurrentUser($this);
+        
+        // Get the entity manager
+        $em = Utilities::getEntityManager($this);
+        
+        // Get the post from the post_id in the database
+        $post = $em->getRepository('AppBundle:Post')
+                   ->find($post_id);
+        
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+
+        // Try to add the downvote
+        try {
+            $like = $em->getRepository('AppBundle:PostLikes')
+                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+
+            if(!isset($like)) {
+                $dislike = new PostLikes;
+                $dislike->setIsLike(false);
+                $dislike->setUser($user);
+                $dislike->setPost($post);
+                $post->setDownvotes($post->getDownvotes() + 1);
+                $user->setScore($user->getScore() - 1);
+                $post->addLike($dislike);
+                $em->persist($dislike);
+            } else {
+                if($like->getIsLike()) {
+                    $post->setUpvotes($post->getUpvotes() - 1);
+                    $post->setDownvotes($post->getDownvotes() + 1);
+                    $user->setScore($user->getScore() - 2);
+                    $like->setIsLike(false);
+                    $em->persist($like);
+                } else {
+                    $post->setDownvotes($post->getDownvotes() - 1);
+                    $user->setScore($user->getScore() + 1);
+                    $em->remove($like);
+                    $post->removeLike($like);
+                }
+            }
+            $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
+            $em->persist($user);
+            $em->persist($post);
+            $em->flush();
+            $score = ($post->getUpvotes() - $post->getDownvotes());
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike. $e->message'));  
+        }
+
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting', 'score' => $score));
+    }
 }
