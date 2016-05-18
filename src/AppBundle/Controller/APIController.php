@@ -244,50 +244,117 @@ class APIController extends Controller
     }
 
     /**
-     * @Route("/{sorting}", name="homepage", requirements={"sorting":"top|new|hot|^$"})
+     * @Route("/{sorting}", name="api_home", requirements={"sorting":"top|new|hot|^$"})
      * @Method({"GET"})
      */
     public function indexAction(Request $request, $sorting)
     {   
-        
-    }
+        // Need to see if there is a user that is logged in
+        // If not, then present them with the homepage :)
+        if(!$this->get('security.authorization_checker')->isGranted('ROLE_USER')) {
+            
+            $user = new User();
+            $form = $this->createForm(UserType::class, $user);
     
+            // Handle Request
+            $form->handleRequest($request);
 
-
-    
-    /**
-     * @Route("/posts", name="api_new_post")
-     * @Method({"POST"})
-     */
-    public function newPostAction(Request $request) 
-    {
-        // Get the User's IP address
-        $post_ip = Utilities::getCurrentIp($this);
-    
-        // Need to get the current user based on security acces
-        $user = Utilities::getCurrentUser($this);
-    
-        // Get the body of the post from the request
-        $body = $request->get('body');
+            if ($form->isSubmitted() && $form->isValid()) {
         
-        $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
-    
-        // We have everything we need now
-        // Time to add the post to the database
-        try {
-            $em = Utilities::getEntityManager($this);
-            $post = new Post;
-            $post->setBody($body);
-            $post->setScore(Utilities::hot(0, 0, new \DateTime('NOW')));
-            $post->setIpAddress($post_ip);
-            $post->setCollege($user->getCollege());
-            $post->setUser($user);
-            $em->persist($post);
-            $em->flush();
-            return new JsonResponse(array('status' => 200, 'message' => 'Success', 'post_id' => $post->getId()));
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
+                $em = $this->getDoctrine()->getManager();
+        
+                // Encode the password
+                $password = $this->get('security.password_encoder')
+                    ->encodePassword($user, $user->getPlainPassword());
+                $user->setPassword($password);
+
+                // Get a unique API key
+                do {
+                    $apikey = self::guidv4();
+                    $entity = $em->getRepository('AppBundle\Entity\User')->findOneBy(array('api_key' => $apikey));
+                } while($entity !== null);
+        
+                // Set their API key
+                $user->setApiKey($apikey);
+        
+                // Create an email confirmation token
+                $email_auth = new EmailAuth();
+        
+                // Generate a new token for confirmation
+                do {
+                    $token = self::guidv4();
+                    $entity = $em->getRepository('AppBundle:EmailAuth')->findOneBy(array('token' => $token));
+                } while($entity !== null);
+        
+                // Configure the confirmation token
+                $email_auth->setToken($token);
+                $email_auth->setUser($user);
+        
+                // Save the user
+                $em->persist($user);
+                $em->persist($email_auth);
+                $em->flush();
+        
+                // Send the confirmation email
+                self::sendEmail($user->getEmail(), $token);
+                return new JsonResponse(array('status' => 400, 'message' => 'Email not confirmed'));
+            }
+
+            return new JsonResponse(array('status' => 400, 'message' => 'Returned to home page'));
         }
+        
+        $em = Utilities::getEntityManager($this);
+        
+        $user = Utilities::getCurrentUser($this);
+        
+        /*
+        EQUIVALENT QUERY TO BUILDER BELOW
+
+       "SELECT p.id, p.user_id, p.body, p.upvotes, 
+                p.downvotes, p.score, p.reports, 
+                p.created, l.is_like, l.user_id, 
+                l.post_id, SUM(p.upvotes - p.downvotes) AS top
+         FROM posts p
+         WHERE p.college = :college AND p.hidden = false
+         LEFT JOIN post_likes l
+         ON p.id = l.post_id AND l.user_id = ? 
+         GROUP BY p.id, p.user_id, p.body, p.upvotes
+                  p.downvotes, p.score, p.reports,
+                  p.created, l.is_like, l.user_id,
+                  l.post_id
+         ORDER BY created DESC;";
+        */
+                 
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('p', 'l')
+            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
+            ->from('AppBundle:Post', 'p') 
+            ->where('p.college = :college AND p.hidden = false')
+            ->setParameter('college', $user->getCollege())
+            ->leftJoin(
+                'p.likes',
+                'l',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'p.id = l.post AND l.user = :user'
+                )
+            ->setParameter('user', $user->getId())
+            ->groupBy('p', 'l');
+        
+        $sorting = strtolower($sorting);
+        if($sorting === "new") {
+            $builder->orderBy('p.created', 'DESC');
+        } elseif ($sorting === "top") {
+            $builder->orderBy('top', 'DESC');
+        } elseif ($sorting === "hot") {
+            $builder->orderBy('p.score', 'DESC');
+        } else {
+            $sorting === "hot";
+            $builder->orderBy('p.created', 'DESC');
+        }
+                
+        $posts = $builder->getQuery()->getResult();
+        return new JsonResponse(array('status' => 200, 'message' => 'Success'));
     }
     
     /**
