@@ -17,6 +17,8 @@ use AppBundle\Entity\User;
 use AppBundle\Entity\College;
 use AppBundle\Entity\EmailAuth;
 use AppBundle\Helper\Utilities;
+use AppBundle\Entity\Comment;
+use AppBundle\Entity\CommentLikes;
 
 /**
  * @Route("/api")
@@ -340,6 +342,49 @@ class APIController extends Controller
             return new JsonResponse(array('status' => 200, 'message' => 'Success'));
         } catch (\Doctrine\DBAL\DBALException $e) {
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
+        }   
+    }
+    /**
+     * @Route("/comments", name="api_new_comment")
+     * @Method({"POST"})
+     */
+    public function newCommentAction(Request $request) 
+    {
+        $post_id = $request->request->get("post_id");
+
+        // Get the Post Number
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+
+        // Need to get the current user based on security acces
+        $user = Utilities::getCurrentUser($this);
+
+        // Get the User's IP address
+        $comment_ip = Utilities::getCurrentIp($this);
+    
+        // Get the body of the comment from the request
+        $body = $request->get('body');
+        
+        $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
+        
+        // Check if the person commenting is the OP on the post
+        $is_op = $post->getUser()->getId() === $user->getId();
+    
+        // We have everything we need now
+        // Time to add the post to the database
+        try {
+            $em = Utilities::getEntityManager($this);
+            $comment = new Comment;
+            $comment->setPost($post);
+            $comment->setBody($body);
+            $comment->setIpAddress($comment_ip);
+            $comment->setUser($user);
+            $em->persist($comment);
+            $em->flush();
+            return new JsonResponse(array('status' => 200, 'message' => 'Success in posting comments', 'comment_id' => $comment->getId(), 'is_op' => $is_op));
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to comment.'));
         }   
     } 
 }
