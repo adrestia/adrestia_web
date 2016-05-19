@@ -516,7 +516,7 @@ class APIController extends Controller
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());
         } catch (\Docrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like.' . $e->message));
         }
         
         return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
