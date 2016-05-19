@@ -166,7 +166,7 @@ class APIController extends Controller
      */
     public function upvoteCommentAction(Request $request) 
     {
-       // Get post id from the request
+       // Get comment id from the request
        $comment_id = $request->get("comment_id");
 
        // Get current user
@@ -175,15 +175,15 @@ class APIController extends Controller
        // Get the entity manager for Doctrine
        $em = Utilities::getEntityManager($this);
 
-       // Get the post from the post_id in the database
+       // Get the comment from the comment_id in the database
        $comment = $em->getRepository('AppBundle:Comment')
                      ->find($comment_id);
        
-       // If anything other than a post is returned (including null)
+       // If anything other than a comment is returned (including null)
        // throw an error.
        if (!$comment) {
            throw $this->createNotFoundException(
-                'No post found for id ' . $id
+                'No comment found for id ' . $id
             );
         }
 
@@ -219,7 +219,7 @@ class APIController extends Controller
             $em->flush();
             $score = ($comment->getUpvotes() - $comment->getDownvotes());
         } catch (\Docrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like.' . $e->message));
         }
 
         return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
@@ -231,7 +231,7 @@ class APIController extends Controller
      */
     public function downvoteCommentAction(Request $request) 
     {
-       // Get the post_id
+       // Get the comment_id
        $comment_id = $request->get('comment_id');
 
        // Get current user
@@ -240,15 +240,15 @@ class APIController extends Controller
        // Get the entity manager
        $em = Utilities::getEntityManager($this);
 
-       // Get the post from the post_id in the database
+       // Get the comment from the comment_id in the database
        $comment = $em->getRepository('AppBundle:Comment')
                      ->find($comment_id);
 
-      // If anything other than a post is returned (including null)
+      // If anything other than a comment is returned (including null)
       // throw an error.
       if (!$comment) {
           throw $this->createNotFoundException(
-               'No post found for id ' . $id
+               'No post comment for id ' . $id
            );
        }
 
@@ -285,7 +285,7 @@ class APIController extends Controller
            $em->flush();
            $score = ($comment->getUpvotes() - $comment->getDownvotes());
        } catch (\Doctrine\DBAL\DBALException $e) {
-           return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike.' . $e->message));  
+           return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike comment' . $e->message));  
        }
 
        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting', 'score' => $score));
