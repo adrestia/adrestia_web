@@ -94,24 +94,24 @@ class APIController extends Controller
     }
     
     /**
-    * @Route("/posts/downvote", name="api_downvote_post")
-    * @Method({"POST"})
-    */
-   public function downvotePostAction(Request $request) 
-   {
+     * @Route("/posts/downvote", name="api_downvote_post")
+     * @Method({"POST"})
+     */
+    public function downvotePostAction(Request $request) 
+    {
        // Get the post_id
        $post_id = $request->request->get("post_id");
-       
+   
        // Get current user
        $user = Utilities::getCurrentUser($this);
-       
+   
        // Get the entity manager
        $em = Utilities::getEntityManager($this);
-       
+   
        // Get the post from the post_id in the database
        $post = $em->getRepository('AppBundle:Post')
                   ->find($post_id);
-       
+   
        // If anything other than a post is returned (including null)
        // throw an error.
        if (!$post) {
@@ -119,7 +119,7 @@ class APIController extends Controller
                'No post found for id ' . $id
            );
        }
-       
+   
        // Try to add the downvote
        try {
            $like = $em->getRepository('AppBundle:PostLikes')
@@ -156,9 +156,74 @@ class APIController extends Controller
        } catch (\Doctrine\DBAL\DBALException $e) {
            return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike.' . $e->message));  
        }
-       
+   
        return new JsonResponse(array('status' => 200, 'message' => 'Success on downvoting', 'score' => $score));
-   }
+    }
+
+    /**
+     * @Route("/comments/upvote", name="api_upvote_comment")
+     * @Method({"POST"})
+     */
+    public function upvoteCommentAction(Request $request) 
+    {
+       // Get post id from the request
+       $comment_id = $request->get("comment_id");
+
+       // Get current user
+       $user = Utilities::getCurrentUser($this);
+
+       // Get the entity manager for Doctrine
+       $em = Utilities::getEntityManager($this);
+
+       // Get the post from the post_id in the database
+       $comment = $em->getRepository('AppBundle:Comment')
+                     ->find($comment_id);
+
+       // If anything other than a post is returned (including null)
+       // throw an error.
+       if (!$comment) {
+           throw $this->createNotFoundException(
+               'No comment found for id ' . $id
+           );
+       }
+
+       try {
+           $like = $em->getRepository('AppBundle:CommentLikes')
+                      ->findOneBy(array('comment' => $comment_id, 'user' => $user->getId()));
+    
+           if(!isset($like)) {
+               $like = new CommentLikes;
+               $like->setIsLike(true);
+               $like->setUser($user);
+               $like->setComment($comment);
+               $comment->setUpvotes($comment->getUpvotes() + 1);
+               $user->setScore($user->getScore() + 1);
+               $comment->addLike($like);
+               $em->persist($like);
+           } else {
+               if($like->getIsLike()) {
+                   $comment->setUpvotes($comment->getUpvotes() - 1);
+                   $user->setScore($user->getScore() - 1);
+                   $comment->removeLike($like);
+                   $em->remove($like);
+               } else {
+                   $comment->setUpvotes($comment->getUpvotes() + 1);
+                   $comment->setDownvotes($comment->getDownvotes() - 1);
+                   $user->setScore($user->getScore() + 2);
+                   $like->setIsLike(true);
+                   $em->persist($like);
+               }
+           }
+           $em->persist($user);
+           $em->persist($comment);
+           $em->flush();
+           $score = ($comment->getUpvotes() - $comment->getDownvotes());
+       } catch (\Docrine\DBAL\DBALException $e) {
+           return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
+       }
+
+       return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
+    }
 
     /**
      * @Route("/{sorting}", name="api_home", requirements={"sorting":"top|new|hot|^$"})
@@ -167,9 +232,9 @@ class APIController extends Controller
     public function indexAction(Request $request, $sorting)
     {
         $em = Utilities::getEntityManager($this);
-        
+    
         $user = Utilities::getCurrentUser($this);
-        
+    
         /*
         EQUIVALENT QUERY TO BUILDER BELOW
 
@@ -187,7 +252,7 @@ class APIController extends Controller
                   l.post_id
          ORDER BY created DESC;";
         */
-                 
+             
         $builder = $em->createQueryBuilder();
         $builder
             ->select('p', 'l')
@@ -203,7 +268,7 @@ class APIController extends Controller
                 )
             ->setParameter('user', $user->getId())
             ->groupBy('p', 'l');
-        
+    
         $sorting = strtolower($sorting);
         if($sorting === "new") {
             $builder->orderBy('p.created', 'DESC');
@@ -215,13 +280,13 @@ class APIController extends Controller
             $sorting === "hot";
             $builder->orderBy('p.created', 'DESC');
         }
-                
+            
         $posts = $builder->getQuery()->getResult();
         $serializer = $this->container->get('serializer');
         $reports = $serializer->serialize($posts, 'json');
         return new JsonResponse(array('status' => 200, 'posts' => $reports));
     }
-    
+
     /**
      * @Route("/posts/{post_id}", name="get_post", requirements={"post_id" = "\d+"})
      */
@@ -231,7 +296,7 @@ class APIController extends Controller
         $post = $this->getDoctrine()
                      ->getRepository('AppBundle:Post')
                      ->find($post_id);
-    
+
         // If anything other than a post is returned (including null)
         // throw an error.
         if (!$post) {
@@ -239,12 +304,12 @@ class APIController extends Controller
                 'No post found for id ' . $id
             );
         }
-        
+    
         $serializer = $this->container->get('serializer');
         $reports = $serializer->serialize($post, 'json');
         return new Response($reports);
     }
-    
+
       /**
      * @Route("/posts", name="api_remove_post")
      * @Method({"DELETE"})
@@ -258,7 +323,7 @@ class APIController extends Controller
         $post = $this->getDoctrine()
                      ->getRepository('AppBundle:Post')
                      ->find($post_id);
-    
+
         // If anything other than a post is returned (including null)
         // throw an error.
         if (!$post) {
@@ -266,7 +331,7 @@ class APIController extends Controller
                 'No post found for id ' . $id
             );
         }
-        
+    
         if($post->getUser() !== Utilities::getCurrentUser($this)) {
             return new JsonResponse(
                 array(
@@ -275,7 +340,7 @@ class APIController extends Controller
                     )
             );
         }
-        
+    
         // Time to delete the post to the database
         try {
             $em = Utilities::getEntityManager($this);
@@ -287,7 +352,7 @@ class APIController extends Controller
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
         }   
     }
-    
+
     /**
      * @Route("/comments", name="api_new_comment")
      * @Method({"POST"})
@@ -306,15 +371,15 @@ class APIController extends Controller
 
         // Get the User's IP address
         $comment_ip = Utilities::getCurrentIp($this);
-    
+
         // Get the body of the comment from the request
         $body = $request->get('body');
-        
+    
         $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
-        
+    
         // Check if the person commenting is the OP on the post
         $is_op = $post->getUser()->getId() === $user->getId();
-    
+
         // We have everything we need now
         // Time to add the post to the database
         try {
@@ -331,7 +396,7 @@ class APIController extends Controller
             return new JsonResponse(array('status' => 400, 'message' => 'Unable to comment.'));
         }   
     } 
-    
+
     /**
      * @Route("/register", name="api_register")
      * @Method({"POST"})
@@ -341,16 +406,16 @@ class APIController extends Controller
         $email = $request->get('email');
         $plain_password = $request->get('password');
         $college_name = $request->get('college_name');
-        
+    
         // Validation checks
         $emailConstraint = new EmailConstraint();
         $emailConstraint->message = "Not a valid email address.";
-        
+    
         $errors = $this->get('validator')->validate(
             $email,
             $emailConstraint 
         );
-        
+    
         // Make sure email is valid
         if(count($errors) > 0) {
             return new JsonResponse(
@@ -360,7 +425,7 @@ class APIController extends Controller
                 )
             );
         }
-        
+    
         // Make sure email ends in .edu
         $edu_pattern = "/\.edu$/";
         if(!preg_match($edu_pattern, $email)) {
@@ -371,7 +436,7 @@ class APIController extends Controller
                 )
             );
         }
-        
+    
         // Make sure password is at least 8 characters
         if(strlen($plain_password) < 8) {
             return new JsonResponse(
@@ -383,11 +448,11 @@ class APIController extends Controller
         }
 
         $em = Utilities::getEntityManager($this);
-        
+    
         // Make sure user doesn't already exist in the database
         $user = $em->getRepository('AppBundle:User')
                    ->findOneBy(array('email' => $email));
-        
+    
         if($user) {
             return new JsonResponse(
                 array(
@@ -396,21 +461,21 @@ class APIController extends Controller
                 )
             ); 
         }
-        
+    
         // Passed validation. Create the user.
         $user = new User();
-        
+    
         $user->setEmail($email);
-        
+    
         // Encode the password
         $password = $this->get('security.password_encoder')
             ->encodePassword($user, $plain_password);
         $user->setPassword($password);
-        
+    
         // Set the college of the user
         $college = $em->getRepository('AppBundle:College')
                       ->findOneBy(array('name' => $college_name));
-        
+    
         if(!$college) {
             return new JsonResponse(
                 array(
@@ -419,39 +484,39 @@ class APIController extends Controller
                 )
             );
         }
-        
+    
         $user->setCollege($college);
-        
+    
         // Get a unique API key
         do { 
             $apikey = RegistrationController::guidv4();
             $entity = $em->getRepository('AppBundle\Entity\User')->findOneBy(array('api_key' => $apikey));
         } while($entity !== null);
-        
+    
         // Set their API key
         $user->setApiKey($apikey);
-        
+    
         // Create an email confirmation token
         $email_auth = new EmailAuth();
-        
+    
         // Generate a new token for confirmation
         do {
             $token = RegistrationController::guidv4();
             $entity = $em->getRepository('AppBundle:EmailAuth')->findOneBy(array('token' => $token));
         } while($entity !== null);
-        
+    
         // Configure the confirmation token
         $email_auth->setToken($token);
         $email_auth->setUser($user);
-        
+    
         // Save the user
         $em->persist($user);
         $em->persist($email_auth);
         $em->flush();
-        
+    
         // Send the confirmation email
         $sent = RegistrationController::sendEmail($user->getEmail(), $token);
-        
+    
         if($sent) {
             return new JsonResponse(
                 array(
@@ -468,7 +533,7 @@ class APIController extends Controller
             ); 
         }
     }
-    
+
     /**
      * @Route("/login", name="api_login")
      * @Method({"POST"})
@@ -477,16 +542,16 @@ class APIController extends Controller
     {
         $email = $request->get('email');
         $plain_password = $request->get('password');
-        
+    
         // Validation checks
         $emailConstraint = new EmailConstraint();
         $emailConstraint->message = "Not a valid email address.";
-        
+    
         $errors = $this->get('validator')->validate(
             $email,
             $emailConstraint 
         );
-        
+    
         // Make sure email is valid
         if(count($errors) > 0) {
             return new JsonResponse(
@@ -496,7 +561,7 @@ class APIController extends Controller
                 )
             );
         }
-        
+    
         // Make sure email ends in .edu
         $edu_pattern = "/\.edu$/";
         if(!preg_match($edu_pattern, $email)) {
@@ -507,7 +572,7 @@ class APIController extends Controller
                 )
             );
         }
-        
+    
         // Make sure password is at least 8 characters
         if(strlen($plain_password) < 8) {
             return new JsonResponse(
@@ -517,15 +582,15 @@ class APIController extends Controller
                 )
             );
         }
-        
+    
         // Password and Email have passed basic checks
         // Time to find the data
         $em = Utilities::getEntityManager($this);
-        
+    
         // Find a user
         $user = $em->getRepository('AppBundle:User')
                    ->findOneBy(array('email' => $email, 'is_active' => 1));
-        
+    
         if(!$user) {
             return new JsonResponse(
                 array(
@@ -534,7 +599,7 @@ class APIController extends Controller
                 )
             ); 
         }
-        
+    
         if(password_verify($plain_password, $user->getPassword())) {
             return new JsonResponse(
                 array(
