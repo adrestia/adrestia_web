@@ -225,25 +225,25 @@ class APIController extends Controller
         return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
     }
 
-   /**
-    * @Route("/comments/downvote", name="api_downvote_comment")
-    * @Method({"POST"})
-    */
-   public function downvoteCommentAction(Request $request) 
-   {
+    /**
+     * @Route("/comments/downvote", name="api_downvote_comment")
+     * @Method({"POST"})
+     */
+    public function downvoteCommentAction(Request $request) 
+    {
        // Get the post_id
        $comment_id = $request->get('comment_id');
- 
+
        // Get current user
        $user = Utilities::getCurrentUser($this);
- 
+
        // Get the entity manager
        $em = Utilities::getEntityManager($this);
- 
+
        // Get the post from the post_id in the database
        $comment = $em->getRepository('AppBundle:Comment')
                      ->find($comment_id);
- 
+
       // If anything other than a post is returned (including null)
       // throw an error.
       if (!$comment) {
@@ -289,7 +289,7 @@ class APIController extends Controller
        }
 
        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting', 'score' => $score));
-   }
+    }
 
     /**
      * @Route("/{sorting}", name="api_home", requirements={"sorting":"top|new|hot|^$"})
