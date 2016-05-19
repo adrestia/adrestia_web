@@ -411,3 +411,69 @@ class APIController extends Controller
         return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
     }
 }
+
+/**
+     * @Route("/comments/downvote", name="api_downvote_comment")
+     * @Method({"POST"})
+     */
+    public function downvoteCommentAction(Request $request) 
+    {
+        // Get the post_id
+        $comment_id = $request->get('comment_id');
+        
+        // Get current user
+        $user = Utilities::getCurrentUser($this);
+        
+        // Get the entity manager
+        $em = Utilities::getEntityManager($this);
+        
+        // Get the post from the post_id in the database
+        $comment = $em->getRepository('AppBundle:Comment')
+                      ->find($comment_id);
+        
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$comment) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+
+        // Try to add the downvote
+        try {
+            $like = $em->getRepository('AppBundle:CommentLikes')
+                       ->findOneBy(array('comment' => $comment_id, 'user' => $user->getId()));
+
+            if(!isset($like)) {
+                $dislike = new CommentLikes;
+                $dislike->setIsLike(false);
+                $dislike->setUser($user);
+                $dislike->setComment($comment);
+                $comment->setDownvotes($comment->getDownvotes() + 1);
+                $user->setScore($user->getScore() - 1);
+                $comment->addLike($dislike);
+                $em->persist($dislike);
+            } else {
+                if($like->getIsLike()) {
+                    $comment->setUpvotes($comment->getUpvotes() - 1);
+                    $comment->setDownvotes($comment->getDownvotes() + 1);
+                    $user->setScore($user->getScore() - 2);
+                    $like->setIsLike(false);
+                    $em->persist($like);
+                } else {
+                    $comment->setDownvotes($comment->getDownvotes() - 1);
+                    $user->setScore($user->getScore() + 1);
+                    $em->remove($like);
+                    $comment->removeLike($like);
+                }
+            }
+            $em->persist($user);
+            $em->persist($comment);
+            $em->flush();
+            $score = ($comment->getUpvotes() - $comment->getDownvotes());
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike. $e->message'));  
+        }
+
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting', 'score' => $score));
+    }
