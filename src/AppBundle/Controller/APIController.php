@@ -160,6 +160,45 @@ class APIController extends Controller
             ); 
         }
     }
+
+    /**
+     * @Route("/profile", name="profile")
+     */
+    public function profileAction(Request $request) 
+    {
+        $changePasswordModel = new ChangePassword();
+        $form = $this->createForm(ChangePasswordType::class, $changePasswordModel);
+
+        $form->handleRequest($request);
+        
+        $em = Utilities::getEntityManager($this);
+        $user = Utilities::getCurrentUser($this);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $password = $this->get('security.password_encoder')
+                ->encodePassword($user, $changePasswordModel->getNewPassword());
+            $user->setPassword($password);
+            $user->setUpdated(new \DateTime);
+            $em->persist($user);
+            $em->flush();
+            
+            return new JsonResponse(
+                array(
+                    'status' => 200, 
+                    'form' => $form->createView(),
+                    'flash' => "Successfully Updated Password!",
+                )
+            );
+        }
+
+        return new JsonResponse(
+                array(
+                    'status' => 200, 
+                    'form' => $form->createView(),
+                )
+            );
+    }
+    
     
     /**
      * @Route("/login", name="api_login")
