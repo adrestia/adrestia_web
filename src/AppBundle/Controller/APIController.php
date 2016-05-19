@@ -217,7 +217,9 @@ class APIController extends Controller
         }
                 
         $posts = $builder->getQuery()->getResult();
-        return new JsonResponse(array('status' => 200, 'message' => 'Success'));
+        $serializer = $this->container->get('serializer');
+        $reports = $serializer->serialize($posts, 'json');
+        return new JsonResponse(array('status' => 200, 'posts' => $reports));
     }
     
     /**
