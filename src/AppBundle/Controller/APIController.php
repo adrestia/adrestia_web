@@ -18,12 +18,386 @@ use AppBundle\Entity\College;
 use AppBundle\Entity\EmailAuth;
 use AppBundle\Entity\PostLikes;
 use AppBundle\Helper\Utilities;
+use AppBundle\Entity\Comment;
+use AppBundle\Entity\CommentLikes;
 
 /**
  * @Route("/api")
  */
 class APIController extends Controller
-{
+{   
+    /**
+     * @Route("/posts/upvote", name="api_upvote_post")
+     * @Method({"POST"})
+     */
+    public function upvotePostAction(Request $request) 
+    {
+        // Get post id from the request
+        $post_id = $request->request->get("post_id");
+        
+        // Get current user
+        $user = Utilities::getCurrentUser($this);
+        
+        // Get the entity manager for Doctrine
+        $em = Utilities::getEntityManager($this);
+
+        // Get the post from the post_id in the database
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+    
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+
+        try{
+            $like = $em->getRepository('AppBundle:PostLikes')
+                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+            
+            if(!isset($like)) {
+                $like = new PostLikes;
+                $like->setIsLike(true);
+                $like->setUser($user);
+                $like->setPost($post);
+                $post->setUpvotes($post->getUpvotes() + 1);
+                $user->setScore($user->getScore() + 1);
+                $post->addLike($like);
+                $em->persist($like);
+            } else {
+                if($like->getIsLike()) {
+                    $post->setUpvotes($post->getUpvotes() - 1);
+                    $user->setScore($user->getScore() - 1);
+                    $post->removeLike($like);
+                    $em->remove($like);
+                } else {
+                    $post->setUpvotes($post->getUpvotes() + 1);
+                    $post->setDownvotes($post->getDownvotes() - 1);
+                    $user->setScore($user->getScore() + 2);
+                    $like->setIsLike(true);
+                    $em->persist($like);
+                }
+            }
+            $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
+            $em->persist($user);
+            $em->persist($post);
+            $em->flush();
+            $score = ($post->getUpvotes() - $post->getDownvotes());
+        } catch (\Docrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like.' . $e->message));
+        }
+        
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
+    }
+    
+    /**
+    * @Route("/posts/downvote", name="api_downvote_post")
+    * @Method({"POST"})
+    */
+   public function downvotePostAction(Request $request) 
+   {
+       // Get the post_id
+       $post_id = $request->request->get("post_id");
+       
+       // Get current user
+       $user = Utilities::getCurrentUser($this);
+       
+       // Get the entity manager
+       $em = Utilities::getEntityManager($this);
+       
+       // Get the post from the post_id in the database
+       $post = $em->getRepository('AppBundle:Post')
+                  ->find($post_id);
+       
+       // If anything other than a post is returned (including null)
+       // throw an error.
+       if (!$post) {
+           throw $this->createNotFoundException(
+               'No post found for id ' . $id
+           );
+       }
+       
+       // Try to add the downvote
+       try {
+           $like = $em->getRepository('AppBundle:PostLikes')
+                      ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+
+           if(!isset($like)) {
+               $dislike = new PostLikes;
+               $dislike->setIsLike(false);
+               $dislike->setUser($user);
+               $dislike->setPost($post);
+               $post->setDownvotes($post->getDownvotes() + 1);
+               $user->setScore($user->getScore() - 1);
+               $post->addLike($dislike);
+               $em->persist($dislike);
+           } else {
+               if($like->getIsLike()) {
+                   $post->setUpvotes($post->getUpvotes() - 1);
+                   $post->setDownvotes($post->getDownvotes() + 1);
+                   $user->setScore($user->getScore() - 2);
+                   $like->setIsLike(false);
+                   $em->persist($like);
+               } else {
+                   $post->setDownvotes($post->getDownvotes() - 1);
+                   $user->setScore($user->getScore() + 1);
+                   $em->remove($like);
+                   $post->removeLike($like);
+               }
+           }
+           $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
+           $em->persist($user);
+           $em->persist($post);
+           $em->flush();
+           $score = ($post->getUpvotes() - $post->getDownvotes());
+       } catch (\Doctrine\DBAL\DBALException $e) {
+           return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike.' . $e->message));  
+       }
+       
+       return new JsonResponse(array('status' => 200, 'message' => 'Success on downvoting', 'score' => $score));
+   }
+   
+   /**
+    * @Route("/comments/downvote", name="api_downvote_comment")
+    * @Method({"POST"})
+    */
+   public function downvoteCommentAction(Request $request) 
+   {
+       // Get the post_id
+       $comment_id = $request->get('comment_id');
+    
+       // Get current user
+       $user = Utilities::getCurrentUser($this);
+    
+       // Get the entity manager
+       $em = Utilities::getEntityManager($this);
+    
+       // Get the post from the post_id in the database
+       $comment = $em->getRepository('AppBundle:Comment')
+                     ->find($comment_id);
+    
+       // If anything other than a post is returned (including null)
+       // throw an error.
+       if (!$comment) {
+           throw $this->createNotFoundException(
+               'No post found for id ' . $id
+           );
+       }
+
+       // Try to add the downvote
+       try {
+           $like = $em->getRepository('AppBundle:CommentLikes')
+                      ->findOneBy(array('comment' => $comment_id, 'user' => $user->getId()));
+
+           if(!isset($like)) {
+               $dislike = new CommentLikes;
+               $dislike->setIsLike(false);
+               $dislike->setUser($user);
+               $dislike->setComment($comment);
+               $comment->setDownvotes($comment->getDownvotes() + 1);
+               $user->setScore($user->getScore() - 1);
+               $comment->addLike($dislike);
+               $em->persist($dislike);
+           } else {
+               if($like->getIsLike()) {
+                   $comment->setUpvotes($comment->getUpvotes() - 1);
+                   $comment->setDownvotes($comment->getDownvotes() + 1);
+                   $user->setScore($user->getScore() - 2);
+                   $like->setIsLike(false);
+                   $em->persist($like);
+               } else {
+                   $comment->setDownvotes($comment->getDownvotes() - 1);
+                   $user->setScore($user->getScore() + 1);
+                   $em->remove($like);
+                   $comment->removeLike($like);
+               }
+           }
+           $em->persist($user);
+           $em->persist($comment);
+           $em->flush();
+           $score = ($comment->getUpvotes() - $comment->getDownvotes());
+       } catch (\Doctrine\DBAL\DBALException $e) {
+           return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike.' . $e->message));  
+       }
+
+       return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting', 'score' => $score));
+   }
+
+    /**
+     * @Route("/{sorting}", name="api_home", requirements={"sorting":"top|new|hot|^$"})
+     * @Method({"GET"})
+     */
+    public function indexAction(Request $request, $sorting)
+    {
+        $em = Utilities::getEntityManager($this);
+        
+        $user = Utilities::getCurrentUser($this);
+        
+        /*
+        EQUIVALENT QUERY TO BUILDER BELOW
+
+       "SELECT p.id, p.user_id, p.body, p.upvotes, 
+                p.downvotes, p.score, p.reports, 
+                p.created, l.is_like, l.user_id, 
+                l.post_id, SUM(p.upvotes - p.downvotes) AS top
+         FROM posts p
+         WHERE p.college = :college AND p.hidden = false
+         LEFT JOIN post_likes l
+         ON p.id = l.post_id AND l.user_id = ? 
+         GROUP BY p.id, p.user_id, p.body, p.upvotes
+                  p.downvotes, p.score, p.reports,
+                  p.created, l.is_like, l.user_id,
+                  l.post_id
+         ORDER BY created DESC;";
+        */
+                 
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('p', 'l')
+            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
+            ->from('AppBundle:Post', 'p') 
+            ->where('p.college = :college AND p.hidden = false')
+            ->setParameter('college', $user->getCollege())
+            ->leftJoin(
+                'p.likes',
+                'l',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'p.id = l.post AND l.user = :user'
+                )
+            ->setParameter('user', $user->getId())
+            ->groupBy('p', 'l');
+        
+        $sorting = strtolower($sorting);
+        if($sorting === "new") {
+            $builder->orderBy('p.created', 'DESC');
+        } elseif ($sorting === "top") {
+            $builder->orderBy('top', 'DESC');
+        } elseif ($sorting === "hot") {
+            $builder->orderBy('p.score', 'DESC');
+        } else {
+            $sorting === "hot";
+            $builder->orderBy('p.created', 'DESC');
+        }
+                
+        $posts = $builder->getQuery()->getResult();
+        $serializer = $this->container->get('serializer');
+        $reports = $serializer->serialize($posts, 'json');
+        return new JsonResponse(array('status' => 200, 'posts' => $reports));
+    }
+    
+    /**
+     * @Route("/posts/{post_id}", name="get_post", requirements={"post_id" = "\d+"})
+     */
+    public function getPostAction(Request $request, $post_id)
+    {
+        // Get the post from the post_id in the database
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+    
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+        
+        $serializer = $this->container->get('serializer');
+        $reports = $serializer->serialize($post, 'json');
+        return new Response($reports);
+    }
+    
+      /**
+     * @Route("/posts", name="api_remove_post")
+     * @Method({"DELETE"})
+     */
+    public function removePostAction(Request $request) 
+    {
+         // Get post id from the request
+        $post_id = $request->request->get("post_id");
+
+        // Get the post from the post_id in the database
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+    
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$post) {
+            throw $this->createNotFoundException(
+                'No post found for id ' . $id
+            );
+        }
+        
+        if($post->getUser() !== Utilities::getCurrentUser($this)) {
+            return new JsonResponse(
+                array(
+                    'status' => 403, 
+                    'message' => strtr("That is not your post. -_-"),
+                    )
+            );
+        }
+        
+        // Time to delete the post to the database
+        try {
+            $em = Utilities::getEntityManager($this);
+            $post->setHidden(true);
+            $em->persist($post);
+            $em->flush();
+            return new JsonResponse(array('status' => 200, 'message' => 'Success'));
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
+        }   
+    }
+    
+    /**
+     * @Route("/comments", name="api_new_comment")
+     * @Method({"POST"})
+     */
+    public function newCommentAction(Request $request) 
+    {
+        $post_id = $request->request->get("post_id");
+
+        // Get the Post Number
+        $post = $this->getDoctrine()
+                     ->getRepository('AppBundle:Post')
+                     ->find($post_id);
+
+        // Need to get the current user based on security acces
+        $user = Utilities::getCurrentUser($this);
+
+        // Get the User's IP address
+        $comment_ip = Utilities::getCurrentIp($this);
+    
+        // Get the body of the comment from the request
+        $body = $request->get('body');
+        
+        $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
+        
+        // Check if the person commenting is the OP on the post
+        $is_op = $post->getUser()->getId() === $user->getId();
+    
+        // We have everything we need now
+        // Time to add the post to the database
+        try {
+            $em = Utilities::getEntityManager($this);
+            $comment = new Comment;
+            $comment->setPost($post);
+            $comment->setBody($body);
+            $comment->setIpAddress($comment_ip);
+            $comment->setUser($user);
+            $em->persist($comment);
+            $em->flush();
+            return new JsonResponse(array('status' => 200, 'message' => 'Success in posting comments', 'comment_id' => $comment->getId(), 'is_op' => $is_op));
+        } catch (\Doctrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to comment.'));
+        }   
+    } 
+    
     /**
      * @Route("/register", name="api_register")
      * @Method({"POST"})
@@ -243,237 +617,4 @@ class APIController extends Controller
             );
         }
     }
-    
-    /**
-     * @Route("/posts", name="api_new_post")
-     * @Method({"POST"})
-     */
-    public function newPostAction(Request $request) 
-    {
-        // Get the User's IP address
-        $post_ip = Utilities::getCurrentIp($this);
-    
-        // Need to get the current user based on security acces
-        $user = Utilities::getCurrentUser($this);
-    
-        // Get the body of the post from the request
-        $body = $request->get('body');
-        
-        $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
-    
-        // We have everything we need now
-        // Time to add the post to the database
-        try {
-            $em = Utilities::getEntityManager($this);
-            $post = new Post;
-            $post->setBody($body);
-            $post->setScore(Utilities::hot(0, 0, new \DateTime('NOW')));
-            $post->setIpAddress($post_ip);
-            $post->setCollege($user->getCollege());
-            $post->setUser($user);
-            $em->persist($post);
-            $em->flush();
-            return new JsonResponse(array('status' => 200, 'message' => 'Success', 'post_id' => $post->getId()));
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
-        }
-    }
-    
-    /**
-     * @Route("/posts/{post_id}", name="get_post", requirements={"post_id" = "\d+"})
-     */
-    public function getPostAction(Request $request, $post_id)
-    {
-        // Get the post from the post_id in the database
-        $post = $this->getDoctrine()
-                     ->getRepository('AppBundle:Post')
-                     ->find($post_id);
-    
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$post) {
-            throw $this->createNotFoundException(
-                'No post found for id ' . $id
-            );
-        }
-        
-        $serializer = $this->container->get('serializer');
-        $reports = $serializer->serialize($post, 'json');
-        return new Response($reports);
-    }
-      /**
-     * @Route("/posts", name="api_remove_post")
-     * @Method({"DELETE"})
-     */
-    public function removePostAction(Request $request) 
-    {
-         // Get post id from the request
-        $post_id = $request->request->get("post_id");
-
-        // Get the post from the post_id in the database
-        $post = $this->getDoctrine()
-                     ->getRepository('AppBundle:Post')
-                     ->find($post_id);
-    
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$post) {
-            throw $this->createNotFoundException(
-                'No post found for id ' . $id
-            );
-        }
-        
-        if($post->getUser() !== Utilities::getCurrentUser($this)) {
-            return new JsonResponse(
-                array(
-                    'status' => 403, 
-                    'message' => strtr("That is not your post. -_-"),
-                    )
-            );
-        }
-        
-        // Time to delete the post to the database
-        try {
-            $em = Utilities::getEntityManager($this);
-            $post->setHidden(true);
-            $em->persist($post);
-            $em->flush();
-            return new JsonResponse(array('status' => 200, 'message' => 'Success'));
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to delete post.'));
-        }   
-    } 
-
- /**
-     * @Route("/posts/upvote", name="api_upvote_post")
-     * @Method({"POST"})
-     */
-    public function upvotePostAction(Request $request) 
-    {
-        // Get post id from the request
-        $post_id = $request->request->get("post_id");
-        
-        // Get current user
-        $user = Utilities::getCurrentUser($this);
-        
-        // Get the entity manager for Doctrine
-        $em = Utilities::getEntityManager($this);
-
-        // Get the post from the post_id in the database
-        $post = $this->getDoctrine()
-                     ->getRepository('AppBundle:Post')
-                     ->find($post_id);
-    
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$post) {
-            throw $this->createNotFoundException(
-                'No post found for id ' . $id
-            );
-        }
-
-        try{
-            $like = $em->getRepository('AppBundle:PostLikes')
-                       ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
-            
-            if(!isset($like)) {
-                $like = new PostLikes;
-                $like->setIsLike(true);
-                $like->setUser($user);
-                $like->setPost($post);
-                $post->setUpvotes($post->getUpvotes() + 1);
-                $user->setScore($user->getScore() + 1);
-                $post->addLike($like);
-                $em->persist($like);
-            } else {
-                if($like->getIsLike()) {
-                    $post->setUpvotes($post->getUpvotes() - 1);
-                    $user->setScore($user->getScore() - 1);
-                    $post->removeLike($like);
-                    $em->remove($like);
-                } else {
-                    $post->setUpvotes($post->getUpvotes() + 1);
-                    $post->setDownvotes($post->getDownvotes() - 1);
-                    $user->setScore($user->getScore() + 2);
-                    $like->setIsLike(true);
-                    $em->persist($like);
-                }
-            }
-            $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
-            $em->persist($user);
-            $em->persist($post);
-            $em->flush();
-            $score = ($post->getUpvotes() - $post->getDownvotes());
-        } catch (\Docrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
-        }
-        
-        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
-    }
 }
-
-/**
-     * @Route("/comments/downvote", name="api_downvote_comment")
-     * @Method({"POST"})
-     */
-    public function downvoteCommentAction(Request $request) 
-    {
-        // Get the post_id
-        $comment_id = $request->get('comment_id');
-        
-        // Get current user
-        $user = Utilities::getCurrentUser($this);
-        
-        // Get the entity manager
-        $em = Utilities::getEntityManager($this);
-        
-        // Get the post from the post_id in the database
-        $comment = $em->getRepository('AppBundle:Comment')
-                      ->find($comment_id);
-        
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$comment) {
-            throw $this->createNotFoundException(
-                'No post found for id ' . $id
-            );
-        }
-
-        // Try to add the downvote
-        try {
-            $like = $em->getRepository('AppBundle:CommentLikes')
-                       ->findOneBy(array('comment' => $comment_id, 'user' => $user->getId()));
-
-            if(!isset($like)) {
-                $dislike = new CommentLikes;
-                $dislike->setIsLike(false);
-                $dislike->setUser($user);
-                $dislike->setComment($comment);
-                $comment->setDownvotes($comment->getDownvotes() + 1);
-                $user->setScore($user->getScore() - 1);
-                $comment->addLike($dislike);
-                $em->persist($dislike);
-            } else {
-                if($like->getIsLike()) {
-                    $comment->setUpvotes($comment->getUpvotes() - 1);
-                    $comment->setDownvotes($comment->getDownvotes() + 1);
-                    $user->setScore($user->getScore() - 2);
-                    $like->setIsLike(false);
-                    $em->persist($like);
-                } else {
-                    $comment->setDownvotes($comment->getDownvotes() - 1);
-                    $user->setScore($user->getScore() + 1);
-                    $em->remove($like);
-                    $comment->removeLike($like);
-                }
-            }
-            $em->persist($user);
-            $em->persist($comment);
-            $em->flush();
-            $score = ($comment->getUpvotes() - $comment->getDownvotes());
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to dislike. $e->message'));  
-        }
-
-        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvoting', 'score' => $score));
-    }
