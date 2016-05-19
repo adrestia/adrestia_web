@@ -490,3 +490,70 @@ class APIController extends Controller
         return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
     }
 }
+
+/**
+     * @Route("/comments/upvote", name="api_upvote_comment")
+     * @Method({"POST"})
+     */
+    public function upvoteCommentAction(Request $request) 
+    {
+        // Get post id from the request
+        $comment_id = $request->get("comment_id");
+        
+        // Get current user
+        $user = Utilities::getCurrentUser($this);
+        
+        // Get the entity manager for Doctrine
+        $em = Utilities::getEntityManager($this);
+
+        // Get the post from the post_id in the database
+        $comment = $em->getRepository('AppBundle:Comment')
+                      ->find($comment_id);
+    
+        // If anything other than a post is returned (including null)
+        // throw an error.
+        if (!$comment) {
+            throw $this->createNotFoundException(
+                'No comment found for id ' . $id
+            );
+        }
+
+        try{
+            $like = $em->getRepository('AppBundle:CommentLikes')
+                       ->findOneBy(array('comment' => $comment_id, 'user' => $user->getId()));
+            
+            if(!isset($like)) {
+                $like = new CommentLikes;
+                $like->setIsLike(true);
+                $like->setUser($user);
+                $like->setComment($comment);
+                $comment->setUpvotes($comment->getUpvotes() + 1);
+                $user->setScore($user->getScore() + 1);
+                $comment->addLike($like);
+                $em->persist($like);
+            } else {
+                if($like->getIsLike()) {
+                    $comment->setUpvotes($comment->getUpvotes() - 1);
+                    $user->setScore($user->getScore() - 1);
+                    $comment->removeLike($like);
+                    $em->remove($like);
+                } else {
+                    $comment->setUpvotes($comment->getUpvotes() + 1);
+                    $comment->setDownvotes($comment->getDownvotes() - 1);
+                    $user->setScore($user->getScore() + 2);
+                    $like->setIsLike(true);
+                    $em->persist($like);
+                }
+            }
+            $em->persist($user);
+            $em->persist($comment);
+            $em->flush();
+            $score = ($comment->getUpvotes() - $comment->getDownvotes());
+        } catch (\Docrine\DBAL\DBALException $e) {
+            return new JsonResponse(array('status' => 400, 'message' => 'Unable to add like. $e->message'));
+        }
+        
+        return new JsonResponse(array('status' => 200, 'message' => 'Success on upvote.', 'score' => $score));
+    }
+    
+    
