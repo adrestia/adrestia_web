@@ -29,6 +29,9 @@ class APIController extends Controller
     /**
      * @Route("/posts/upvote", name="api_upvote_post")
      * @Method({"POST"})
+     *
+     * @param post_id – id of the post you want to upvote
+     * @return JSON – status of result
      */
     public function upvotePostAction(Request $request) 
     {
@@ -96,6 +99,9 @@ class APIController extends Controller
     /**
      * @Route("/posts/downvote", name="api_downvote_post")
      * @Method({"POST"})
+     *
+     * @param post_id – id of the post you want to downvote
+     * @return JSON – status of action
      */
     public function downvotePostAction(Request $request) 
     {
@@ -163,6 +169,9 @@ class APIController extends Controller
     /**
      * @Route("/comments/upvote", name="api_upvote_comment")
      * @Method({"POST"})
+     *
+     * @param comment_id – id of the coment you want to upvote
+     * @return JSON – status of action
      */
     public function upvoteCommentAction(Request $request) 
     {
@@ -228,6 +237,9 @@ class APIController extends Controller
     /**
      * @Route("/comments/downvote", name="api_downvote_comment")
      * @Method({"POST"})
+     *
+     * @param comment_id – id of the comment you want to downvote
+     * @return JSON – status of action
      */
     public function downvoteCommentAction(Request $request) 
     {
@@ -292,8 +304,10 @@ class APIController extends Controller
     }
 
     /**
-     * @Route("/{sorting}", name="api_home", requirements={"sorting":"top|new|hot|^$"})
+     * @Route("/{sorting}", name="api_home", requirements={"sorting":"top|new|hot"})
      * @Method({"GET"})
+     *
+     * @return JSON – serialized list of posts
      */
     public function indexAction(Request $request, $sorting)
     {
@@ -333,6 +347,7 @@ class APIController extends Controller
                 'p.id = l.post AND l.user = :user'
                 )
             ->setParameter('user', $user->getId())
+            ->setMaxResults(50)
             ->groupBy('p', 'l');
     
         $sorting = strtolower($sorting);
@@ -355,6 +370,10 @@ class APIController extends Controller
 
     /**
      * @Route("/posts/{post_id}", name="get_post", requirements={"post_id" = "\d+"})
+     * @Method({"GET"})
+     *
+     * @param URL post_id – id of post you want to get
+     * @return JSON – seralized post
      */
     public function getPostAction(Request $request, $post_id)
     {
@@ -376,9 +395,12 @@ class APIController extends Controller
         return new Response($reports);
     }
 
-      /**
+    /**
      * @Route("/posts", name="api_remove_post")
      * @Method({"DELETE"})
+     *
+     * @param post_id – id of the post you want to delete
+     * @return JSON – status of action
      */
     public function removePostAction(Request $request) 
     {
@@ -422,6 +444,10 @@ class APIController extends Controller
     /**
      * @Route("/comments", name="api_new_comment")
      * @Method({"POST"})
+     *
+     * @param post_id – id of the post you want to add the comment to
+     * @param body – body text of the comment
+     * @return JSON – status of message, resultant comment_id, and boolean is_op
      */
     public function newCommentAction(Request $request) 
     {
@@ -466,6 +492,11 @@ class APIController extends Controller
     /**
      * @Route("/register", name="api_register")
      * @Method({"POST"})
+     *
+     * @param email – email of the user to register
+     * @param password – password of the user 
+     * @param college_name – name of the college (name from the database!!)
+     * @return JSON – status of the action
      */
     public function registerAction(Request $request)
     {
@@ -603,6 +634,10 @@ class APIController extends Controller
     /**
      * @Route("/login", name="api_login")
      * @Method({"POST"})
+     *
+     * @param email – email of the user to login
+     * @param password – password of the user to login
+     * @return JSON – API key of the logged-in user
      */
     public function loginAction(Request $request)
     {
@@ -685,6 +720,9 @@ class APIController extends Controller
 
     /**
      * @Route("/profile", name="profile_api")
+     * @Method({"GET"})
+     *
+     * @return JSON – seralized user
      */
     public function profileAction(Request $request) 
     {
