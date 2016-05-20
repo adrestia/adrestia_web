@@ -682,4 +682,23 @@ class APIController extends Controller
             );
         }
     }
+
+    /**
+     * @Route("/profile", name="profile_api")
+     */
+    public function profileAction(Request $request) 
+    {
+      $em = Utilities::getEntityManager($this);
+      $user = Utilities::getCurrentUser($this);
+
+      $serializer = $this->container->get('serializer');
+      $user = $serializer->serialize($user, 'json');
+          
+      return new JsonResponse(
+              array(
+                  'status' => 200, 
+                  'user' => $user
+              )
+          );
+    }
 }
