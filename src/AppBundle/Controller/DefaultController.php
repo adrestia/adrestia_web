@@ -30,7 +30,7 @@ class DefaultController extends Controller
      * @Method({"GET"})
      */
     public function indexAction(Request $request, $sorting)
-    {   
+    {
         // Need to see if there is a user that is logged in
         // If not, then present them with the homepage :)
         if(!$this->get('security.authorization_checker')->isGranted('ROLE_USER')) {
@@ -129,7 +129,7 @@ class DefaultController extends Controller
                 'p.id = l.post AND l.user = :user'
                 )
             ->setParameter('user', $user->getId())
-            ->setMaxResults(25)
+            ->setMaxResults(5)
             ->groupBy('p', 'l');
         
         $sorting = strtolower($sorting);
@@ -150,6 +150,78 @@ class DefaultController extends Controller
             'posts' => $posts,
             'sorting' => $sorting
         ]);
+    }
+    
+    /**
+     * @Route("/{sorting}", name="load_more", defaults={"sorting":"hot"}, requirements={"sorting":"top|new|hot|^$"})
+     * @Method({"POST"})
+     * 
+     * @param offset – offset of posts
+     * @return JSON list of posts 
+     */
+    public function loadMoreAction(Request $request, $sorting)
+    {   
+        $offset = $request->get('offset');
+        $em = Utilities::getEntityManager($this);
+        $user = Utilities::getCurrentUser($this);
+        
+        /*
+        EQUIVALENT QUERY TO BUILDER BELOW
+
+       "SELECT p.id, p.user_id, p.body, p.upvotes, 
+                p.downvotes, p.score, p.reports, 
+                p.created, l.is_like, l.user_id, 
+                l.post_id, SUM(p.upvotes - p.downvotes) AS top
+         FROM posts p
+         WHERE p.college = :college AND p.hidden = false
+         LEFT JOIN post_likes l
+         ON p.id = l.post_id AND l.user_id = ? 
+         GROUP BY p.id, p.user_id, p.body, p.upvotes
+                  p.downvotes, p.score, p.reports,
+                  p.created, l.is_like, l.user_id,
+                  l.post_id
+         ORDER BY created DESC;";
+        */
+                 
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('p', 'l')
+            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
+            ->from('AppBundle:Post', 'p') 
+            ->where('p.college = :college AND p.hidden = false')
+            ->setParameter('college', $user->getCollege())
+            ->leftJoin(
+                'p.likes',
+                'l',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'p.id = l.post AND l.user = :user'
+                )
+            ->setParameter('user', $user->getId())
+            ->setMaxResults(5)
+            ->setFirstResult( $offset )
+            ->groupBy('p', 'l');
+        
+        $sorting = strtolower($sorting);
+        if($sorting === "new") {
+            $builder->orderBy('p.created', 'DESC');
+        } elseif ($sorting === "top") {
+            $builder->orderBy('top', 'DESC');
+        } elseif ($sorting === "hot") {
+            $builder->orderBy('p.score', 'DESC');
+        } else {
+            $sorting === "hot";
+            $builder->orderBy('p.created', 'DESC');
+        }
+                
+        $posts = $builder->getQuery()->getResult();
+        $serializer = $this->container->get('serializer');
+        $reports = $serializer->serialize($posts, 'json');
+        return new JsonResponse(
+            array(
+                'status' => 200, 
+                'posts' => $reports
+            )
+        );
     }
     
     /**

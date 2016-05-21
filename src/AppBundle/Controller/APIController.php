@@ -382,7 +382,7 @@ class APIController extends Controller
                 'p.id = l.post AND l.user = :user'
                 )
             ->setParameter('user', $user->getId())
-            ->setMaxResults(50)
+            ->setMaxResults(100)
             ->groupBy('p', 'l');
     
         $sorting = strtolower($sorting);
