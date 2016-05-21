@@ -370,18 +370,20 @@ class APIController extends Controller
              
         $builder = $em->createQueryBuilder();
         $builder
-            ->select('p', 'l')
+            ->select('partial p.{id, body, upvotes, downvotes, score, reports, created}', 'IDENTITY(p.user)')
             ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
             ->from('AppBundle:Post', 'p') 
             ->where('p.college = :college AND p.hidden = false')
             ->setParameter('college', $user->getCollege())
-            ->leftJoin(
-                'p.likes',
+            ->leftJoin('p.likes',
                 'l',
                 \Doctrine\ORM\Query\Expr\Join::WITH,
                 'p.id = l.post AND l.user = :user'
                 )
             ->setParameter('user', $user->getId())
+            ->addSelect('l AS likes')
+            ->leftJoin('p.comments', 'c')
+            ->addSelect('COUNT(c.id) AS comments')
             ->setMaxResults(100)
             ->groupBy('p', 'l');
     
@@ -397,7 +399,7 @@ class APIController extends Controller
             $builder->orderBy('p.created', 'DESC');
         }
             
-        $posts = $builder->getQuery()->getResult();
+        $posts = $builder->getQuery()->getScalarResult();
         $serializer = $this->container->get('serializer');
         $reports = $serializer->serialize($posts, 'json');
         return new JsonResponse(array('status' => 200, 'posts' => $reports));
