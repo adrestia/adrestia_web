@@ -106,3 +106,10 @@ div.body {
 #select_college {
     margin: 0 10px 0 0;
 }
+
+.no-more {
+    text-align: center;
+    margin: 40px 0;
+    width: 100%;
+    color: #888;
+}

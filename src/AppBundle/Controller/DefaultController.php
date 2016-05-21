@@ -129,7 +129,7 @@ class DefaultController extends Controller
                 'p.id = l.post AND l.user = :user'
                 )
             ->setParameter('user', $user->getId())
-            ->setMaxResults(5)
+            ->setMaxResults(50)
             ->groupBy('p', 'l');
         
         $sorting = strtolower($sorting);
@@ -197,7 +197,7 @@ class DefaultController extends Controller
                 'p.id = l.post AND l.user = :user'
                 )
             ->setParameter('user', $user->getId())
-            ->setMaxResults(5)
+            ->setMaxResults(25)
             ->setFirstResult( $offset )
             ->groupBy('p', 'l');
         

@@ -68,6 +68,8 @@ function handleScroll(e) {
                     $(elem).after(make_post(post, ++offset));
                 }
                 $(document).scroll(handleScroll);
+            } else {
+                $(elem).after("<div class=\"no-more\"><h5> There doesn't appear to be anything left!</h5></div>");
             }
         });
     }
