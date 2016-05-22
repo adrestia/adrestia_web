@@ -117,18 +117,20 @@ class DefaultController extends Controller
                  
         $builder = $em->createQueryBuilder();
         $builder
-            ->select('p')
+            ->select('partial p.{id, body, upvotes, downvotes, score, reports, created}', 'IDENTITY(p.user)')
             ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
             ->from('AppBundle:Post', 'p') 
             ->where('p.college = :college AND p.hidden = false')
             ->setParameter('college', $user->getCollege())
-            ->leftJoin(
-                'p.likes',
+            ->leftJoin('p.likes',
                 'l',
                 \Doctrine\ORM\Query\Expr\Join::WITH,
                 'p.id = l.post AND l.user = :user'
                 )
             ->setParameter('user', $user->getId())
+            ->addSelect('l AS likes')
+            ->leftJoin('p.comments', 'c')
+            ->addSelect('COUNT(c.id) AS comments')
             ->setMaxResults(50)
             ->groupBy('p', 'l');
         
@@ -144,7 +146,7 @@ class DefaultController extends Controller
             $builder->orderBy('p.created', 'DESC');
         }
                 
-        $posts = $builder->getQuery()->getResult();
+        $posts = $builder->getQuery()->getScalarResult();
         
         return $this->render('default/index.html.twig', [
             'posts' => $posts,
