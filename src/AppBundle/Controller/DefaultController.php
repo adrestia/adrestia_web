@@ -129,7 +129,7 @@ class DefaultController extends Controller
                 'p.id = l.post AND l.user = :user'
                 )
             ->setParameter('user', $user->getId())
-            ->setMaxResults(5)
+            ->setMaxResults(50)
             ->groupBy('p', 'l');
         
         $sorting = strtolower($sorting);
@@ -222,7 +222,7 @@ class DefaultController extends Controller
         }
         $serializer = $this->container->get('serializer');
         $reports = $serializer->serialize($posts, 'json');
-        return new Response($reports, 500);
+        return new Response($reports, 200);
     }
     
     /**
