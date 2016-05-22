@@ -56,15 +56,12 @@ function handleScroll(e) {
     console.log(offset);
     if(element_in_scroll(elem)) {
         $(document).unbind('scroll');
-        console.log("Start");
         $.ajax({
             type: "POST",
             url: document.location.href,
             data: { offset: offset }
         }).done(function( response ) {
-            console.log("Done");
-            var posts = $.parseJSON(response.posts);
-            console.log(posts);
+            var posts = $.parseJSON(response);
             if (posts.length !== 0) {
                 var offset = $(elem).attr('data-post-count');
                 for(post of posts) {
@@ -74,6 +71,8 @@ function handleScroll(e) {
             } else {
                 $(elem).after("<div class=\"no-more\"><h5> There doesn't appear to be anything left!</h5></div>");
             }
+        }).error(function(response) {
+            alert(response);
         });
     }
 }

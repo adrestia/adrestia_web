@@ -11,6 +11,7 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Doctrine\ORM\Query;
 use AppBundle\Controller\RegistrationController;
 use AppBundle\Entity\Post;
 use AppBundle\Entity\User;
@@ -402,9 +403,7 @@ class APIController extends Controller
         $posts = $builder->getQuery()->getScalarResult();
         $serializer = $this->container->get('serializer');
         $reports = $serializer->serialize($posts, 'json');
-        $response = new Response($reports);
-        $response->setStatusCode(200);
-        return $response;
+        return new Response($reports, 200);
     }
 
     /**
@@ -416,22 +415,91 @@ class APIController extends Controller
      */
     public function getPostAction(Request $request, $post_id)
     {
-        // Get the post from the post_id in the database
-        $post = $this->getDoctrine()
-                     ->getRepository('AppBundle:Post')
-                     ->find($post_id);
-
+        $em = Utilities::getEntityManager($this);
+        $user = Utilities::getCurrentUser($this);
+        
+        // First get the post
+        $post = $em->getRepository('AppBundle:Post')
+                   ->findOneBy(array('id' => $post_id, 'hidden' => false));
+        
         // If anything other than a post is returned (including null)
         // throw an error.
         if (!$post) {
-            throw $this->createNotFoundException(
-                'No post found for id ' . $id
-            );
+            return new JsonResponse(array('message' => "Post not found for id " . $post_id), 400);
         }
+        
+        // If this is a post from another college, redirect the user
+        // to the no-participation link of the post
+        if($post->getCollege() !== $user->getCollege()) {
+            return new JsonResponse(array('message' => "User is not part of this college"), 401);
+        }
+        
+        /*
+        EQUIVALENT QUERY TO BUILDER BELOW
+
+       "SELECT c.id, c.post_id, c.upvotes, 
+                c.downvotes, c.body, c.reports, 
+                p.created, l.is_like, l.user_id, 
+                l.comment_id
+         FROM comments c
+         WHERE c.post_id = :postid
+         LEFT JOIN comment_likes l
+         ON c.id = l.comment_id AND l.user_id = ? 
+         GROUP BY c.id, c.post_id, c.body, c.upvotes
+                  c.downvotes, c.reports,
+                  c.created, l.is_like, l.user_id,
+                  l.comment_id
+         ORDER BY created DESC;";
+        
+        */
+        
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('partial c.{id, body, created, downvotes, ip_address, reports, upvotes}')
+            ->from('AppBundle:Comment', 'c') 
+            ->where('c.post = :postid AND c.hidden = false')
+            ->setParameter('postid', $post->getId())
+            ->leftJoin(
+                'c.likes',
+                'l',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'c.id = l.comment AND l.user = :user'
+                )
+            ->setParameter('user', $user->getId())
+            ->addSelect('l AS likes')
+            ->groupBy('c', 'l')
+            ->orderBy('c.created', 'ASC');
+                
+        $raw_comments = $builder->getQuery()->getScalarResult();
+        
+        // Get Scalar of the post 
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('p')
+            ->from('AppBundle:Post', 'p') 
+            ->where('p.id = :postid AND p.hidden = false')
+            ->setParameter('postid', $post_id)
+            ->setMaxResults(1);
+        $post = $builder->getQuery()->getScalarResult();
+        
+        // Get Scalar of the like 
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('l')
+            ->from('AppBundle:PostLikes', 'l') 
+            ->where('l.id = :postid AND l.user = :user')
+            ->setParameter('postid', $post_id)
+            ->setParameter('user', $user)
+            ->setMaxResults(1);
+        $like = $builder->getQuery()->getScalarResult();
     
-        $serializer = $this->container->get('serializer');
-        $reports = $serializer->serialize($post, 'json');
-        return new Response($reports);
+        return new JsonResponse(
+            array(
+                'post'      => $post,
+                'like'      => $like[0]['l_is_like'],
+                'comments'  => $raw_comments,
+            ), 200
+        );
     }
 
     /**
@@ -454,9 +522,7 @@ class APIController extends Controller
         // If anything other than a post is returned (including null)
         // throw an error.
         if (!$post) {
-            throw $this->createNotFoundException(
-                'No post found for id ' . $id
-            );
+            return new Response("No post found for id " . $post_id, 400);
         }
     
         if($post->getUser() !== Utilities::getCurrentUser($this)) {

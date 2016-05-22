@@ -215,15 +215,14 @@ class DefaultController extends Controller
             $builder->orderBy('p.created', 'DESC');
         }
                 
-        $posts = $builder->getQuery()->getScalarResult();
+        try {
+            $posts = $builder->getQuery()->getScalarResult();
+        } catch(\Docrine\DBAL\DBALException $e) {
+            return new Response($reports, 500);
+        }
         $serializer = $this->container->get('serializer');
         $reports = $serializer->serialize($posts, 'json');
-        return new JsonResponse(
-            array(
-                'status' => 200, 
-                'posts' => $reports
-            )
-        );
+        return new Response($reports, 500);
     }
     
     /**
