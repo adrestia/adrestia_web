@@ -472,6 +472,19 @@ class APIController extends Controller
                 
         $raw_comments = $builder->getQuery()->getScalarResult();
         
+        // Get Scalar of the like 
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('l')
+            ->from('AppBundle:PostLikes', 'l') 
+            ->where('l.post = :postid AND l.user = :user')
+            ->setParameter('postid', $post->getId())
+            ->setParameter('user', $user->getId())
+            ->setMaxResults(1);
+        $like = $builder->getQuery()->getScalarResult();
+        
+        $like = empty($like) ? false : true;
+        
         // Get Scalar of the post 
         $builder = $em->createQueryBuilder();
         $builder
@@ -481,22 +494,12 @@ class APIController extends Controller
             ->setParameter('postid', $post_id)
             ->setMaxResults(1);
         $post = $builder->getQuery()->getScalarResult();
+        $post = $post[0];
         
-        // Get Scalar of the like 
-        $builder = $em->createQueryBuilder();
-        $builder
-            ->select('l')
-            ->from('AppBundle:PostLikes', 'l') 
-            ->where('l.id = :postid AND l.user = :user')
-            ->setParameter('postid', $post_id)
-            ->setParameter('user', $user)
-            ->setMaxResults(1);
-        $like = $builder->getQuery()->getScalarResult();
-    
         return new JsonResponse(
             array(
                 'post'      => $post,
-                'like'      => $like[0]['l_is_like'],
+                'like'      => $like,
                 'comments'  => $raw_comments,
             ), 200
         );
