@@ -56,4 +56,48 @@ class Utilities extends Controller
         
         return round($order * $sign + $seconds / 45000, 7);
     }
+    
+    /**
+     * @return GUID version 4. Going to be unique.
+     */
+    public static function guidv4()
+    {
+        $data = openssl_random_pseudo_bytes(16);
+        assert(strlen($data) == 16);
+
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80); // set bits 6-7 to 10
+
+        return vsprintf('%s%s%s%s%s%s%s%s', str_split(bin2hex($data), 4));
+    }
+    
+    /**
+     * @param $address – String – Email address
+     * @param $token – String – Unique token generated for confirmation
+     *
+     * @return bool – whether the send was successful or not
+     */
+    public static function sendEmail($address, $token, $context) {
+        $message = \Swift_Message::newInstance()
+                ->setSubject('Welcome to College Confessions!')
+                ->setFrom(array('adrestiaweb@gmail.com' => 'College Confessions'))
+                ->setTo($address)
+                ->setBody(
+                    $context->renderView(
+                        // app/Resources/views/Emails/registration.html.twig
+                        'emails/registration.html.twig',
+                        array('token' => $token)
+                    ),
+                    'text/html'
+                )
+                ->addPart(
+                    $context->renderView(
+                        // This is the txt version (non-HTML)
+                        'emails/registration.txt.twig',
+                        array('token' => $token)
+                    ),
+                    'text/plain'
+                );
+        return $context->get('mailer')->send($message);
+    }
 }

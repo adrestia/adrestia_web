@@ -50,17 +50,39 @@ html, body {
     background-color: #fff;
 }
 
-@media screen and (min-width: 640px) {
-    .top-bar-middle {
+@media screen and (min-width: 1200px) {
+    #college_middle {
         position: absolute;
-        display: inline-block;
+        left: 0;
+        right: 0;
+        margin-left: auto;
+        margin-right: auto;
         font-size: 1.25rem;
-        margin: 5px 0px;
+        width: 35%;
+    }
+    #college_header {
+        display: none;
     }
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 1200px) and (min-width:640px) {
     .top-bar-middle {
+        display: none;
+    }
+    #college_header {
+        display: inline-block;
+        font-size: 1.25rem;
+        text-align: center;
+        margin: 10px 0 15px;
+        width: 100%;
+    }
+}
+
+@media screen and (max-width: 639px) {
+    .top-bar-middle {
+        display: none;
+    }
+    #college_header {
         display: none;
     }
 }
@@ -73,7 +95,7 @@ html, body {
 
 .title-bar-center {
     display: inline-block;
-    font-size: 1rem;
+    font-size: .8rem;
     margin: auto auto;
 }
 
@@ -100,5 +122,16 @@ li.menu-text {
 }
 
 .centered {
+    text-align: center;
+}
+
+.error {
+    width: 100%;
+    text-align: center;
+    color: #EA5946;
+    font-size: 1.25rem;
+}
+
+#forgot-password {
     text-align: center;
 }

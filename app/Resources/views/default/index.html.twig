@@ -13,16 +13,16 @@
     <a href="/top">Top</a>
 {% endif %}
 <ul class="menu vertical">
-    <li class="tab {% if sorting == "hot" %}is-active{% endif %}"><a href="/hot" {% if sorting == "hot" %}aria-selected="true"{% endif %}>Hot</a></li>
-    <li class="tab {% if sorting == "new" %}is-active{% endif %}"><a href="/new" {% if sorting == "new" %}aria-selected="true"{% endif %}>New</a></li>
-    <li class="tab {% if sorting == "top" %}is-active{% endif %}"><a href="/top" {% if sorting == "top" %}aria-selected="true"{% endif %}>Top</a></li>
+    <li class="tab {% if sorting == "hot" %}is-active{% endif %}"><a id="sorting" href="/hot" {% if sorting == "hot" %}aria-selected="true"{% endif %}>Hot</a></li>
+    <li class="tab {% if sorting == "new" %}is-active{% endif %}"><a id="sorting" href="/new" {% if sorting == "new" %}aria-selected="true"{% endif %}>New</a></li>
+    <li class="tab {% if sorting == "top" %}is-active{% endif %}"><a id="sorting" href="/top" {% if sorting == "top" %}aria-selected="true"{% endif %}>Top</a></li>
 </ul>
 {% endblock %}
 
 {% block right_menu %}
 <li>
     <div id="select_college">
-        <a class="tab button hollow warning" href="#">Colleges</a>
+        <a class="tab button hollow warning" href="{{ path('college_home') }}">Colleges</a>
     </div>
 </li>
 <li>
@@ -34,26 +34,30 @@
 
 {% block body %}
     <div class="row wrapper">
-        <div class="small-10 medium-8 small-centered columns">
+        <div class="small-10 medium-10 small-centered columns">
+            <div id="college_header">
+                {{ app.user.getCollege.getName }}
+                <hr width="40%">
+            </div>
             {% if posts|length == 0 %}
                 <h4> There doesn't seem to be anything here! </h4>
             {% else %}
             {% for post in posts %}
-                <div class="row post" data-post-id="{{post.id}}">
+                <div class="row post" data-post-id="{{post.p_id}}" data-post-count="{{ loop.index }}">
                     <div class="small-11 columns body">
-                        {% if post.body|length > 150 %} 
-                            <p class="post_body">{{ post.body|slice(0, 140) }} <a href="{{ path('post_view', {'post_id' : post.id }) }}"> More...</a></p>
+                        {% if post.p_body|length > 150 %} 
+                            <p class="post_body">{{ post.p_body|slice(0, 140) }} <a href="{{ path('post_view', {'post_id' : post.p_id }) }}"> More...</a></p>
                         {% else %}
-                            <p class="post_body">{{ post.body }}</p>
+                            <p class="post_body">{{ post.p_body }}</p>
                         {% endif %}
-                        <a href="#" class="post_report" data-post-id="{{post.id}}">Report</a>
-                        <a href="{{ path('post_view', {'post_id': post.id }) }}" class="view_post">Comments ({{ post.comments|length }})</a>
-                        <span class="post_time" data-post-id="{{post.id}}" title="{{ post.created|date('Y-m-d H:i:s') }}">{{ post.created|time_diff }}</span>
+                        <a href="#" class="post_report" data-post-id="{{post.p_id}}">Report</a>
+                        <a href="{{ path('post_view', {'post_id': post.p_id }) }}" class="view_post">Comments ({{ post.comments }})</a>
+                        <span class="post_time" data-post-id="{{post.p_id}}" title="{{ post.p_created|date('Y-m-d H:i:s') }}">{{ post.p_created|time_diff }}</span>
                     </div>
                     <div class="small-1 columns score">
-                        <i class="fi-arrow-up post_upvote {% if post.likes|length > 0 and post.likes.first.getIsLike %}blue{% endif %}" data-post-id="{{post.id}}"></i><br>
-                        <span class="score_number" data-post-id="{{post.id}}">{{ post.upvotes - post.downvotes }}</span><br>
-                        <i class="fi-arrow-down post_downvote {% if post.likes|length > 0 and not post.likes.first.getIsLike %}pink{% endif %}" data-post-id="{{post.id}}"></i><br>
+                        <i class="fi-arrow-up post_upvote {% if post.l_is_like is not null and post.l_is_like %}blue{% endif %}" data-post-id="{{post.p_id}}"></i><br>
+                        <span class="score_number" data-post-id="{{post.p_id}}">{{ post.p_upvotes - post.p_downvotes }}</span><br>
+                        <i class="fi-arrow-down post_downvote {% if post.l_is_like is not null and not post.l_is_like %}pink{% endif %}" data-post-id="{{post.p_id}}"></i><br>
                     </div>
                 </div>
             {% endfor %}

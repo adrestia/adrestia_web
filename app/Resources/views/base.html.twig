@@ -22,6 +22,21 @@
         </div>
 
         <div class="top-bar" id="example-menu">
+            <div class="top-bar-left">
+                <ul class="dropdown menu" data-dropdown-menu>
+                    <li class="menu-text"><a class="menu-text" href="{{ path('homepage') }}">College Confessions</a></li>
+                    <li>
+                        {% block left_menu %}{% endblock %}
+                    </li>
+                </ul>
+            </div>
+            <div class="top-bar-middle">
+                <ul class="menu">
+                    {% block college_name %}
+                        <li id="college_middle">{% if app.user %} {{ app.user.getCollege.getName }} {% endif %}</li>
+                    {% endblock %}
+                </ul>
+            </div>
             <div class="top-bar-right">
                 <ul class="menu">
                     {% block right_menu %}{% endblock %}
@@ -47,22 +62,8 @@
                     {% endif %}
                 </ul>
             </div>
-            <div class="top-bar-middle">
-                <ul class="menu">
-                    {% block college_name %}
-                        <li>{% if app.user %} {{ app.user.getCollege.getName }} {% endif %}</li>
-                    {% endblock %}
-                </ul>
-            </div>
-            <div class="top-bar-left">
-                <ul class="dropdown menu" data-dropdown-menu>
-                    <li class="menu-text"><a class="menu-text" href="{{ path('homepage') }}">College Confessions</a></li>
-                    <li>
-                        {% block left_menu %}{% endblock %}
-                    </li>
-                </ul>
-            </div>
         </div>
+        {% block college_header %}{% endblock %}
         {% block body %}{% endblock %}
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/foundation/6.2.1/foundation.min.js"></script>
         <script type="text/javascript">

@@ -5,21 +5,17 @@
     <link rel="stylesheet" href="/css/post.css" type="text/css" media="screen">
 {% endblock %}
 
-{% block college_name %}
-    <li>{{ college.name }}</li>
-{% endblock %}
-
-{% block title_college %}
-    {{ college.name }}
-{% endblock %}
-
 {% block left_menu %}
     <a class="button primary" href="{{ path('homepage')}}">Back</a>
 {% endblock %}
 
 {% block body %}
-    <div class="row wrapper">
+    <div class="row row_wrapper">
         <div class="small-10 medium-8 small-centered columns">
+            <div id="college_header">
+                {{ college.name }}
+                <hr width="40%">
+            </div>
             <div class="row post" data-post-id="{{post.id}}">
                 <div class="small-11 columns body">
                     <p class="post_body">{{ post.body }}</p>
@@ -28,7 +24,7 @@
                     <span class="post_time" data-post-id="{{post.id}}" title="{{ post.created|date('Y-m-d H:i:s') }}">{{ post.created|time_diff }}</span>
                 </div>
                 <div class="small-1 columns score">
-                    {% if college.id == app.user.getCollege.getId %}
+                    {% if college.id == app.user.getCollege.id %}
                         <i class="fi-arrow-up post_upvote {% if like is not null and like.getIsLike %}blue{% endif %}" data-post-id="{{post.id}}"></i><br>
                     {% endif %}
                     <span class="score_number" data-post-id="{{post.id}}">{{ post.upvotes - post.downvotes }}</span><br>
@@ -53,9 +49,13 @@
                                 <span class="comment_time" data-post-id="{{post.id}}" title="{{ comment.created|date('Y-m-d H:i:s') }}">{{ comment.created|time_diff }}</span>
                             </div>
                             <div class="small-1 columns score">
-                                <i class="fi-arrow-up comment_upvote {% if comment.likes|length > 0 and comment.likes.first.getIsLike %}blue{% endif %}" data-comment-id="{{comment.id}}"></i><br>
+                                {% if college.id == app.user.getCollege.id %}
+                                    <i class="fi-arrow-up comment_upvote {% if comment.likes|length > 0 and comment.likes.first.getIsLike %}blue{% endif %}" data-comment-id="{{comment.id}}"></i><br>
+                                {% endif %}
                                 <span class="score_number" data-comment-id="{{comment.id}}">{{ comment.upvotes - comment.downvotes }}</span><br>
-                                <i class="fi-arrow-down comment_downvote {% if comment.likes|length > 0 and not comment.likes.first.getIsLike %}pink{% endif %}" data-comment-id="{{comment.id}}"></i><br>
+                                {% if college.id == app.user.getCollege.id %}
+                                    <i class="fi-arrow-down comment_downvote {% if comment.likes|length > 0 and not comment.likes.first.getIsLike %}pink{% endif %}" data-comment-id="{{comment.id}}"></i><br>
+                                {% endif %}
                             </div>
                         </div>
                 {% if comment.user.id == post.user.id %}
@@ -65,17 +65,19 @@
             </div>
         </div>
     {% endfor %}
-    <div class="row post_comment">
-        <div class="small-10 medium-8 small-centered columns">
-            <form method="POST" id="comment_form">
-                <div class="row new_comment" data-post-id="{{post.id}}">
-                    <div class="small-12 columns comment_input">
-                        <input type="text" name="comment" placeholder="Well..." id="comment_body" data-post-id="{{ post.id}}"; />
+    {% if college.id == app.user.getCollege.id %}
+        <div class="row post_comment">
+            <div class="small-10 medium-8 small-centered columns">
+                <form method="POST" id="comment_form">
+                    <div class="row new_comment" data-post-id="{{post.id}}">
+                        <div class="small-12 columns comment_input">
+                            <input type="text" name="comment" placeholder="Well..." id="comment_body" data-post-id="{{ post.id}}"; />
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock %}
 
 {% block javascripts %}

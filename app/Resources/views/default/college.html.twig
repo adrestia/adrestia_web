@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block college_name %}
-    <li>{{ college.name }}</li>
+    <li id="college_middle">{{ college.name }}</li>
 {% endblock %}
 
 {% block title_college %}
@@ -21,22 +21,31 @@
     <a href="/top">Top</a>
 {% endif %}
 <ul class="menu vertical">
-    <li class="tab {% if sorting == "hot" %}is-active{% endif %}"><a href="/college/{{college.id}}/hot" {% if sorting == "hot" %}aria-selected="true"{% endif %}>Hot</a></li>
-    <li class="tab {% if sorting == "new" %}is-active{% endif %}"><a href="/college/{{college.id}}/new" {% if sorting == "new" %}aria-selected="true"{% endif %}>New</a></li>
-    <li class="tab {% if sorting == "top" %}is-active{% endif %}"><a href="/college/{{college.id}}/top" {% if sorting == "top" %}aria-selected="true"{% endif %}>Top</a></li>
+    <li class="tab {% if sorting == "hot" %}is-active{% endif %}"><a id="sorting" href="/college/{{college.id}}/hot" {% if sorting == "hot" %}aria-selected="true"{% endif %}>Hot</a></li>
+    <li class="tab {% if sorting == "new" %}is-active{% endif %}"><a id="sorting" href="/college/{{college.id}}/new" {% if sorting == "new" %}aria-selected="true"{% endif %}>New</a></li>
+    <li class="tab {% if sorting == "top" %}is-active{% endif %}"><a id="sorting" href="/college/{{college.id}}/top" {% if sorting == "top" %}aria-selected="true"{% endif %}>Top</a></li>
 </ul>
 <li><a class="button primary" id="college_home" href="{{ path('homepage')}}">Home</a></li>
 {% endblock %}
 
 {% block right_menu %}
-    {% if college.id == app.user.getCollege.getId %}
-        <li><a class="tab button hollow" href="{{ path('new_post')}}">New Post</a></li>
-    {% endif %}
+<li>
+    <div id="select_college">
+        <a class="tab button hollow warning" href="{{ path('college_home') }}">Colleges</a>
+    </div>
+</li>
+{% if college.id == app.user.getCollege.getId %}
+    <li><a class="tab button hollow" href="{{ path('new_post')}}">New Post</a></li>
+{% endif %}
 {% endblock %}
 
 {% block body %}
     <div class="row wrapper">
         <div class="small-10 medium-8 small-centered columns">
+            <div id="college_header">
+                {{ college.name }}
+                <hr width="40%">
+            </div>
             {% if posts|length == 0 %}
                 <h4 class="centered"> There doesn't seem to be anything here! </h4>
                 {% if college.id == app.user.getCollege.getId %}
@@ -44,7 +53,7 @@
                 {% endif %}
             {% else %}
             {% for post in posts %}
-                <div class="row post" data-post-id="{{post.id}}">
+                <div class="row post" data-post-id="{{post.id}}" data-post-count="{{ loop.index0 }}">
                     <div class="small-11 columns body">
                         {% if post.body|length > 150 %} 
                             <p class="post_body">{{ post.body|slice(0, 140) }} <a href="{{ path('post_view', {'post_id' : post.id }) }}"> More...</a></p>
