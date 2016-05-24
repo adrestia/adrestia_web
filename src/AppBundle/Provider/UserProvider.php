@@ -29,7 +29,7 @@ class UserProvider implements UserProviderInterface
       } catch (NoResultException $e) {
           $message = sprintf(
               'Unable to find user identified by "%s".',
-              $username
+              $apikey
           );
           throw new UsernameNotFoundException($message, 0, $e);
       }

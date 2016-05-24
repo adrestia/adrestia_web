@@ -706,7 +706,7 @@ class APIController extends Controller
     
         // Generate a new token for confirmation
         do {
-            $token = RegistrationController::guidv4();
+            $token = Utilities::guidv4();
             $entity = $em->getRepository('AppBundle:EmailAuth')->findOneBy(array('token' => $token));
         } while($entity !== null);
     
