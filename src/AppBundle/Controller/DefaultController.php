@@ -106,7 +106,7 @@ class DefaultController extends Controller
        "SELECT p.id, p.user_id, p.body, p.upvotes, 
                 p.downvotes, p.score, p.reports, 
                 p.created, l.is_like, l.user_id, 
-                l.post_id, SUM(p.upvotes - p.downvotes) AS top
+                l.post_id, (p.upvotes - p.downvotes) AS top
          FROM posts p
          WHERE p.college = :college AND p.hidden = false
          LEFT JOIN post_likes l
@@ -151,11 +151,6 @@ class DefaultController extends Controller
                 
         $posts = $builder->getQuery()->getScalarResult();
         
-        foreach($posts as $post) {
-            dump($post);
-        }
-        die();
-        
         return $this->render('default/index.html.twig', [
             'posts' => $posts,
             'sorting' => $sorting
@@ -181,7 +176,7 @@ class DefaultController extends Controller
        "SELECT p.id, p.user_id, p.body, p.upvotes, 
                 p.downvotes, p.score, p.reports, 
                 p.created, l.is_like, l.user_id, 
-                l.post_id, SUM(p.upvotes - p.downvotes) AS top
+                l.post_id, (p.upvotes - p.downvotes) AS top
          FROM posts p
          WHERE p.college = :college AND p.hidden = false
          LEFT JOIN post_likes l
@@ -196,7 +191,7 @@ class DefaultController extends Controller
         $builder = $em->createQueryBuilder();
         $builder
             ->select('partial p.{id, body, upvotes, downvotes, score, reports, created}', 'IDENTITY(p.user)')
-            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
+            ->addSelect('(p.upvotes - p.downvotes) AS top')
             ->from('AppBundle:Post', 'p') 
             ->where('p.college = :college AND p.hidden = false')
             ->setParameter('college', $user->getCollege())
@@ -249,7 +244,7 @@ class DefaultController extends Controller
 
        "SELECT p.id, p.user_id, p.body, p.upvotes, 
                 p.downvotes, p.score, p.reports, 
-                p.created, SUM(p.upvotes - p.downvotes) AS top
+                p.created, (p.upvotes - p.downvotes) AS top
          FROM posts p
          WHERE p.hidden = false
          GROUP BY p.id, p.user_id, p.body, p.upvotes
@@ -262,7 +257,7 @@ class DefaultController extends Controller
         $builder = $em->createQueryBuilder();
         $builder
             ->select('p')
-            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
+            ->addSelect('(p.upvotes - p.downvotes) AS HIDDEN top')
             ->from('AppBundle:Post', 'p') 
             ->where('p.hidden = false')
             ->groupBy('p')
@@ -295,7 +290,7 @@ class DefaultController extends Controller
 
        "SELECT p.id, p.user_id, p.body, p.upvotes, 
                 p.downvotes, p.score, p.reports, 
-                p.created, SUM(p.upvotes - p.downvotes) AS top
+                p.created, (p.upvotes - p.downvotes) AS top
          FROM posts p
          WHERE p.college = :college AND p.hidden = false
          GROUP BY p.id, p.user_id, p.body, p.upvotes
@@ -307,7 +302,7 @@ class DefaultController extends Controller
         $builder = $em->createQueryBuilder();
         $builder
             ->select('p')
-            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
+            ->addSelect('(p.upvotes - p.downvotes) AS HIDDEN top')
             ->from('AppBundle:Post', 'p') 
             ->where('p.college = :college AND p.hidden = false')
             ->setParameter('college', $college_id)

@@ -357,7 +357,7 @@ class APIController extends Controller
        "SELECT p.id, p.user_id, p.body, p.upvotes, 
                 p.downvotes, p.score, p.reports, 
                 p.created, l.is_like, l.user_id, 
-                l.post_id, SUM(p.upvotes - p.downvotes) AS top
+                l.post_id, (p.upvotes - p.downvotes) AS top
          FROM posts p
          WHERE p.college = :college AND p.hidden = false
          LEFT JOIN post_likes l
@@ -372,7 +372,7 @@ class APIController extends Controller
         $builder = $em->createQueryBuilder();
         $builder
             ->select('partial p.{id, body, upvotes, downvotes, score, reports, created}', 'IDENTITY(p.user)')
-            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
+            ->addSelect('(p.upvotes - p.downvotes) AS HIDDEN top')
             ->from('AppBundle:Post', 'p') 
             ->where('p.college = :college AND p.hidden = false')
             ->setParameter('college', $user->getCollege())
