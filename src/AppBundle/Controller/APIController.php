@@ -694,7 +694,7 @@ class APIController extends Controller
     
         // Get a unique API key
         do { 
-            $apikey = RegistrationController::guidv4();
+            $apikey = Utilities::guidv4();
             $entity = $em->getRepository('AppBundle\Entity\User')->findOneBy(array('api_key' => $apikey));
         } while($entity !== null);
     
