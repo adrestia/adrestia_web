@@ -20,6 +20,7 @@ use AppBundle\Entity\User;
 use AppBundle\Entity\Post;
 use AppBundle\Entity\PostLikes;
 use AppBundle\Entity\Comment;
+use AppBundle\Entity\EmailAuth;
 use AppBundle\Entity\PasswordAuth;
 use AppBundle\Helper\Utilities;
 
@@ -30,7 +31,6 @@ class DefaultController extends Controller
 {   
     /**
      * @Route("/{sorting}", name="homepage", defaults={"sorting":"hot"}, requirements={"sorting":"top|new|hot|^$"})
-     * @Method({"GET"})
      */
     public function indexAction(Request $request, $sorting)
     {
@@ -46,7 +46,7 @@ class DefaultController extends Controller
 
             if ($form->isSubmitted() && $form->isValid()) {
         
-                $em = $this->getDoctrine()->getManager();
+                $em = Utilities::getEntityManager($this);
         
                 // Encode the password
                 $password = $this->get('security.password_encoder')
@@ -81,7 +81,7 @@ class DefaultController extends Controller
                 $em->flush();
         
                 // Send the confirmation email
-                Utilities::sendEmail($user->getEmail(), $token);
+                Utilities::sendEmail($user->getEmail(), $token, $this);
         
                 // Show the confirmation email
                 return $this->render(

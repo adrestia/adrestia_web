@@ -85,10 +85,10 @@ class PostController extends Controller
                 "Post not found!"
             );
         }
-        
+    
         // If this is a post from another college, redirect the user
         // to the no-participation link of the post
-        if($post->getCollege() !== $user->getCollege()) {
+        if($post->getCollege() != $user->getCollege()) {
             return $this->redirect($this->generateUrl(
                 'college_post_view', array(
                     'post_id' => $post_id,

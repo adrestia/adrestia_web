@@ -65,17 +65,19 @@
             </div>
         </div>
     {% endfor %}
-    <div class="row post_comment">
-        <div class="small-10 medium-8 small-centered columns">
-            <form method="POST" id="comment_form">
-                <div class="row new_comment" data-post-id="{{post.id}}">
-                    <div class="small-12 columns comment_input">
-                        <input type="text" name="comment" placeholder="Well..." id="comment_body" data-post-id="{{ post.id}}"; />
+    {% if college.id == app.user.getCollege.id %}
+        <div class="row post_comment">
+            <div class="small-10 medium-8 small-centered columns">
+                <form method="POST" id="comment_form">
+                    <div class="row new_comment" data-post-id="{{post.id}}">
+                        <div class="small-12 columns comment_input">
+                            <input type="text" name="comment" placeholder="Well..." id="comment_body" data-post-id="{{ post.id}}"; />
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
+    {% endif %}
 {% endblock %}
 
 {% block javascripts %}

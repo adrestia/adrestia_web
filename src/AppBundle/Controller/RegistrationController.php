@@ -64,7 +64,7 @@ class RegistrationController extends Controller
             $em->flush();
             
             // Send the confirmation email
-            Utilities::sendEmail($user->getEmail(), $token);
+            Utilities::sendEmail($user->getEmail(), $token, $this);
             
             // Show the confirmation email
             return $this->render(

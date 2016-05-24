@@ -77,13 +77,13 @@ class Utilities extends Controller
      *
      * @return bool – whether the send was successful or not
      */
-    public static function sendEmail($address, $token) {
+    public static function sendEmail($address, $token, $context) {
         $message = \Swift_Message::newInstance()
                 ->setSubject('Welcome to College Confessions!')
                 ->setFrom(array('adrestiaweb@gmail.com' => 'College Confessions'))
                 ->setTo($address)
                 ->setBody(
-                    $this->renderView(
+                    $context->renderView(
                         // app/Resources/views/Emails/registration.html.twig
                         'emails/registration.html.twig',
                         array('token' => $token)
@@ -91,13 +91,13 @@ class Utilities extends Controller
                     'text/html'
                 )
                 ->addPart(
-                    $this->renderView(
+                    $context->renderView(
                         // This is the txt version (non-HTML)
                         'emails/registration.txt.twig',
                         array('token' => $token)
                     ),
                     'text/plain'
                 );
-        return $this->get('mailer')->send($message);
+        return $context->get('mailer')->send($message);
     }
 }
