@@ -16,7 +16,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 * AppBundle\Entity\Post
 * 
 * @ORM\Entity
-* @ORM\Table(name="posts")
+* @ORM\Table(name="posts", options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"})
 */  
 class Post
 {
