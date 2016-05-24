@@ -16,7 +16,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 * AppBundle\Entity\Comment
 * 
 * @ORM\Entity
-* @ORM\Table(name="comments")
+* @ORM\Table(name="comments", options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"})
 *
 */  
 class Comment
@@ -56,13 +56,13 @@ class Comment
     
     /**
      * @ManyToOne(targetEntity="User", inversedBy="comments")
-     * @JoinColumn(name="user_id", referencedColumnName="id")
+     * @JoinColumn(name="user_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $user;
 
     /**
      * @ManyToOne(targetEntity="Post", inversedBy="comments")
-     * @JoinColumn(name="post_id", referencedColumnName="id")
+     * @JoinColumn(name="post_id", referencedColumnName="id", onDelete="CASCADE")
      */
     private $post;
     
@@ -301,7 +301,7 @@ class Comment
      *
      * @return Comment
      */
-    public function addLike(\AppBundle\Entity\PostLikes $like)
+    public function addLike(\AppBundle\Entity\CommentLikes $like)
     {
         $this->likes[] = $like;
 
@@ -313,7 +313,7 @@ class Comment
      *
      * @param \AppBundle\Entity\PostLikes $like
      */
-    public function removeLike(\AppBundle\Entity\PostLikes $like)
+    public function removeLike(\AppBundle\Entity\CommentLikes $like)
     {
         $this->likes->removeElement($like);
     }

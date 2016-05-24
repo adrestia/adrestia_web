@@ -45,7 +45,7 @@ class CommentController extends Controller
         // Get the body of the comment from the request
         $body = $request->get('body');
         
-        if(trim($body) == '') {
+        if(trim($body) === '') {
             return new JsonResponse(array('status' => 400, 'message' => "Empty body"));
         }
         

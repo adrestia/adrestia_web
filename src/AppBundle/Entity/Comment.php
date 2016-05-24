@@ -16,7 +16,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 * AppBundle\Entity\Comment
 * 
 * @ORM\Entity
-* @ORM\Table(name="comments")
+* @ORM\Table(name="comments", options={"collate"="utf8mb4_unicode_ci", "charset"="utf8mb4"})
 *
 */  
 class Comment
