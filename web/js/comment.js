@@ -1,5 +1,9 @@
 $("#comment_form").submit(function(event) {
   var body = $("#comment_body");
+  if ($.trim(body.val()).length === 0) {
+     return false;
+  }
+  
   $.post("/comments", {body: body.val(), post_id: body.attr('data-post-id') })
     .done(function(data) {
       if(data.status === 200) {
@@ -68,11 +72,10 @@ $("#comment_form").submit(function(event) {
         setTimeout(function() {
           $("#comment_submit_error").fadeOut();
         }, 2000);
-        //console.error("Error");
       }
     })
     .error(function( data ) {
-      console.error(data);
+      alert(data.message);
     });
   event.preventDefault();
 });
