@@ -720,7 +720,7 @@ class APIController extends Controller
         $em->flush();
     
         // Send the confirmation email
-        $sent = RegistrationController::sendEmail($user->getEmail(), $token);
+        $sent = Utilities::sendEmail($user->getEmail(), $token, $this);
     
         if($sent) {
             return new JsonResponse(
