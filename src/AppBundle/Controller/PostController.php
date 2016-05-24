@@ -185,16 +185,23 @@ class PostController extends Controller
         
         $builder = $em->createQueryBuilder();
         $builder
-            ->select('c')
+            ->select('c', 'l')
             ->from('AppBundle:Comment', 'c') 
             ->where('c.post = :postid AND c.hidden = false')
             ->setParameter('postid', $post->getId())
-            ->groupBy('c')
+            ->leftJoin(
+                'c.likes',
+                'l',
+                \Doctrine\ORM\Query\Expr\Join::WITH,
+                'c.id = l.comment AND l.user = :user'
+                )
+            ->setParameter('user', $user->getId())
+            ->groupBy('c', 'l')
             ->orderBy('c.created', 'ASC');
                 
         $comments = $builder->getQuery()->getResult();
         
-        return $this->render('default/post.html.twig', [
+        return $this->render('default/college_post.html.twig', [
             'post' => $post, 
             'comments' => $comments,
             'like' => $like,
