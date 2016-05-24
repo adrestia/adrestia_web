@@ -124,3 +124,14 @@ li.menu-text {
 .centered {
     text-align: center;
 }
+
+.error {
+    width: 100%;
+    text-align: center;
+    color: #EA5946;
+    font-size: 1.25rem;
+}
+
+#forgot-password {
+    text-align: center;
+}

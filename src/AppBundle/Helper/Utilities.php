@@ -60,7 +60,7 @@ class Utilities extends Controller
     /**
      * @return GUID version 4. Going to be unique.
      */
-    public function guidv4()
+    public static function guidv4()
     {
         $data = openssl_random_pseudo_bytes(16);
         assert(strlen($data) == 16);
@@ -77,7 +77,7 @@ class Utilities extends Controller
      *
      * @return bool – whether the send was successful or not
      */
-    public function sendEmail($address, $token) {
+    public static function sendEmail($address, $token) {
         $message = \Swift_Message::newInstance()
                 ->setSubject('Welcome to College Confessions!')
                 ->setFrom(array('adrestiaweb@gmail.com' => 'College Confessions'))

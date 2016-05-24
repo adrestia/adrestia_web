@@ -12,12 +12,15 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use AppBundle\Form\ChangePasswordType;
+use AppBundle\Form\ResetPasswordType;
 use AppBundle\Form\Model\ChangePassword;
+use AppBundle\Form\Model\ResetPassword;
 use AppBundle\Form\UserType;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Post;
 use AppBundle\Entity\PostLikes;
 use AppBundle\Entity\Comment;
+use AppBundle\Entity\PasswordAuth;
 use AppBundle\Helper\Utilities;
 
 /**
@@ -393,6 +396,138 @@ class DefaultController extends Controller
      */
     public function loginCheckAction(Request $request) {
         
+    }
+    
+    /**
+     * @Route("/forgot", name="forgot_password")
+     */
+    public function forgotPasswordAction(Request $request) {
+        if($request->getMethod() === "POST") {
+        
+            $email = $request->get('email');
+            
+            $em = Utilities::getEntityManager($this);    
+            $user = $em->getRepository('AppBundle:User')->findOneBy(array('email' => $email));
+            
+            if(!$user) {
+                return $this->render(
+                    'security/forgot.html.twig', array(
+                        'error' => "Email not found.",
+                    )
+                );
+            }
+            
+            $password_auth = new PasswordAuth();
+            
+            do {
+                $token = Utilities::guidv4();
+                $entity = $em->getRepository('AppBundle:PasswordAuth')->findOneBy(array('token' => $token));
+            } while($entity !== null);
+            
+            $password_auth->setToken($token);
+            $password_auth->setUser($user);
+            $em->persist($password_auth);
+            $em->flush();
+            
+            $message = \Swift_Message::newInstance()
+                    ->setSubject('Password Reset')
+                    ->setFrom(array('adrestiaweb@gmail.com' => 'College Confessions'))
+                    ->setTo($email)
+                    ->setBody(
+                        $this->renderView(
+                            // app/Resources/views/Emails/registration.html.twig
+                            'emails/password.html.twig',
+                            array('token' => $token)
+                        ),
+                        'text/html'
+                    )
+                    ->addPart(
+                        $this->renderView(
+                            // This is the txt version (non-HTML)
+                            'emails/registration.txt.twig',
+                            array('token' => $token)
+                        ),
+                        'text/plain'
+                    );
+            if($this->get('mailer')->send($message)) {
+                return $this->render(
+                    'security/forgot.html.twig', array(
+                        'flash' => "Email sent!",
+                    )
+                );
+            } else {
+                return $this->render(
+                    'security/forgot.html.twig', array(
+                        'error' => "Unable to send email",
+                    )
+                );
+            }
+        }
+        
+        return $this->render(
+            'security/forgot.html.twig'
+        );
+    }
+    
+    /**
+     * @Route("/password", name="reset_password")
+     */
+    public function resetPasswordAction(Request $request) {
+        $token = $request->get('token');
+        
+        if(empty($token)) {
+            return $this->redirect($this->generateUrl('forgot_password'));
+        }
+        
+        $em = Utilities::getEntityManager($this);
+        
+        $token = $em->getRepository('AppBundle:PasswordAuth')
+                    ->findOneBy(['token' => $token]);
+        
+        if(!$token) {
+            return $this->render(
+                'security/password.html.twig', array(
+                    'error' => "Invalid password reset token. Please check the link and try again.",
+                )
+            );
+        }
+        
+        if($token->getUsed()) {
+            return $this->render(
+                'security/password.html.twig', array(
+                    'error' => "This password reset token has already been used.",
+                )
+            );
+        }
+        
+        $resetPasswordModel = new ResetPassword();
+        $form = $this->createForm(ResetPasswordType::class, $resetPasswordModel);
+        $form->handleRequest($request);
+        $user = $token->getUser();
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $password = $this->get('security.password_encoder')
+                ->encodePassword($user, $resetPasswordModel->getNewPassword());
+            $user->setPassword($password);
+            $user->setUpdated(new \DateTime);
+            $token->setUsed(true);
+            $em->persist($token);
+            $em->persist($user);
+            $em->flush();
+            
+            return $this->render(
+                'security/password.html.twig', array(
+                    'form' => $form->createView(),
+                    'flash' => "Successfully Reset Password!",
+                )
+            );
+        }
+        
+        return $this->render(
+            'security/password.html.twig', array(
+                'form' => $form->createView(),
+            )
+        );
     }
     
     /**

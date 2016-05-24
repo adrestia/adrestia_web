@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/login.css" type="text/css" media="screen">
+{% endblock %}
+{% block left_menu %}
+    <a class="button primary" href="{{ path('homepage')}}">Home</a>
+{% endblock %}
+
+{% block body %}
+<div class="wrapper">
+    {% if flash is defined %}
+        <div class="row">
+            <div class="small-6 small-centered columns">
+                <div class="success callout" data-closable="slide-out-right">
+                    <h5>{{ flash }}</h5>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% if error is defined %}
+        <div class="row">
+            <div class="small-6 small-centered columns">
+                <div class="alert callout" data-closable="slide-out-right">
+                    <h5>{{ error }}</h5>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    <div class="row">
+        <div class="small-10 small-centered columns">
+            <h1 class="title">Forgot Password</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-6 small-centered columns">
+            <p>
+                Enter your email below
+                and we'll send you a link to reset your password.
+            </p>
+        </div>
+    </div>
+    <form method="post">
+        <div class="row">
+            <div class="small-10 medium-6 small-centered columns">
+                <label for="username">Email</label>
+                <input type="text" id="email" name="email"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-10 medium-6 small-centered columns">
+                <button id="submit" type="submit" class="button hollow expanded">Send Reset Email</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
