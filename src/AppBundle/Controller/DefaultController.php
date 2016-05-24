@@ -141,7 +141,7 @@ class DefaultController extends Controller
         if($sorting === "new") {
             $builder->orderBy('p.created', 'DESC');
         } elseif ($sorting === "top") {
-            $builder->orderBy('top', 'DESC');
+            $builder->orderBy('p.upvotes', 'DESC');
         } elseif ($sorting === "hot") {
             $builder->orderBy('p.score', 'DESC');
         } else {
