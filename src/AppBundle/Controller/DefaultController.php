@@ -158,7 +158,7 @@ class DefaultController extends Controller
     }
     
     /**
-     * @Route("/{sorting}", name="load_more", defaults={"sorting":"hot"}, requirements={"sorting":"top|new|hot|^$"})
+     * @Route("/more/{sorting}", name="load_more", defaults={"sorting":"hot"}, requirements={"sorting":"top|new|hot|^$"})
      * @Method({"POST"})
      * 
      * @param offset – offset of posts

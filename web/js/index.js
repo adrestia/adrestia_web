@@ -53,12 +53,11 @@ $(document).scroll(function(e){
 function handleScroll(e) {
     var elem = ".row.post:last";
     var offset = parseInt($(elem).attr('data-post-count')) + 1;
-    console.log(offset);
     if(element_in_scroll(elem)) {
         $(document).unbind('scroll');
         $.ajax({
             type: "POST",
-            url: document.location.href,
+            url: "/more/" + $("#sorting").text().toLowerCase(),
             data: { offset: offset }
         }).done(function( response ) {
             var posts = $.parseJSON(response);

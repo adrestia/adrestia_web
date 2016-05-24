@@ -13,9 +13,9 @@
     <a href="/top">Top</a>
 {% endif %}
 <ul class="menu vertical">
-    <li class="tab {% if sorting == "hot" %}is-active{% endif %}"><a href="/hot" {% if sorting == "hot" %}aria-selected="true"{% endif %}>Hot</a></li>
-    <li class="tab {% if sorting == "new" %}is-active{% endif %}"><a href="/new" {% if sorting == "new" %}aria-selected="true"{% endif %}>New</a></li>
-    <li class="tab {% if sorting == "top" %}is-active{% endif %}"><a href="/top" {% if sorting == "top" %}aria-selected="true"{% endif %}>Top</a></li>
+    <li class="tab {% if sorting == "hot" %}is-active{% endif %}"><a id="sorting" href="/hot" {% if sorting == "hot" %}aria-selected="true"{% endif %}>Hot</a></li>
+    <li class="tab {% if sorting == "new" %}is-active{% endif %}"><a id="sorting" href="/new" {% if sorting == "new" %}aria-selected="true"{% endif %}>New</a></li>
+    <li class="tab {% if sorting == "top" %}is-active{% endif %}"><a id="sorting" href="/top" {% if sorting == "top" %}aria-selected="true"{% endif %}>Top</a></li>
 </ul>
 {% endblock %}
 
