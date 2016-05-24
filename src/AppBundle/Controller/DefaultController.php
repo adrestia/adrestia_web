@@ -121,7 +121,7 @@ class DefaultController extends Controller
         $builder = $em->createQueryBuilder();
         $builder
             ->select('partial p.{id, body, upvotes, downvotes, score, reports, created}', 'IDENTITY(p.user)')
-            ->addSelect('SUM(p.upvotes - p.downvotes) AS HIDDEN top')
+            ->addSelect('(p.upvotes - p.downvotes) AS top')
             ->from('AppBundle:Post', 'p') 
             ->where('p.college = :college AND p.hidden = false')
             ->setParameter('college', $user->getCollege())
@@ -150,6 +150,11 @@ class DefaultController extends Controller
         }
                 
         $posts = $builder->getQuery()->getScalarResult();
+        
+        foreach($posts as $post) {
+            dump($post);
+        }
+        die();
         
         return $this->render('default/index.html.twig', [
             'posts' => $posts,
