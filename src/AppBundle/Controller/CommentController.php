@@ -89,6 +89,9 @@ class CommentController extends Controller
 		// Get the post from the post_id in the database
         $comment = $em->getRepository('AppBundle:Comment')
                       ->find($comment_id);
+        
+        // Need the comment user
+        $comment_user = $comment->getUser();
     
         // If anything other than a post is returned (including null)
         // throw an error.
@@ -108,24 +111,24 @@ class CommentController extends Controller
                 $like->setUser($user);
                 $like->setComment($comment);
                 $comment->setUpvotes($comment->getUpvotes() + 1);
-                $user->setScore($user->getScore() + 1);
+                $comment_user->setScore($comment_user->getScore() + 1);
                 $comment->addLike($like);
                 $em->persist($like);
             } else {
                 if($like->getIsLike()) {
                     $comment->setUpvotes($comment->getUpvotes() - 1);
-                    $user->setScore($user->getScore() - 1);
+                    $comment_user->setScore($comment_user->getScore() - 1);
                     $comment->removeLike($like);
                     $em->remove($like);
                 } else {
                     $comment->setUpvotes($comment->getUpvotes() + 1);
                     $comment->setDownvotes($comment->getDownvotes() - 1);
-                    $user->setScore($user->getScore() + 2);
+                    $comment_user->setScore($comment_user->getScore() + 2);
                     $like->setIsLike(true);
                     $em->persist($like);
                 }
             }
-            $em->persist($user);
+            $em->persist($comment_user);
             $em->persist($comment);
             $em->flush();
             $score = ($comment->getUpvotes() - $comment->getDownvotes());
