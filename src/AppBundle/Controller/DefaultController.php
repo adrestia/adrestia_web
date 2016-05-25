@@ -311,6 +311,10 @@ class DefaultController extends Controller
         $college = $em->getRepository('AppBundle:College')
                       ->find($college_id);
         
+        if($user->getCollege() == $college) {
+            return $this->redirect($this->generateUrl('homepage'));
+        }
+        
         $sorting = strtolower($sorting);
         if($sorting === "new") {
             $builder->orderBy('p.created', 'DESC');

@@ -65,13 +65,7 @@
                         <span class="post_time" data-post-id="{{post.id}}" title="{{ post.created|date('Y-m-d H:i:s') }}">{{ post.created|time_diff }}</span>
                     </div>
                     <div class="small-1 columns score">
-                        {% if college.id == app.user.getCollege.getId %}
-                            <i class="fi-arrow-up post_upvote {% if post.likes|length > 0 and post.likes.first.getIsLike %}blue{% endif %}" data-post-id="{{post.id}}"></i><br>
-                        {% endif %}
                         <span class="score_number" data-post-id="{{post.id}}">{{ post.upvotes - post.downvotes }}</span><br>
-                        {% if college.id == app.user.getCollege.getId %}
-                            <i class="fi-arrow-down post_downvote {% if post.likes|length > 0 and not post.likes.first.getIsLike %}pink{% endif %}" data-post-id="{{post.id}}"></i><br>
-                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
