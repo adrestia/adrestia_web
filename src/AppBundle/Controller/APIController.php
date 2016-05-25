@@ -330,6 +330,10 @@ class APIController extends Controller
 
         // Get the body of the post from the request
         $body = $request->get('body');
+        
+        if(trim($body) === '') {
+            return new JsonResponse(array('status' => 400, 'message' => "Empty body"));
+        }
     
         $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
 
@@ -586,6 +590,10 @@ class APIController extends Controller
 
         // Get the body of the comment from the request
         $body = $request->get('body');
+        
+        if(trim($body) === '') {
+            return new JsonResponse(array('status' => 400, 'message' => "Empty body"));
+        }
     
         $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
     
