@@ -810,13 +810,22 @@ class APIController extends Controller
     
         // Find a user
         $user = $em->getRepository('AppBundle:User')
-                   ->findOneBy(array('email' => $email, 'is_active' => 1));
+                   ->findOneBy(array('email' => $email));
     
         if(!$user) {
             return new JsonResponse(
                 array(
                     'status' => 401, 
                     'error' => 'Username or password incorrect.'
+                )
+            ); 
+        }
+        
+        if(!$user->getIsConfirmed()) {
+            return new JsonResponse(
+                array(
+                    'status' => 401, 
+                    'error' => 'Email address not confirmed.'
                 )
             ); 
         }
