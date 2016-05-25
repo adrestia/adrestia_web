@@ -189,6 +189,9 @@ class APIController extends Controller
        $comment = $em->getRepository('AppBundle:Comment')
                      ->find($comment_id);
        
+       // Comment user
+       $comment_user = $comment->getUser();
+       
        // If anything other than a comment is returned (including null)
        // throw an error.
        if (!$comment) {
@@ -207,24 +210,24 @@ class APIController extends Controller
                 $like->setUser($user);
                 $like->setComment($comment);
                 $comment->setUpvotes($comment->getUpvotes() + 1);
-                $user->setScore($user->getScore() + 1);
+                $comment_user->setScore($comment_user->getScore() + 1);
                 $comment->addLike($like);
                 $em->persist($like);
             } else {
                 if($like->getIsLike()) {
                     $comment->setUpvotes($comment->getUpvotes() - 1);
-                    $user->setScore($user->getScore() - 1);
+                    $comment_user->setScore($comment_user->getScore() - 1);
                     $comment->removeLike($like);
                     $em->remove($like);
                 } else {
                     $comment->setUpvotes($comment->getUpvotes() + 1);
                     $comment->setDownvotes($comment->getDownvotes() - 1);
-                    $user->setScore($user->getScore() + 2);
+                    $comment_user->setScore($comment_user->getScore() + 2);
                     $like->setIsLike(true);
                     $em->persist($like);
                 }
             }
-            $em->persist($user);
+            $em->persist($comment_user);
             $em->persist($comment);
             $em->flush();
             $score = ($comment->getUpvotes() - $comment->getDownvotes());
@@ -256,6 +259,9 @@ class APIController extends Controller
        // Get the comment from the comment_id in the database
        $comment = $em->getRepository('AppBundle:Comment')
                      ->find($comment_id);
+       
+       // Comment user
+       $comment_user = $comment->getUser();
 
       // If anything other than a comment is returned (including null)
       // throw an error.
@@ -276,24 +282,24 @@ class APIController extends Controller
                $dislike->setUser($user);
                $dislike->setComment($comment);
                $comment->setDownvotes($comment->getDownvotes() + 1);
-               $user->setScore($user->getScore() - 1);
+               $comment_user->setScore($comment_user->getScore() - 1);
                $comment->addLike($dislike);
                $em->persist($dislike);
            } else {
                if($like->getIsLike()) {
                    $comment->setUpvotes($comment->getUpvotes() - 1);
                    $comment->setDownvotes($comment->getDownvotes() + 1);
-                   $user->setScore($user->getScore() - 2);
+                   $comment_user->setScore($comment_user->getScore() - 2);
                    $like->setIsLike(false);
                    $em->persist($like);
                } else {
                    $comment->setDownvotes($comment->getDownvotes() - 1);
-                   $user->setScore($user->getScore() + 1);
+                   $comment_user->setScore($comment_user->getScore() + 1);
                    $em->remove($like);
                    $comment->removeLike($like);
                }
            }
-           $em->persist($user);
+           $em->persist($comment_user);
            $em->persist($comment);
            $em->flush();
            $score = ($comment->getUpvotes() - $comment->getDownvotes());
