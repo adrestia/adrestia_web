@@ -49,6 +49,9 @@ class APIController extends Controller
         $post = $this->getDoctrine()
                      ->getRepository('AppBundle:Post')
                      ->find($post_id);
+        
+        // get post user
+        $post_user = $post->getUser();
     
         // If anything other than a post is returned (including null)
         // throw an error.
@@ -68,25 +71,25 @@ class APIController extends Controller
                 $like->setUser($user);
                 $like->setPost($post);
                 $post->setUpvotes($post->getUpvotes() + 1);
-                $user->setScore($user->getScore() + 1);
+                $post_user->setScore($post_user->getScore() + 1);
                 $post->addLike($like);
                 $em->persist($like);
             } else {
                 if($like->getIsLike()) {
                     $post->setUpvotes($post->getUpvotes() - 1);
-                    $user->setScore($user->getScore() - 1);
+                    $post_user->setScore($post_user->getScore() - 1);
                     $post->removeLike($like);
                     $em->remove($like);
                 } else {
                     $post->setUpvotes($post->getUpvotes() + 1);
                     $post->setDownvotes($post->getDownvotes() - 1);
-                    $user->setScore($user->getScore() + 2);
+                    $post_user->setScore($post_user->getScore() + 2);
                     $like->setIsLike(true);
                     $em->persist($like);
                 }
             }
             $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
-            $em->persist($user);
+            $em->persist($post_user);
             $em->persist($post);
             $em->flush();
             $score = ($post->getUpvotes() - $post->getDownvotes());
@@ -118,6 +121,9 @@ class APIController extends Controller
        // Get the post from the post_id in the database
        $post = $em->getRepository('AppBundle:Post')
                   ->find($post_id);
+       
+       // get post user
+       $post_user = $post->getUser();
    
        // If anything other than a post is returned (including null)
        // throw an error.
@@ -138,25 +144,25 @@ class APIController extends Controller
                $dislike->setUser($user);
                $dislike->setPost($post);
                $post->setDownvotes($post->getDownvotes() + 1);
-               $user->setScore($user->getScore() - 1);
+               $post_user->setScore($post_user->getScore() - 1);
                $post->addLike($dislike);
                $em->persist($dislike);
            } else {
                if($like->getIsLike()) {
                    $post->setUpvotes($post->getUpvotes() - 1);
                    $post->setDownvotes($post->getDownvotes() + 1);
-                   $user->setScore($user->getScore() - 2);
+                   $post_user->setScore($post_user->getScore() - 2);
                    $like->setIsLike(false);
                    $em->persist($like);
                } else {
                    $post->setDownvotes($post->getDownvotes() - 1);
-                   $user->setScore($user->getScore() + 1);
+                   $post_user->setScore($post_user->getScore() + 1);
                    $em->remove($like);
                    $post->removeLike($like);
                }
            }
            $post->setScore(Utilities::hot($post->getUpvotes(), $post->getDownvotes(), $post->getCreated()));
-           $em->persist($user);
+           $em->persist($post_user);
            $em->persist($post);
            $em->flush();
            $score = ($post->getUpvotes() - $post->getDownvotes());
