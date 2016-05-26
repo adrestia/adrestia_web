@@ -19,12 +19,12 @@ use AppBundle\Entity\CommentLikes;
 use AppBundle\Helper\Utilities;
 
 /**
- * @Route("/")
+ * @Route("/comments")
  */
 class CommentController extends Controller
 {
     /**
-     * @Route("/comments", name="new_comment")
+     * @Route("/", name="new_comment")
      * @Method({"POST"})
      */
     public function newCommentAction(Request $request) 
@@ -72,7 +72,7 @@ class CommentController extends Controller
     }
     
      /**
-     * @Route("/comments/upvote", name="upvote_comment")
+     * @Route("/upvote", name="upvote_comment")
      * @Method({"POST"})
      */
     public function upvoteCommentAction(Request $request) 
@@ -140,7 +140,7 @@ class CommentController extends Controller
 	}
     
     /**
-     * @Route("/comments/downvote", name="downvote_comment")
+     * @Route("/downvote", name="downvote_comment")
      * @Method({"POST"})
      */
     public function downvoteCommentAction(Request $request) 
@@ -209,7 +209,7 @@ class CommentController extends Controller
     }
     
     /**
-     * @Route("/comments", name="remove")
+     * @Route("/", name="remove")
      * @Method({"DELETE"})
      */
     public function removeCommentAction(Request $request) 
