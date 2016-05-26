@@ -62,7 +62,7 @@ class PostController extends Controller
                 return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
             }   
         } else {
-            return $this->render('default/new_post.html.twig');
+            return $this->render('posts/new_post.html.twig');
         }
     }
 
@@ -138,7 +138,7 @@ class PostController extends Controller
                 
         $comments = $builder->getQuery()->getResult();
         
-        return $this->render('default/post.html.twig', [
+        return $this->render('posts/post.html.twig', [
             'post' => $post, 
             'like' => $like,
             'comments' => $comments
@@ -205,7 +205,7 @@ class PostController extends Controller
                 
         $comments = $builder->getQuery()->getResult();
         
-        return $this->render('default/college_post.html.twig', [
+        return $this->render('posts/college_post.html.twig', [
             'post' => $post, 
             'comments' => $comments,
             'like' => $like,

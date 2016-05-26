@@ -20,7 +20,9 @@
                 <div class="small-11 columns body">
                     <p class="post_body">{{ post.body }}</p>
                     <a href="#" class="post_report" data-post-id="{{post.id}}">Report</a>
-                    <a href="#" class="post_remove" data-post-id="{{post.id}}">Remove</a>
+                    {% if post.user.getId == app.user.getId %}
+                        <a href="#" class="post_remove" data-post-id="{{post.id}}">Remove</a>
+                    {% endif %}
                     <span class="post_time" data-post-id="{{post.id}}" title="{{ post.created|date('Y-m-d H:i:s') }}">{{ post.created|time_diff }}</span>
                 </div>
                 <div class="small-1 columns score">

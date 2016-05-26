@@ -1,0 +1,14 @@
+.report_reasons {
+    list-style-type: none;
+}
+
+.report_item {
+    cursor: pointer;
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid grey;
+}
+
+.report_item:hover {
+    background-color: #eee;
+}

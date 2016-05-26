@@ -2,6 +2,7 @@
 
 {% block stylesheets %}
     <link rel="stylesheet" href="/css/index.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="/css/report.css" type="text/css" media="screen">
 {% endblock %}
 
 {% block left_menu %}
@@ -39,6 +40,17 @@
                 {{ app.user.getCollege.getName }}
                 <hr width="40%">
             </div>
+            {% block announcement %}
+                <div class="row post">
+                    <div class="small-12 columns body">
+                        {% if announcement.body|length > 250 %} 
+                            <p class="post_body">{{ announcement.body|slice(0, 250) }} <a href="{{ path('announcement_view', {'announcement_id' : announcement.id }) }}"> More...</a></p>
+                        {% else %}
+                            <p class="post_body">{{ announcement.body }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endblock %}
             {% if posts|length == 0 %}
                 <h4> There doesn't seem to be anything here! </h4>
             {% else %}
@@ -50,7 +62,7 @@
                         {% else %}
                             <p class="post_body">{{ post.p_body }}</p>
                         {% endif %}
-                        <a href="#" class="post_report" data-post-id="{{post.p_id}}">Report</a>
+                        <a data-open="report_modal" href="#" class="post_report" data-post-id="{{post.p_id}}">Report</a>
                         <a href="{{ path('post_view', {'post_id': post.p_id }) }}" class="view_post">Comments ({{ post.comments }})</a>
                         <span class="post_time" data-post-id="{{post.p_id}}" title="{{ post.p_created|date('Y-m-d H:i:s') }}">{{ post.p_created|time_diff }}</span>
                     </div>
@@ -64,6 +76,25 @@
             {% endif %}
         </div>
     </div>
+    
+    {% block report_modal %}
+        <div class="small reveal" id="report_modal" data-reveal>
+            <h1>What's up?</h1>
+            <p class="lead">
+                Please explain why you'd like to report this post.<br>
+                We take reports very seriously.
+            </p>
+            <ul class="report_reasons">
+                <li class="report_item">This post is harrassing or targeting a specifically named individual (first and last name)</li>
+                <li class="report_item">This post is attempting to give out personal information about a poster or student</li>
+                <li class="report_item">This post is threating harm to the poster, another student, or the student body</li>
+                <li class="report_item">This post is spam (advertising, soliciting, pornography, etc.)</li>
+            </ul>
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endblock %}
 {% endblock %}
 
 {% block javascripts %}

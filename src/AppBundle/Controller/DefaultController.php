@@ -271,7 +271,7 @@ class DefaultController extends Controller
         $builder = $em->createQueryBuilder()->select('c')->from('AppBundle:College', 'c');
         $colleges = $builder->getQuery()->getResult();
                 
-        return $this->render('default/college_view.html.twig', [
+        return $this->render('posts/college_view.html.twig', [
             'posts' => $posts,
             'colleges' => $colleges,
         ]);
@@ -325,7 +325,7 @@ class DefaultController extends Controller
                 
         $posts = $builder->getQuery()->getResult();
         
-        return $this->render('default/college.html.twig', [
+        return $this->render('posts/college.html.twig', [
             'posts' => $posts,
             'sorting' => $sorting,
             'college' => $college,
