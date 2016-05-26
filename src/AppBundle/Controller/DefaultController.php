@@ -97,8 +97,10 @@ class DefaultController extends Controller
         }
         
         $em = Utilities::getEntityManager($this);
-        
         $user = Utilities::getCurrentUser($this);
+        
+        // Need to get all the possible report reasons
+        $reasons = $em->getRepository('AppBundle:ReportReason')->findAll();
         
         /*
         EQUIVALENT QUERY TO BUILDER BELOW
@@ -153,7 +155,8 @@ class DefaultController extends Controller
         
         return $this->render('default/index.html.twig', [
             'posts' => $posts,
-            'sorting' => $sorting
+            'sorting' => $sorting,
+            'report_reasons' => $reasons,
         ]);
     }
     
