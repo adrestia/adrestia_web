@@ -16,27 +16,29 @@ use AppBundle\Entity\Post;
 use AppBundle\Helper\Utilities;
 
 /**
- * @Route("/")
+ * @Route("/posts")
  */
 class ReportController extends Controller
 {
     /**
-     * @Route("/posts/report", name="report_post")
+     * @Route("/report", name="report_post")
      * @Method({"POST"})
      */
-    public function newPostAction(Request $request) 
+    public function reportPostAction(Request $request) 
     {   
-        // Need to get the current user based on security acces
-        $user = Utilities::getCurrentUser($this);
-    
-        // Get the body of the post from the request
-        $body = $request->get('body');
+        // Get current user and entity manager
+        $user   = Utilities::getCurrentUser($this);
+        $em     = Utilities::getEntityManager($this);
         
-        if(trim($body) === '') {
-            return new JsonResponse(array('status' => 400, 'message' => "Empty body"));
-        }
+        // Get the post_id from the request
+        $post_id = $request->get('post_id');
         
-        $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
+        // Get the post from the post_id
+        $post = $em->getRepository('AppBundle:Post')
+                   ->find($post_id);
+        
+        // Get the reason for the report
+        $reason = $resquest->get('reason');
     
         // We have everything we need now
         // Time to add the post to the database
