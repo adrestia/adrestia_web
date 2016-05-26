@@ -19,12 +19,12 @@ use AppBundle\Entity\Comment;
 use AppBundle\Helper\Utilities;
 
 /**
- * @Route("/")
+ * @Route("/posts")
  */
 class PostController extends Controller
 {
     /**
-     * @Route("/posts/new", name="new_post")
+     * @Route("/new", name="new_post")
      */
     public function newPostAction(Request $request) 
     {
@@ -67,7 +67,7 @@ class PostController extends Controller
     }
 
     /**
-     * @Route("/posts/{post_id}", name="post_view", requirements={"post_id" = "\d+"})
+     * @Route("/{post_id}", name="post_view", requirements={"post_id" = "\d+"})
      */
     public function viewPostAction(Request $request, $post_id) 
     {
@@ -145,76 +145,8 @@ class PostController extends Controller
         ]);
     }
     
-    /**
-     * @Route("/college/{college_id}/posts/{post_id}", name="college_post_view", requirements={"college_id":"\d+", "post_id":"\d+"})
-     */
-    public function collegeViewPostAction(Request $request, $college_id, $post_id) 
-    {
-        $user = Utilities::getCurrentUser($this);
-        $em = Utilities::getEntityManager($this);
-        
-        // Get the college
-        $college = $em->getRepository('AppBundle:College')
-                      ->find($college_id);
-        
-        // Get the post from the post_id in the database
-        $post = $em->getRepository('AppBundle:Post')
-                   ->findOneBy(array('id' => $post_id, 'hidden' => false));
-        
-        $like = $em->getRepository('AppBundle:PostLikes')
-                   ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
-        
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$post) {
-            throw $this->createNotFoundException(
-                "Post not found!"
-            );
-        }
-        
-        /*
-        EQUIVALENT QUERY TO BUILDER BELOW
-
-       "SELECT c.id, c.post_id, c.upvotes, 
-                c.downvotes, c.body, c.reports, 
-                p.created,
-         FROM comments c
-         WHERE c.post_id = :postid
-         GROUP BY c.id, c.post_id, c.body, c.upvotes
-                  c.downvotes, c.reports,
-                  c.created
-         ORDER BY created DESC;";
-        
-        */
-        
-        $builder = $em->createQueryBuilder();
-        $builder
-            ->select('c', 'l')
-            ->from('AppBundle:Comment', 'c') 
-            ->where('c.post = :postid AND c.hidden = false')
-            ->setParameter('postid', $post->getId())
-            ->leftJoin(
-                'c.likes',
-                'l',
-                \Doctrine\ORM\Query\Expr\Join::WITH,
-                'c.id = l.comment AND l.user = :user'
-                )
-            ->setParameter('user', $user->getId())
-            ->groupBy('c', 'l')
-            ->orderBy('c.created', 'ASC');
-                
-        $comments = $builder->getQuery()->getResult();
-        
-        return $this->render('posts/college_post.html.twig', [
-            'post' => $post, 
-            'comments' => $comments,
-            'like' => $like,
-            'college' => $college,
-        ]);
-    }
-    
      /**
-     * @Route("/posts/upvote", name="upvote_post")
+     * @Route("/upvote", name="upvote_post")
      * @Method({"POST"})
      */
     public function upvotePostAction(Request $request) 
@@ -283,7 +215,7 @@ class PostController extends Controller
 	}
     
     /**
-     * @Route("/posts/downvote", name="downvote_post")
+     * @Route("/downvote", name="downvote_post")
      * @Method({"POST"})
      */
     public function downvotePostAction(Request $request) 
@@ -353,7 +285,7 @@ class PostController extends Controller
     }
     
     /**
-     * @Route("/posts/remove", name="remove_post")
+     * @Route("/remove", name="remove_post")
      * @Method({"DELETE"})
      */
     public function removePostAction(Request $request) 
