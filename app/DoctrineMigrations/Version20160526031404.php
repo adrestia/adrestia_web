@@ -23,10 +23,10 @@ class Version20160526031404 extends AbstractMigration
 
 
     public function postUp(Schema $schema) {
-        $this->connection->executeQuery("INSERT INTO report_reasons (`reason`) VALUES ('Spam');");
-        $this->connection->executeQuery("INSERT INTO report_reasons (`reason`) VALUES ('Harrassment');");
-        $this->connection->executeQuery("INSERT INTO report_reasons (`reason`) VALUES ('Doxxing');");
-        $this->connection->executeQuery("INSERT INTO report_reasons (`reason`) VALUES ('Threats');");
+        $this->connection->executeQuery("INSERT INTO report_reasons (`reason`) VALUES ('This post is harrassing or targeting a specifically named individual (first and last name)');");
+        $this->connection->executeQuery("INSERT INTO report_reasons (`reason`) VALUES ('This post is attempting to give out personal information about a poster or student');");
+        $this->connection->executeQuery("INSERT INTO report_reasons (`reason`) VALUES ('This post is threating harm to the poster, another student, or the student body');");
+        $this->connection->executeQuery("INSERT INTO report_reasons (`reason`) VALUES ('This post is spam (advertising, soliciting, pornography, etc.)');");
     }
         
     /**

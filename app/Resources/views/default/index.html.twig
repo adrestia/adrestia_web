@@ -87,10 +87,9 @@
                 We take reports very seriously.
             </p>
             <ul class="report_reasons">
-                <li class="report_item">This post is harrassing or targeting a specifically named individual (first and last name)</li>
-                <li class="report_item">This post is attempting to give out personal information about a poster or student</li>
-                <li class="report_item">This post is threating harm to the poster, another student, or the student body</li>
-                <li class="report_item">This post is spam (advertising, soliciting, pornography, etc.)</li>
+                {% for reason in report_reasons %}
+                    <li data-reason-id="{{reason.id}}" class="report_item">{{ reason.reason }}</li>
+                {% endfor %}
             </ul>
             <button class="close-button" data-close aria-label="Close modal" type="button">
                 <span aria-hidden="true">&times;</span>
