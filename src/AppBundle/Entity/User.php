@@ -151,6 +151,11 @@ class User implements UserInterface, \Serializable
      * @ORM\Column(name="api_key", type="guid")
      */
     protected $api_key;
+    
+    /**
+     * @ORM\ManyToOne(targetEntity="Role")
+     */
+    protected $roles;
 
     /**
      * @param mixed $apiKey
@@ -173,6 +178,8 @@ class User implements UserInterface, \Serializable
         $this->is_active = true;
         $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
         $this->posts = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->roles = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->roles[] = "ROLE_USER";
     }
 
     public function getUsername()
@@ -191,10 +198,39 @@ class User implements UserInterface, \Serializable
     {
         return $this->password;
     }
+    
+    /**
+     * Add role
+     *
+     * @param \AppBundle\Entity\Role $role
+     *
+     * @return Role
+     */
+    public function addRole(\AppBundle\Entity\Role $role)
+    {
+        $this->roles[] = $role;
 
+        return $this;
+    }
+
+    /**
+     * Remove role
+     *
+     * @param \AppBundle\Entity\Role $role
+     */
+    public function removeRole(\AppBundle\Entity\Role $role)
+    {
+        $this->roles->removeElement($role);
+    }
+
+    /**
+     * Get roles
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
     public function getRoles()
     {
-        return array('ROLE_USER');
+        return $this->roles;
     }
 
     public function eraseCredentials()
@@ -686,5 +722,19 @@ class User implements UserInterface, \Serializable
     public function getCommentLikes()
     {
         return $this->comment_likes;
+    }
+
+    /**
+     * Set roles
+     *
+     * @param \AppBundle\Entity\Role $roles
+     *
+     * @return User
+     */
+    public function setRoles(\AppBundle\Entity\Role $roles = null)
+    {
+        $this->roles = $roles;
+
+        return $this;
     }
 }

@@ -90,6 +90,7 @@
                 {% for reason in report_reasons %}
                     <li data-reason-id="{{reason.id}}" class="report_item">{{ reason.reason }}</li>
                 {% endfor %}
+                    <li id="tease-reason" class="report_item">This post is negative, offensive, or contains bad language</li>
             </ul>
             <button class="close-button" data-close aria-label="Close modal" type="button">
                 <span aria-hidden="true">&times;</span>
