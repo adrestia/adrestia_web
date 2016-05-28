@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping\JoinColumn;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\Role\RoleInterface;
 
 /**
 * AppBundle\Entity\Role
@@ -17,7 +18,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 * @ORM\Table(name="roles")
 *
 */  
-class Role
+class Role implements RoleInterface
 {
     /**
     * @ORM\Column(name="id", type="integer")
