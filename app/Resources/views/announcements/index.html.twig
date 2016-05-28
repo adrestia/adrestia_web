@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
 {% block stylesheets %}
+    <link rel="stylesheet" href="/css/announcements.css" type="text/css" media="screen">
 {% endblock %}
 
 {% block left_menu %}
@@ -13,11 +14,28 @@
     <div class="row wrapper">
         <div class="small-10 medium-10 small-centered columns">
             {% if announcements|length == 0 %}
-                No announcements yet.
+                <h4 style="margin-top:40px">No announcements yet.</h4>
             {% else %}
-                {% for announcement in announcements %}
-                    {{ announcement.body }}
-                {% endfor %}
+            <div class="announcements_table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="50">#</th>
+                            <th>Announcements</th>
+                            <th width="200">Posted Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for announcement in announcements %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><a href="{{ path('announcement_view', {'announcement_id' : announcement.id }) }}">{{ announcement.body|slice(0, 50) }}...</a></td>
+                                <td title="{{ announcement.created|date('Y-m-d H:i:s') }}">{{ announcement.created|time_diff }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             {% endif %}
         </div>
     </div>

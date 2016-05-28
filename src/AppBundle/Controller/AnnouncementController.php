@@ -41,7 +41,7 @@ class AnnouncementController extends Controller
     }
     
     /**
-     * @Route("/{announcement_id}", name="announcement_home", requirements={"announcement_id" = "\d+"})
+     * @Route("/{announcement_id}", name="announcement_view", requirements={"announcement_id" = "\d+"})
      */
     public function announcementViewAction(Request $request, $announcement_id)
     {   
