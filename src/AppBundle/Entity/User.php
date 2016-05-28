@@ -5,6 +5,7 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -153,7 +154,11 @@ class User implements UserInterface, \Serializable
     protected $api_key;
     
     /**
-     * @ORM\ManyToOne(targetEntity="Role")
+     * @ORM\ManyToMany(targetEntity="Role")
+     * @ORM\JoinTable(name="users_roles",
+     *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@JoinColumn(name="role_id", referencedColumnName="id")}
+     *      )
      */
     protected $roles;
 
@@ -208,6 +213,7 @@ class User implements UserInterface, \Serializable
      */
     public function addRole(\AppBundle\Entity\Role $role)
     {
+        $role->addUser($this);
         $this->roles[] = $role;
 
         return $this;
