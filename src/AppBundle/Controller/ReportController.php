@@ -30,31 +30,37 @@ class ReportController extends Controller
         $user   = Utilities::getCurrentUser($this);
         $em     = Utilities::getEntityManager($this);
         
-        // Get the post_id from the request
+        // Get the post
         $post_id = $request->get('post_id');
-        
-        // Get the post from the post_id
         $post = $em->getRepository('AppBundle:Post')
                    ->find($post_id);
         
         // Get the reason for the report
-        $reason = $resquest->get('reason');
+        $reason_id  = $resquest->get('reason');
+        $reason     = $em->getRepository('AppBundle:Reason')
+                         ->find($reason_id);
+        
+        // Check if already reported
+        $report = $em->getRepository('AppBundle:Report')
+                     ->findOneBy(array('user' => $user, 'post' => $post));
+        
+        if(!$report || !empty($report)) {
+            return new JsonResponse(array('message' => 'Report has already been submitted for this post'), 403);
+        }
     
         // We have everything we need now
         // Time to add the post to the database
         try {
             $em = Utilities::getEntityManager($this);
-            $post = new Post;
-            $post->setBody($body);
-            $post->setScore(Utilities::hot(0, 0, new \DateTime('NOW')));
-            $post->setIpAddress($post_ip);
-            $post->setCollege($user->getCollege());
-            $post->setUser($user);
-            $em->persist($post);
+            $report = new Report;
+            $report->setReason($reason);
+            $report->setPost($post);
+            $report->setUser($user);
+            $em->persist($report);
             $em->flush();
-            return new JsonResponse(array('status' => 200, 'message' => 'Success', 'post_id' => $post->getId()));
+            return new JsonResponse(array('message' => 'Success'), 200);
         } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
+            return new JsonResponse(array('message' => 'Unable to submit report'), 400);
         }   
     }
 }

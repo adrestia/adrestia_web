@@ -156,7 +156,7 @@ class CollegeController extends Controller
         EQUIVALENT QUERY TO BUILDER BELOW
 
        "SELECT p.id, p.user_id, p.body, p.upvotes, 
-                p.downvotes, p.score, p.reports, 
+                p.downvotes, p.score,
                 p.created, (p.upvotes - p.downvotes) AS top
          FROM posts p
          WHERE p.college = :college AND p.hidden = false

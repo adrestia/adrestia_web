@@ -106,7 +106,7 @@ class DefaultController extends Controller
         EQUIVALENT QUERY TO BUILDER BELOW
 
        "SELECT p.id, p.user_id, p.body, p.upvotes, 
-                p.downvotes, p.score, p.reports, 
+                p.downvotes, p.score,
                 p.created, l.is_like, l.user_id, 
                 l.post_id, (p.upvotes - p.downvotes) AS top
          FROM posts p
@@ -122,7 +122,7 @@ class DefaultController extends Controller
                  
         $builder = $em->createQueryBuilder();
         $builder
-            ->select('partial p.{id, body, upvotes, downvotes, score, reports, created}', 'IDENTITY(p.user)')
+            ->select('partial p.{id, body, upvotes, downvotes, score, created}', 'IDENTITY(p.user)')
             ->addSelect('(p.upvotes - p.downvotes) AS top')
             ->from('AppBundle:Post', 'p') 
             ->where('p.college = :college AND p.hidden = false')
@@ -192,7 +192,7 @@ class DefaultController extends Controller
         EQUIVALENT QUERY TO BUILDER BELOW
 
        "SELECT p.id, p.user_id, p.body, p.upvotes, 
-                p.downvotes, p.score, p.reports, 
+                p.downvotes, p.score,
                 p.created, l.is_like, l.user_id, 
                 l.post_id, (p.upvotes - p.downvotes) AS top
          FROM posts p
@@ -208,7 +208,7 @@ class DefaultController extends Controller
                  
         $builder = $em->createQueryBuilder();
         $builder
-            ->select('partial p.{id, body, upvotes, downvotes, score, reports, created}', 'IDENTITY(p.user)')
+            ->select('partial p.{id, body, upvotes, downvotes, score, created}', 'IDENTITY(p.user)')
             ->addSelect('(p.upvotes - p.downvotes) AS top')
             ->from('AppBundle:Post', 'p') 
             ->where('p.college = :college AND p.hidden = false')

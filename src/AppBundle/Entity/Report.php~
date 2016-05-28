@@ -28,7 +28,7 @@ class Report
     private $id;
     
     /**
-     * @ORM\OneToOne(targetEntity="Reason")
+     * @ORM\OneToOne(targetEntity="ReportReason")
      * @JoinColumn(referencedColumnName="id", onDelete="CASCADE")
      */
     private $reason;
@@ -38,4 +38,70 @@ class Report
      * @JoinColumn(referencedColumnName="id", onDelete="CASCADE")
      */
     private $post;
+    
+    /**
+     * @ORM\OneToOne(targetEntity="User")
+     * @JoinColumn(referencedColumnName="id", onDelete="CASCADE")
+     */
+    private $user;
+    
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set reason
+     *
+     * @param \AppBundle\Entity\ReportReason $reason
+     *
+     * @return Report
+     */
+    public function setReason(\AppBundle\Entity\ReportReason $reason = null)
+    {
+        $this->reason = $reason;
+
+        return $this;
+    }
+
+    /**
+     * Get reason
+     *
+     * @return \AppBundle\Entity\ReportReason
+     */
+    public function getReason()
+    {
+        return $this->reason;
+    }
+
+    /**
+     * Set post
+     *
+     * @param \AppBundle\Entity\Post $post
+     *
+     * @return Report
+     */
+    public function setPost(\AppBundle\Entity\Post $post = null)
+    {
+        $this->post = $post;
+        $post->addReport($this);
+
+        return $this;
+    }
+
+    /**
+     * Get post
+     *
+     * @return \AppBundle\Entity\Post
+     */
+    public function getPost()
+    {
+        return $this->post;
+    }
 }

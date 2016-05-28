@@ -34,10 +34,17 @@ class Report
     private $reason;
     
     /**
-     * @ORM\OneToOne(targetEntity="Post")
+     * @ORM\ManyToOne(targetEntity="Post", inversedBy="reports")
      * @JoinColumn(referencedColumnName="id", onDelete="CASCADE")
      */
     private $post;
+    
+    /**
+     * @ORM\OneToOne(targetEntity="User")
+     * @JoinColumn(referencedColumnName="id", onDelete="CASCADE")
+     */
+    private $user;
+    
 
     /**
      * Get id
@@ -96,5 +103,29 @@ class Report
     public function getPost()
     {
         return $this->post;
+    }
+
+    /**
+     * Set user
+     *
+     * @param \AppBundle\Entity\User $user
+     *
+     * @return Report
+     */
+    public function setUser(\AppBundle\Entity\User $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get user
+     *
+     * @return \AppBundle\Entity\User
+     */
+    public function getUser()
+    {
+        return $this->user;
     }
 }
