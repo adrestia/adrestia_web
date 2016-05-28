@@ -95,6 +95,9 @@ class CollegeController extends Controller
         $like = $em->getRepository('AppBundle:PostLikes')
                    ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
         
+        // Need to get all the possible report reasons
+        $reasons = $em->getRepository('AppBundle:ReportReason')->findAll();
+        
         // If anything other than a post is returned (including null)
         // throw an error.
         if (!$post) {
@@ -141,6 +144,7 @@ class CollegeController extends Controller
             'comments' => $comments,
             'like' => $like,
             'college' => $college,
+            'report_reasons' => $reasons,
         ]);
     }
 

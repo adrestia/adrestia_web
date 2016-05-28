@@ -82,6 +82,9 @@ class PostController extends Controller
         $like = $em->getRepository('AppBundle:PostLikes')
                    ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
         
+        // Need to get all the possible report reasons
+        $reasons = $em->getRepository('AppBundle:ReportReason')->findAll();
+        
         // If anything other than a post is returned (including null)
         // throw an error.
         if (!$post) {
@@ -141,7 +144,8 @@ class PostController extends Controller
         return $this->render('posts/post.html.twig', [
             'post' => $post, 
             'like' => $like,
-            'comments' => $comments
+            'comments' => $comments,
+            'report_reasons' => $reasons,
         ]);
     }
     

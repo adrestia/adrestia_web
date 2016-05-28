@@ -1,0 +1,46 @@
+<link rel="stylesheet" href="/css/report.css" type="text/css" media="screen">
+
+{% block report_modal %}
+    <div class="small reveal" id="report_modal" data-post-id="0" data-reveal>
+        <h1>What's up?</h1>
+        <p class="lead">
+            Please explain why you'd like to report this post.<br>
+            We take reports very seriously.
+        </p>
+        <ul class="report_reasons">
+            {% for reason in report_reasons %}
+                <li data-reason-id="{{reason.id}}" class="report_item">{{ reason.reason }}</li>
+            {% endfor %}
+                <li id="tease-reason" data-open="badReasonModal">This post is negative, offensive, or contains bad language</li>
+        </ul>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{% endblock %}
+
+{% block bad_reason %}
+    <div class="reveal" id="badReasonModal" data-reveal>
+        <h2>Well...</h2>
+        <p>
+            According to our content policy, unless it's for one of the reasons
+            listed prior, anything is pretty much allowed. If you dislike
+            the content, disagree with the poster, or think it is offensive
+            we ask that you instead downvote the post instead of flagging
+            it for abuse of our content policy.
+        </p>
+        <button class="close-button" data-close aria-label="Close reveal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{% endblock %}
+
+{% block submit_modal %}
+    <div class="reveal" id="reportSubmitModal" data-reveal>
+        <h2 id="report_submit_status"></h2>
+        <p id="report_submit_message"></p>
+        <button class="close-button" data-close aria-label="Close reveal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+{% endblock %}
