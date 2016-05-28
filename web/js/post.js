@@ -52,7 +52,10 @@ $(document).on('click', ".post_upvote", function() {
   } else {
       $(".score_number[data-post-id=" + post_id + "]").text(score - 1);
   }
-  $(".post_downvote[data-post-id=" + post_id + "]").removeClass('pink');
+  if($(".post_downvote[data-post-id=" + post_id + "]").hasClass('pink')) {
+      $(".score_number[data-post-id=" + post_id + "]").text(score + 2);
+      $(".post_downvote[data-post-id=" + post_id + "]").removeClass('pink');
+  }
   
   $.post("/posts/upvote", { post_id: post_id })
     .done(function(data) {
@@ -76,7 +79,10 @@ $(document).on('click', ".post_downvote", function() {
   } else {
       $(".score_number[data-post-id=" + post_id + "]").text(score + 1);
   }
-  $(".post_upvote[data-post-id=" + post_id + "]").removeClass('blue');
+  if($(".post_upvote[data-post-id=" + post_id + "]").hasClass('blue')) {
+      $(".score_number[data-post-id=" + post_id + "]").text(score - 2);
+      $(".post_upvote[data-post-id=" + post_id + "]").removeClass('blue');
+  }
   
   $.post("/posts/downvote", { post_id: post_id })
     .done(function(data) {

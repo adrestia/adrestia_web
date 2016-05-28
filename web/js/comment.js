@@ -84,13 +84,21 @@ $(document).on('click', ".comment_upvote", function() {
   var upvote = $(this); 
   var comment_id = $(this).attr('data-comment-id');
   
+  var score = parseInt($(".score_number[data-comment-id=" + comment_id + "]").text());
+  var classes = upvote.toggleClass('blue');
+  if(classes.hasClass('blue')) {
+      $(".score_number[data-comment-id=" + comment_id + "]").text(score + 1);
+  } else {
+      $(".score_number[data-comment-id=" + comment_id + "]").text(score - 1);
+  }
+  if($(".comment_downvote[data-comment-id=" + comment_id + "]").hasClass('pink')) {
+      $(".score_number[data-comment-id=" + comment_id + "]").text(score + 2);
+      $(".comment_downvote[data-comment-id=" + comment_id + "]").removeClass('pink');
+  }
+  
   $.post("/comments/upvote", { comment_id: comment_id })
     .done(function(data) {
-      if(data.status === 200) {
-        $(".score_number[data-comment-id=" + comment_id + "]").text(data.score);
-        upvote.toggleClass('blue');
-        $(".comment_downvote[data-comment-id=" + comment_id + "]").removeClass('pink');
-      } else {
+      if(data.status !== 200) {
         alert(data.message);
       }
     })
@@ -103,13 +111,21 @@ $(document).on('click', ".comment_downvote", function() {
   var downvote = $(this);
   var comment_id = $(this).attr('data-comment-id');
   
+  var score = parseInt($(".score_number[data-comment-id=" + comment_id + "]").text());
+  var classes = downvote.toggleClass('pink');
+  if(classes.hasClass('pink')) {
+      $(".score_number[data-comment-id=" + comment_id + "]").text(score - 1);
+  } else {
+      $(".score_number[data-comment-id=" + comment_id + "]").text(score + 1);
+  }
+  if($(".comment_upvote[data-comment-id=" + comment_id + "]").hasClass('blue')) {
+      $(".score_number[data-comment-id=" + comment_id + "]").text(score - 2);
+      $(".comment_upvote[data-comment-id=" + comment_id + "]").removeClass('blue');
+  }
+  
   $.post("/comments/downvote", { comment_id: comment_id })
     .done(function(data) {
-      if(data.status === 200) {
-        $(".score_number[data-comment-id=" + comment_id + "]").text(data.score);
-        downvote.toggleClass('pink');
-        $(".comment_upvote[data-comment-id=" + comment_id + "]").removeClass('blue');
-      } else {
+      if(data.status !== 200) {
         alert(data.message);
       }
     })
