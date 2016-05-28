@@ -210,6 +210,9 @@ class PostController extends Controller
                     $post->setUpvotes($post->getUpvotes() + 1);
                     $post->setDownvotes($post->getDownvotes() - 1);
                     $post_user->setScore($post_user->getScore() + 2);
+                    if(($post->getUpvotes() - $post->getDownvotes()) > -10) {
+                        $post->setHidden(false);
+                    }
                     $like->setIsLike(true);
                     $em->persist($like);
                 }
@@ -268,6 +271,9 @@ class PostController extends Controller
                 $dislike->setPost($post);
                 $post->setDownvotes($post->getDownvotes() + 1);
                 $post_user->setScore($post_user->getScore() - 1);
+                if(($post->getUpvotes() - $post->getDownvotes()) < -9) {
+                    $post->setHidden(true);
+                }
                 $post->addLike($dislike);
                 $em->persist($dislike);
             } else {
@@ -275,11 +281,17 @@ class PostController extends Controller
                     $post->setUpvotes($post->getUpvotes() - 1);
                     $post->setDownvotes($post->getDownvotes() + 1);
                     $post_user->setScore($post_user->getScore() - 2);
+                    if(($post->getUpvotes() - $post->getDownvotes()) < -9) {
+                        $post->setHidden(true);
+                    }
                     $like->setIsLike(false);
                     $em->persist($like);
                 } else {
                     $post->setDownvotes($post->getDownvotes() - 1);
                     $post_user->setScore($post_user->getScore() + 1);
+                    if(($post->getUpvotes() - $post->getDownvotes()) > -10) {
+                        $post->setHidden(false);
+                    }
                     $em->remove($like);
                     $post->removeLike($like);
                 }

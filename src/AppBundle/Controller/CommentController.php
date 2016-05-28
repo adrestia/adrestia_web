@@ -124,6 +124,9 @@ class CommentController extends Controller
                     $comment->setUpvotes($comment->getUpvotes() + 1);
                     $comment->setDownvotes($comment->getDownvotes() - 1);
                     $comment_user->setScore($comment_user->getScore() + 2);
+                    if(($comment->getUpvotes() - $comment->getDownvotes()) > -10) {
+                        $comment->setHidden(false);
+                    }
                     $like->setIsLike(true);
                     $em->persist($like);
                 }
@@ -181,6 +184,9 @@ class CommentController extends Controller
                 $dislike->setComment($comment);
                 $comment->setDownvotes($comment->getDownvotes() + 1);
                 $comment_user->setScore($comment_user->getScore() - 1);
+                if(($comment->getUpvotes() - $comment->getDownvotes()) < -9) {
+                    $comment->setHidden(true);
+                }
                 $comment->addLike($dislike);
                 $em->persist($dislike);
             } else {
@@ -188,11 +194,17 @@ class CommentController extends Controller
                     $comment->setUpvotes($comment->getUpvotes() - 1);
                     $comment->setDownvotes($comment->getDownvotes() + 1);
                     $comment_user->setScore($comment_user->getScore() - 2);
+                    if(($comment->getUpvotes() - $comment->getDownvotes()) < -9) {
+                        $comment->setHidden(true);
+                    }
                     $like->setIsLike(false);
                     $em->persist($like);
                 } else {
                     $comment->setDownvotes($comment->getDownvotes() - 1);
                     $comment_user->setScore($comment_user->getScore() + 1);
+                    if(($comment->getUpvotes() - $comment->getDownvotes()) > -10) {
+                        $comment->setHidden(false);
+                    }
                     $em->remove($like);
                     $comment->removeLike($like);
                 }
