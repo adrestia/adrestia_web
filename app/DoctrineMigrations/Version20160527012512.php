@@ -41,10 +41,6 @@ class Version20160527012512 extends AbstractMigration  implements ContainerAware
      */
     public function postUp(Schema $schema) {    
         
-        //$this->connection->executeQuery("INSERT INTO roles (`role`) VALUES ('ROLE_USER');");
-        //$this->connection->executeQuery("INSERT INTO roles (`role`) VALUES ('ROLE_ADMIN');");
-        //$this->connection->executeQuery("INSERT INTO roles (`role`) VALUES ('ROLE_SUPER_ADMIN');");
-        
         $em = $this->container->get('doctrine.orm.entity_manager');
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
         
