@@ -40,10 +40,18 @@ class PostController extends Controller
             $body = $request->get('body');
             
             if(trim($body) === '') {
-                return new JsonResponse(array('status' => 400, 'message' => "Empty body"));
+                return new JsonResponse(array('message' => "Post is empty."), 400);
             }
             
             $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
+            
+            if(strlen(trim($body)) < 50) {
+                return new JsonResponse(array('message' => "Post is less than 50 characters."), 400);
+            }
+            
+            if(strlen(trim($body)) > 1024) {
+                return new JsonResponse(array('message' => "Post is longer than 1024 characters."), 400);
+            }
         
             // We have everything we need now
             // Time to add the post to the database
@@ -57,9 +65,9 @@ class PostController extends Controller
                 $post->setUser($user);
                 $em->persist($post);
                 $em->flush();
-                return new JsonResponse(array('status' => 200, 'message' => 'Success', 'post_id' => $post->getId()));
+                return new JsonResponse(array('message' => 'Success', 'post_id' => $post->getId()), 200);
             } catch (\Doctrine\DBAL\DBALException $e) {
-                return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
+                return new JsonResponse(array('message' => 'Unable to submit post.'), 500);
             }   
         } else {
             return $this->render('posts/new_post.html.twig');

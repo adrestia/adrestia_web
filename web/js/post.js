@@ -6,17 +6,11 @@ $("#post_form").submit(function(event) {
     var body = $("#textarea");
     $.post("/posts/new", { body: body.val() })
     .done(function( data ) {
-        if(data.status === 200) {
-            window.location = "/posts/" + data.post_id;
-        } else {
-            $("#post_submit_error").show();
-            setTimeout(function() {
-                $("#post_submit_error").fadeOut();
-            }, 2000);
-        }
+        window.location = "/posts/" + data.post_id;
     })
-    .error(function( data ) {
-        console.error(data);
+    .error(function(xhr, status, error) {
+        var data = JSON.parse(xhr.responseText);
+        $("#post_error_text").text("Error: " + data.message);
     });
     event.preventDefault();
 });
@@ -66,7 +60,8 @@ $(document).on('click', ".post_upvote", function() {
             alert(data.message);
         }
     })
-    .error(function(data) {
+    .error(function(xhr, status, error) {
+        var data = JSON.parse(xhr.responseText);
         console.error(data.message);
     })
 });
@@ -93,7 +88,8 @@ $(document).on('click', ".post_downvote", function() {
             alert(data.message);
         }
     })
-    .error(function(data) {
+    .error(function(xhr, status, error) {
+        var data = JSON.parse(xhr.responseText);
         console.error(data.message);
     })
 });
@@ -114,7 +110,8 @@ $(document).on('click', ".post_remove", function() {
                     alert(data.message);
                 }
             },
-            error: function(data) {
+            error: function(xhr, status, error) {
+                var data = JSON.parse(xhr.responseText);
                 console.error(data.message);
             }
         });
