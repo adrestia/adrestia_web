@@ -16,13 +16,17 @@ use AppBundle\Entity\Post;
 use AppBundle\Helper\Utilities;
 
 /**
- * @Route("/")
+ * @Route("/report")
  */
 class ReportController extends Controller
 {
     /**
-     * @Route("/report", name="report_post")
+     * @Route("/post", name="report_post")
      * @Method({"POST"})
+     *
+     * @param post_id 
+     * @param reason_id
+     *
      */
     public function reportPostAction(Request $request) 
     {   
@@ -36,8 +40,8 @@ class ReportController extends Controller
                    ->find($post_id);
         
         // Get the reason for the report
-        $reason_id  = $resquest->get('reason');
-        $reason     = $em->getRepository('AppBundle:Reason')
+        $reason_id  = $request->get('reason_id');
+        $reason     = $em->getRepository('AppBundle:ReportReason')
                          ->find($reason_id);
         
         // Check if already reported

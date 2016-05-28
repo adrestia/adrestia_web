@@ -91,7 +91,7 @@ class Report
     {
         $this->post = $post;
         $post->addReport($this);
-
+        $post->setNumReports($post->getNumReports() + 1);
         return $this;
     }
 

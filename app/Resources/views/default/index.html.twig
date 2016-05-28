@@ -66,7 +66,7 @@
                         {% else %}
                             <p class="post_body">{{ post.p_body }}</p>
                         {% endif %}
-                        <a data-open="report_modal" href="#" class="post_report" data-post-id="{{post.p_id}}">Report</a>
+                        <a href="#" class="post_report" data-post-id="{{post.p_id}}">Report</a>
                         <a href="{{ path('post_view', {'post_id': post.p_id }) }}" class="view_post">Comments ({{ post.comments }})</a>
                         <span class="post_time" data-post-id="{{post.p_id}}" title="{{ post.p_created|date('Y-m-d H:i:s') }}">{{ post.p_created|time_diff }}</span>
                     </div>
@@ -82,7 +82,7 @@
     </div>
     
     {% block report_modal %}
-        <div class="small reveal" id="report_modal" data-reveal>
+        <div class="small reveal" id="report_modal" data-post-id="0" data-reveal>
             <h1>What's up?</h1>
             <p class="lead">
                 Please explain why you'd like to report this post.<br>
@@ -110,6 +110,16 @@
                 we ask that you instead downvote the post instead of flagging
                 it for abuse of our content policy.
             </p>
+            <button class="close-button" data-close aria-label="Close reveal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endblock %}
+    
+    {% block submit_modal %}
+        <div class="reveal" id="reportSubmitModal" data-reveal>
+            <h2 id="report_submit_status"></h2>
+            <p id="report_submit_message"></p>
             <button class="close-button" data-close aria-label="Close reveal" type="button">
                 <span aria-hidden="true">&times;</span>
             </button>
