@@ -28,7 +28,7 @@ class Announcement
     private $id;
     
     /**
-    * @ORM\Column(name="body", type="string", length=1023)
+    * @ORM\Column(name="body", type="string", length=4096)
     * @Assert\NotBlank()
     */
     private $body;

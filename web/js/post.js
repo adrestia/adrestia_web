@@ -23,7 +23,7 @@ $("#post_form").submit(function(event) {
 });
 
 $("#textarea").bind('input propertychange', function(event) {
-  var remaining = 1024 - $(this).val().length;
+  var remaining = 1024 - $(this).val().length - ($(this).val().match(/\n/g)||[]).length;
   $("#c_count").html(remaining);
   
   if(remaining <= 0) {

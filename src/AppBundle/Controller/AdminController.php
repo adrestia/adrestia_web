@@ -34,13 +34,8 @@ class AdminController extends Controller
      */
     public function indexAction(Request $request)
     {   
-        $em = Utilities::getEntityManager($this);
-        
-        $announcements = $em->getRepository('AppBundle:Announcement')
-                            ->findAll();
-        
         return $this->render('admin/index.html.twig', [
-            'announcements' => $announcements,
+            
         ]);
     }
 }

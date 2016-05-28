@@ -41,7 +41,8 @@
                 <hr width="40%">
             </div>
             {% block announcement %}
-                {% if announcement is defined and announcement is not null %}
+                {% if announcement is not null %}
+                <h5> Announcements </h5>
                 <div class="row post">
                     <div class="small-12 columns body">
                         {% if announcement.body|length > 250 %} 
@@ -51,6 +52,7 @@
                         {% endif %}
                     </div>
                 </div>
+                <hr>
                 {% endif %}
             {% endblock %}
             {% if posts|length == 0 %}

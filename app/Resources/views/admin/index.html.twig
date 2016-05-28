@@ -10,15 +10,9 @@
 {% endblock %}
 
 {% block body %}
-    <div class="row wrapper">
-        <div class="small-10 medium-10 small-centered columns">
-            {% if announcements|length == 0 %}
-                No announcements yet.
-            {% else %}
-                {% for announcement in announcements %}
-                    {{ announcement.body }}
-                {% endfor %}
-            {% endif %}
+    <div class="row">
+        <div class="small-6 small-centered columns">
+            <h1 style="text-align: center"> Admin Home </h1>
         </div>
     </div>
 {% endblock %}

@@ -153,10 +153,25 @@ class DefaultController extends Controller
                 
         $posts = $builder->getQuery()->getScalarResult();
         
+        $week_ago = strtotime("-7 day");
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('a.id, a.body, a.created')
+            ->from('AppBundle:Announcement', 'a')
+            ->where('a.created > :date')
+            ->setParameter('date', $week_ago)
+            ->orderBy('a.created', 'DESC')
+            ->setMaxResults(1);
+        
+        $announcement = $builder->getQuery()->getResult();
+        
+        $announcement = empty($announcement) ? null : $announcement[0];
+        
         return $this->render('default/index.html.twig', [
             'posts' => $posts,
             'sorting' => $sorting,
             'report_reasons' => $reasons,
+            'announcement' => $announcement,
         ]);
     }
     

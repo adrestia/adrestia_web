@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/index.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="/css/post.css" type="text/css" media="screen">
+{% endblock %}
+
+{% block left_menu %}
+    <a class="button primary" href="{{ path('homepage')}}">Home</a>
+{% endblock %}
+
+{% block body %}
+    <div class="row row_wrapper">
+        <div class="small-10 medium-8 small-centered columns">
+            <div id="college_header">
+                {{ app.user.getCollege.getName }}
+                <hr width="40%">
+            </div>
+            <div class="row post" data-announcement-id="{{announcement.id}}">
+                <div class="small-12 columns body">
+                    <p class="post_body">{{ announcement.body }}</p>
+                    <span class="post_time" data-post-id="{{announcement.id}}" title="{{ announcement.created|date('Y-m-d H:i:s') }}">{{ announcement.created|time_diff }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    
+{% endblock %}
