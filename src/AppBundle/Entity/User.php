@@ -238,6 +238,21 @@ class User implements UserInterface, \Serializable
     {
         return $this->roles;
     }
+    
+    /**
+     * Set roles
+     *
+     * @param \AppBundle\Entity\Role $roles
+     *
+     * @return User
+     */
+    public function setRoles(Array $roles = null)
+    {
+        $this->roles->clear();
+        $this->roles = $roles;
+
+        return $this;
+    }
 
     public function eraseCredentials()
     {
@@ -728,19 +743,5 @@ class User implements UserInterface, \Serializable
     public function getCommentLikes()
     {
         return $this->comment_likes;
-    }
-
-    /**
-     * Set roles
-     *
-     * @param \AppBundle\Entity\Role $roles
-     *
-     * @return User
-     */
-    public function setRoles(\AppBundle\Entity\Role $roles = null)
-    {
-        $this->roles = $roles;
-
-        return $this;
     }
 }
