@@ -13,10 +13,10 @@ $(document).on('click', ".report_item", function() {
         $("#report_submit_message").text(data.message);
         $("#reportSubmitModal").foundation('open');
     })
-    .error(function(data) {
+    .error(function(xhr, status, error) {
+        var data = JSON.parse(xhr.responseText);
         $("#report_submit_status").text("Error");
         $("#report_submit_message").text(data.message);
         $("#reportSubmitModal").foundation('open');
     })
-    
 });

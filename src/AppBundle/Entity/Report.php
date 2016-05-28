@@ -28,7 +28,7 @@ class Report
     private $id;
     
     /**
-     * @ORM\OneToOne(targetEntity="ReportReason")
+     * @ORM\ManyToOne(targetEntity="ReportReason")
      * @JoinColumn(referencedColumnName="id", onDelete="CASCADE")
      */
     private $reason;
@@ -40,7 +40,7 @@ class Report
     private $post;
     
     /**
-     * @ORM\OneToOne(targetEntity="User")
+     * @ORM\ManyToOne(targetEntity="User")
      * @JoinColumn(referencedColumnName="id", onDelete="CASCADE")
      */
     private $user;

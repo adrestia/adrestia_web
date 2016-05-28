@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Security;
 use AppBundle\Entity\User;
 use AppBundle\Entity\Post;
+use AppBundle\Entity\Report;
 use AppBundle\Helper\Utilities;
 
 /**
@@ -48,23 +49,22 @@ class ReportController extends Controller
         $report = $em->getRepository('AppBundle:Report')
                      ->findOneBy(array('user' => $user, 'post' => $post));
         
-        if(!$report || !empty($report)) {
-            return new JsonResponse(array('message' => 'Report has already been submitted for this post'), 403);
+        if($report || !empty($report)) {
+            return new JsonResponse(array('message' => 'You have already submitted a report for this post.'), 403);
         }
     
         // We have everything we need now
         // Time to add the post to the database
-        try {
-            $em = Utilities::getEntityManager($this);
-            $report = new Report;
-            $report->setReason($reason);
-            $report->setPost($post);
-            $report->setUser($user);
-            $em->persist($report);
-            $em->flush();
-            return new JsonResponse(array('message' => 'Success'), 200);
-        } catch (\Doctrine\DBAL\DBALException $e) {
-            return new JsonResponse(array('message' => 'Unable to submit report'), 400);
-        }   
+        $em = Utilities::getEntityManager($this);
+        $report = new Report;
+        $report->setReason($reason);
+        $report->setPost($post);
+        $report->setUser($user);
+        if($post->getNumReports() > 4) {
+            $post->setHidden(true);
+        }
+        $em->persist($report);
+        $em->flush();
+        return new JsonResponse(array('message' => 'Report submitted.'), 200);
     }
 }
