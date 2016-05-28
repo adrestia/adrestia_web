@@ -1,0 +1,100 @@
+<?php
+  
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\OneToOne;
+use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\Role\RoleInterface;
+
+/**
+* AppBundle\Entity\Report
+* 
+* @ORM\Entity
+* @ORM\Table(name="reports")
+*
+*/  
+class Report
+{
+    /**
+    * @ORM\Column(name="id", type="integer")
+    * @ORM\Id
+    * @ORM\GeneratedValue(strategy="AUTO")
+    */
+    private $id;
+    
+    /**
+     * @ORM\OneToOne(targetEntity="ReportReason")
+     * @JoinColumn(referencedColumnName="id", onDelete="CASCADE")
+     */
+    private $reason;
+    
+    /**
+     * @ORM\OneToOne(targetEntity="Post")
+     * @JoinColumn(referencedColumnName="id", onDelete="CASCADE")
+     */
+    private $post;
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set reason
+     *
+     * @param \AppBundle\Entity\ReportReason $reason
+     *
+     * @return Report
+     */
+    public function setReason(\AppBundle\Entity\ReportReason $reason = null)
+    {
+        $this->reason = $reason;
+
+        return $this;
+    }
+
+    /**
+     * Get reason
+     *
+     * @return \AppBundle\Entity\ReportReason
+     */
+    public function getReason()
+    {
+        return $this->reason;
+    }
+
+    /**
+     * Set post
+     *
+     * @param \AppBundle\Entity\Post $post
+     *
+     * @return Report
+     */
+    public function setPost(\AppBundle\Entity\Post $post = null)
+    {
+        $this->post = $post;
+        $post->addReport($this);
+
+        return $this;
+    }
+
+    /**
+     * Get post
+     *
+     * @return \AppBundle\Entity\Post
+     */
+    public function getPost()
+    {
+        return $this->post;
+    }
+}

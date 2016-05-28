@@ -92,9 +92,25 @@
                 {% for reason in report_reasons %}
                     <li data-reason-id="{{reason.id}}" class="report_item">{{ reason.reason }}</li>
                 {% endfor %}
-                    <li id="tease-reason" class="report_item">This post is negative, offensive, or contains bad language</li>
+                    <li id="tease-reason" data-open="badReasonModal" class="report_item">This post is negative, offensive, or contains bad language</li>
             </ul>
             <button class="close-button" data-close aria-label="Close modal" type="button">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endblock %}
+    
+    {% block bad_reason %}
+        <div class="reveal" id="badReasonModal" data-reveal>
+            <h2>Well...</h2>
+            <p>
+                According to our content policy, unless it's for one of the reasons
+                listed prior, anything is pretty much allowed. If you dislike
+                the content, disagree with the poster, or think it is offensive
+                we ask that you instead downvote the post instead of flagging
+                it for abuse of our content policy.
+            </p>
+            <button class="close-button" data-close aria-label="Close reveal" type="button">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>

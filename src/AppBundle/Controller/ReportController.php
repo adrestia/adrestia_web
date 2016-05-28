@@ -16,7 +16,7 @@ use AppBundle\Entity\Post;
 use AppBundle\Helper\Utilities;
 
 /**
- * @Route("/posts")
+ * @Route("/")
  */
 class ReportController extends Controller
 {

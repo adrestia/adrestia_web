@@ -5,16 +5,16 @@
 {% endblock %}
 
 {% block left_menu %}
-{% endblock %}
-
-{% block right_menu %}
+        <a class="button primary" href="{{ path('homepage')}}">Home</a>
 {% endblock %}
 
 {% block body %}
     <div class="row wrapper">
         <div class="small-10 medium-10 small-centered columns">
             {% if announcements|length == 0 %}
-                <h4 style="margin-top:40px">No announcements yet.</h4>
+                <div style="text-align: center">
+                    <h4 style="margin-top:40px">No announcements</h4>
+                </div>
             {% else %}
             <div class="announcements_table">
                 <table>

@@ -49,9 +49,9 @@ class Post
     private $score = 0;
   
     /** 
-     * @ORM\Column(name="reports", type="integer")
+     * @ORM\Column(name="num_reports", type="integer")
      */
-    private $reports = 0;
+    private $num_reports = 0;
     
     /**
      * @ORM\Column(name="hidden", type="boolean")
@@ -80,6 +80,11 @@ class Post
     private $likes;
     
     /**
+     * @OneToMany(targetEntity="Report", mappedBy="post")
+     */
+    private $reports;
+    
+    /**
      * @ManyToOne(targetEntity="College")
      */
     private $college;
@@ -99,6 +104,7 @@ class Post
     {
         $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
         $this->likes = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->reports = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
     /**
@@ -206,29 +212,29 @@ class Post
     {
         return $this->score;
     }
-
+    
     /**
-     * Set reports
+     * Set numReports
      *
-     * @param integer $reports
+     * @param integer $numReports
      *
      * @return Post
      */
-    public function setReports($reports)
+    public function setNumReports($numReports)
     {
-        $this->reports = $reports;
+        $this->num_reports = $numReports;
 
         return $this;
     }
 
     /**
-     * Get reports
+     * Get numReports
      *
      * @return integer
      */
-    public function getReports()
+    public function getNumReports()
     {
-        return $this->reports;
+        return $this->num_reports;
     }
 
     /**
@@ -417,5 +423,29 @@ class Post
     public function getHidden()
     {
         return $this->hidden;
+    }
+
+    /**
+     * Add report
+     *
+     * @param \AppBundle\Entity\Report $report
+     *
+     * @return Post
+     */
+    public function addReport(\AppBundle\Entity\Report $report)
+    {
+        $this->reports[] = $report;
+
+        return $this;
+    }
+
+    /**
+     * Remove report
+     *
+     * @param \AppBundle\Entity\Report $report
+     */
+    public function removeReport(\AppBundle\Entity\Report $report)
+    {
+        $this->reports->removeElement($report);
     }
 }
