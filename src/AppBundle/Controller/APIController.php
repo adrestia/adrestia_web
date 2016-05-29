@@ -829,7 +829,7 @@ class APIController extends Controller
             ); 
         }
         
-        if(!$user->getIsConfirmed()) {
+        if(!$user->getEmailConfirmed()) {
             return new JsonResponse(
                 array(
                     'status' => 401, 
