@@ -20,6 +20,7 @@ class Version20160529232107 extends AbstractMigration
         $this->addSql("INSERT INTO report_reasons (`reason`) VALUES ('This post is attempting to give out personal information about a poster or student');");        
         $this->addSql("INSERT INTO report_reasons (`reason`) VALUES ('This post is threating harm to the poster, another student, or the student body');");
         $this->addSql("INSERT INTO report_reasons (`reason`) VALUES ('This post is spam (advertising, soliciting, pornography, etc.)');");
+        $this->addSql("INSERT INTO report_reasons (`reason`) VALUES ('This post links to pornographic or illegal material');");
     }
 
     /**
@@ -32,5 +33,6 @@ class Version20160529232107 extends AbstractMigration
         $this->addSql("DELETE FROM report_reasons WHERE reason='This post is attempting to give out personal information about a poster or student';");
         $this->addSql("DELETE FROM report_reasons WHERE reason='This post is threating harm to the poster, another student, or the student body';");
         $this->addSql("DELETE FROM report_reasons WHERE reason='This post is spam (advertising, soliciting, pornography, etc.)';");
+        $this->addSql("DELETE FROM report_reasons WHERE reason='This post links to pornographic or illegal material';");
     }
 }
