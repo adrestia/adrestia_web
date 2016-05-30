@@ -19,8 +19,8 @@ class Version20160527184704 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE announcements CHANGE body body VARCHAR(4096) NOT NULL');
-        $this->addSql('ALTER TABLE users_roles RENAME INDEX idx_2de8c6a3a76ed395 TO IDX_51498A8EA76ED395');
-        $this->addSql('ALTER TABLE users_roles RENAME INDEX idx_2de8c6a3d60322ac TO IDX_51498A8ED60322AC');
+//        $this->addSql('ALTER TABLE users_roles RENAME INDEX idx_2de8c6a3a76ed395 TO IDX_51498A8EA76ED395');
+//        $this->addSql('ALTER TABLE users_roles RENAME INDEX idx_2de8c6a3d60322ac TO IDX_51498A8ED60322AC');
     }
 
     /**
@@ -32,7 +32,7 @@ class Version20160527184704 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() != 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE announcements CHANGE body body VARCHAR(1023) NOT NULL COLLATE utf8mb4_unicode_ci');
-        $this->addSql('ALTER TABLE users_roles RENAME INDEX idx_51498a8ea76ed395 TO IDX_2DE8C6A3A76ED395');
-        $this->addSql('ALTER TABLE users_roles RENAME INDEX idx_51498a8ed60322ac TO IDX_2DE8C6A3D60322AC');
+//        $this->addSql('ALTER TABLE users_roles RENAME INDEX idx_51498a8ea76ed395 TO IDX_2DE8C6A3A76ED395');
+//        $this->addSql('ALTER TABLE users_roles RENAME INDEX idx_51498a8ed60322ac TO IDX_2DE8C6A3D60322AC');
     }
 }
