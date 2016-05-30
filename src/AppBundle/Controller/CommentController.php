@@ -24,7 +24,7 @@ use AppBundle\Helper\Utilities;
 class CommentController extends Controller
 {
     /**
-     * @Route("/", name="new_comment")
+     * @Route("", name="new_comment")
      * @Method({"POST"})
      */
     public function newCommentAction(Request $request) 
