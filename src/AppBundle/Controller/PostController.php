@@ -19,12 +19,12 @@ use AppBundle\Entity\Comment;
 use AppBundle\Helper\Utilities;
 
 /**
- * @Route("/")
+ * @Route("/posts")
  */
 class PostController extends Controller
 {
     /**
-     * @Route("/posts/new", name="new_post")
+     * @Route("/new", name="new_post")
      */
     public function newPostAction(Request $request) 
     {
@@ -40,10 +40,18 @@ class PostController extends Controller
             $body = $request->get('body');
             
             if(trim($body) === '') {
-                return new JsonResponse(array('status' => 400, 'message' => "Empty body"));
+                return new JsonResponse(array('message' => "Post is empty."), 400);
             }
             
             $body = preg_replace("/[\r\n]{2,}/", "\n\n", $body); 
+            
+            if(strlen(trim($body)) < 50) {
+                return new JsonResponse(array('message' => "Post is less than 50 characters."), 400);
+            }
+            
+            if(strlen(trim($body)) > 1024) {
+                return new JsonResponse(array('message' => "Post is longer than 1024 characters."), 400);
+            }
         
             // We have everything we need now
             // Time to add the post to the database
@@ -57,17 +65,17 @@ class PostController extends Controller
                 $post->setUser($user);
                 $em->persist($post);
                 $em->flush();
-                return new JsonResponse(array('status' => 200, 'message' => 'Success', 'post_id' => $post->getId()));
+                return new JsonResponse(array('message' => 'Success', 'post_id' => $post->getId()), 200);
             } catch (\Doctrine\DBAL\DBALException $e) {
-                return new JsonResponse(array('status' => 400, 'message' => 'Unable to submit post.'));
+                return new JsonResponse(array('message' => 'Unable to submit post.'), 500);
             }   
         } else {
-            return $this->render('default/new_post.html.twig');
+            return $this->render('posts/new_post.html.twig');
         }
     }
 
     /**
-     * @Route("/posts/{post_id}", name="post_view", requirements={"post_id" = "\d+"})
+     * @Route("/{post_id}", name="post_view", requirements={"post_id" = "\d+"})
      */
     public function viewPostAction(Request $request, $post_id) 
     {
@@ -81,6 +89,9 @@ class PostController extends Controller
         
         $like = $em->getRepository('AppBundle:PostLikes')
                    ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
+        
+        // Need to get all the possible report reasons
+        $reasons = $em->getRepository('AppBundle:ReportReason')->findAll();
         
         // If anything other than a post is returned (including null)
         // throw an error.
@@ -138,83 +149,16 @@ class PostController extends Controller
                 
         $comments = $builder->getQuery()->getResult();
         
-        return $this->render('default/post.html.twig', [
+        return $this->render('posts/post.html.twig', [
             'post' => $post, 
             'like' => $like,
-            'comments' => $comments
-        ]);
-    }
-    
-    /**
-     * @Route("/college/{college_id}/posts/{post_id}", name="college_post_view", requirements={"college_id":"\d+", "post_id":"\d+"})
-     */
-    public function collegeViewPostAction(Request $request, $college_id, $post_id) 
-    {
-        $user = Utilities::getCurrentUser($this);
-        $em = Utilities::getEntityManager($this);
-        
-        // Get the college
-        $college = $em->getRepository('AppBundle:College')
-                      ->find($college_id);
-        
-        // Get the post from the post_id in the database
-        $post = $em->getRepository('AppBundle:Post')
-                   ->findOneBy(array('id' => $post_id, 'hidden' => false));
-        
-        $like = $em->getRepository('AppBundle:PostLikes')
-                   ->findOneBy(array('post' => $post_id, 'user' => $user->getId()));
-        
-        // If anything other than a post is returned (including null)
-        // throw an error.
-        if (!$post) {
-            throw $this->createNotFoundException(
-                "Post not found!"
-            );
-        }
-        
-        /*
-        EQUIVALENT QUERY TO BUILDER BELOW
-
-       "SELECT c.id, c.post_id, c.upvotes, 
-                c.downvotes, c.body, c.reports, 
-                p.created,
-         FROM comments c
-         WHERE c.post_id = :postid
-         GROUP BY c.id, c.post_id, c.body, c.upvotes
-                  c.downvotes, c.reports,
-                  c.created
-         ORDER BY created DESC;";
-        
-        */
-        
-        $builder = $em->createQueryBuilder();
-        $builder
-            ->select('c', 'l')
-            ->from('AppBundle:Comment', 'c') 
-            ->where('c.post = :postid AND c.hidden = false')
-            ->setParameter('postid', $post->getId())
-            ->leftJoin(
-                'c.likes',
-                'l',
-                \Doctrine\ORM\Query\Expr\Join::WITH,
-                'c.id = l.comment AND l.user = :user'
-                )
-            ->setParameter('user', $user->getId())
-            ->groupBy('c', 'l')
-            ->orderBy('c.created', 'ASC');
-                
-        $comments = $builder->getQuery()->getResult();
-        
-        return $this->render('default/college_post.html.twig', [
-            'post' => $post, 
             'comments' => $comments,
-            'like' => $like,
-            'college' => $college,
+            'report_reasons' => $reasons,
         ]);
     }
     
      /**
-     * @Route("/posts/upvote", name="upvote_post")
+     * @Route("/upvote", name="upvote_post")
      * @Method({"POST"})
      */
     public function upvotePostAction(Request $request) 
@@ -266,6 +210,9 @@ class PostController extends Controller
                     $post->setUpvotes($post->getUpvotes() + 1);
                     $post->setDownvotes($post->getDownvotes() - 1);
                     $post_user->setScore($post_user->getScore() + 2);
+                    if(($post->getUpvotes() - $post->getDownvotes()) > -10) {
+                        $post->setHidden(false);
+                    }
                     $like->setIsLike(true);
                     $em->persist($like);
                 }
@@ -283,7 +230,7 @@ class PostController extends Controller
 	}
     
     /**
-     * @Route("/posts/downvote", name="downvote_post")
+     * @Route("/downvote", name="downvote_post")
      * @Method({"POST"})
      */
     public function downvotePostAction(Request $request) 
@@ -324,6 +271,9 @@ class PostController extends Controller
                 $dislike->setPost($post);
                 $post->setDownvotes($post->getDownvotes() + 1);
                 $post_user->setScore($post_user->getScore() - 1);
+                if(($post->getUpvotes() - $post->getDownvotes()) < -9) {
+                    $post->setHidden(true);
+                }
                 $post->addLike($dislike);
                 $em->persist($dislike);
             } else {
@@ -331,11 +281,17 @@ class PostController extends Controller
                     $post->setUpvotes($post->getUpvotes() - 1);
                     $post->setDownvotes($post->getDownvotes() + 1);
                     $post_user->setScore($post_user->getScore() - 2);
+                    if(($post->getUpvotes() - $post->getDownvotes()) < -9) {
+                        $post->setHidden(true);
+                    }
                     $like->setIsLike(false);
                     $em->persist($like);
                 } else {
                     $post->setDownvotes($post->getDownvotes() - 1);
                     $post_user->setScore($post_user->getScore() + 1);
+                    if(($post->getUpvotes() - $post->getDownvotes()) > -10) {
+                        $post->setHidden(false);
+                    }
                     $em->remove($like);
                     $post->removeLike($like);
                 }
@@ -353,7 +309,7 @@ class PostController extends Controller
     }
     
     /**
-     * @Route("/posts/remove", name="remove_post")
+     * @Route("/remove", name="remove_post")
      * @Method({"DELETE"})
      */
     public function removePostAction(Request $request) 

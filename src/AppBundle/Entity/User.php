@@ -5,6 +5,7 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -151,6 +152,15 @@ class User implements UserInterface, \Serializable
      * @ORM\Column(name="api_key", type="guid")
      */
     protected $api_key;
+    
+    /**
+     * @ORM\ManyToMany(targetEntity="Role")
+     * @ORM\JoinTable(name="users_roles",
+     *      joinColumns={@JoinColumn(name="user_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@JoinColumn(name="role_id", referencedColumnName="id")}
+     *      )
+     */
+    protected $roles;
 
     /**
      * @param mixed $apiKey
@@ -173,6 +183,8 @@ class User implements UserInterface, \Serializable
         $this->is_active = true;
         $this->comments = new \Doctrine\Common\Collections\ArrayCollection();
         $this->posts = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->roles = new \Doctrine\Common\Collections\ArrayCollection();
+        $this->roles[] = "ROLE_USER";
     }
 
     public function getUsername()
@@ -191,10 +203,55 @@ class User implements UserInterface, \Serializable
     {
         return $this->password;
     }
+    
+    /**
+     * Add role
+     *
+     * @param \AppBundle\Entity\Role $role
+     *
+     * @return Role
+     */
+    public function addRole(\AppBundle\Entity\Role $role)
+    {
+        $role->addUser($this);
+        $this->roles[] = $role;
 
+        return $this;
+    }
+
+    /**
+     * Remove role
+     *
+     * @param \AppBundle\Entity\Role $role
+     */
+    public function removeRole(\AppBundle\Entity\Role $role)
+    {
+        $this->roles->removeElement($role);
+    }
+
+    /**
+     * Get roles
+     *
+     * @return array
+     */
     public function getRoles()
     {
-        return array('ROLE_USER');
+        return $this->roles->toArray();
+    }
+    
+    /**
+     * Set roles
+     *
+     * @param \AppBundle\Entity\Role $roles
+     *
+     * @return User
+     */
+    public function setRoles(Array $roles = null)
+    {
+        $this->roles->clear();
+        $this->roles = $roles;
+
+        return $this;
     }
 
     public function eraseCredentials()

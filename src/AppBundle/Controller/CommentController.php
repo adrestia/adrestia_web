@@ -19,12 +19,12 @@ use AppBundle\Entity\CommentLikes;
 use AppBundle\Helper\Utilities;
 
 /**
- * @Route("/")
+ * @Route("/comments")
  */
 class CommentController extends Controller
 {
     /**
-     * @Route("/comments", name="new_comment")
+     * @Route("/", name="new_comment")
      * @Method({"POST"})
      */
     public function newCommentAction(Request $request) 
@@ -72,7 +72,7 @@ class CommentController extends Controller
     }
     
      /**
-     * @Route("/comments/upvote", name="upvote_comment")
+     * @Route("/upvote", name="upvote_comment")
      * @Method({"POST"})
      */
     public function upvoteCommentAction(Request $request) 
@@ -124,6 +124,9 @@ class CommentController extends Controller
                     $comment->setUpvotes($comment->getUpvotes() + 1);
                     $comment->setDownvotes($comment->getDownvotes() - 1);
                     $comment_user->setScore($comment_user->getScore() + 2);
+                    if(($comment->getUpvotes() - $comment->getDownvotes()) > -10) {
+                        $comment->setHidden(false);
+                    }
                     $like->setIsLike(true);
                     $em->persist($like);
                 }
@@ -140,7 +143,7 @@ class CommentController extends Controller
 	}
     
     /**
-     * @Route("/comments/downvote", name="downvote_comment")
+     * @Route("/downvote", name="downvote_comment")
      * @Method({"POST"})
      */
     public function downvoteCommentAction(Request $request) 
@@ -181,6 +184,9 @@ class CommentController extends Controller
                 $dislike->setComment($comment);
                 $comment->setDownvotes($comment->getDownvotes() + 1);
                 $comment_user->setScore($comment_user->getScore() - 1);
+                if(($comment->getUpvotes() - $comment->getDownvotes()) < -9) {
+                    $comment->setHidden(true);
+                }
                 $comment->addLike($dislike);
                 $em->persist($dislike);
             } else {
@@ -188,11 +194,17 @@ class CommentController extends Controller
                     $comment->setUpvotes($comment->getUpvotes() - 1);
                     $comment->setDownvotes($comment->getDownvotes() + 1);
                     $comment_user->setScore($comment_user->getScore() - 2);
+                    if(($comment->getUpvotes() - $comment->getDownvotes()) < -9) {
+                        $comment->setHidden(true);
+                    }
                     $like->setIsLike(false);
                     $em->persist($like);
                 } else {
                     $comment->setDownvotes($comment->getDownvotes() - 1);
                     $comment_user->setScore($comment_user->getScore() + 1);
+                    if(($comment->getUpvotes() - $comment->getDownvotes()) > -10) {
+                        $comment->setHidden(false);
+                    }
                     $em->remove($like);
                     $comment->removeLike($like);
                 }
@@ -209,7 +221,7 @@ class CommentController extends Controller
     }
     
     /**
-     * @Route("/comments", name="remove")
+     * @Route("/", name="remove")
      * @Method({"DELETE"})
      */
     public function removeCommentAction(Request $request) 

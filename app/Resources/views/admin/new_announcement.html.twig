@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="/css/post.css" type="text/css" media="screen">
+{% endblock %}
+
+{% block left_menu %}
+<a class="button primary" href="{{ path('admin_home')}}">Home</a>
+{% endblock %}
+
+{% block body %}
+<div class="row row_wrapper">
+    <div class="small-10 medium-6 small-centered columns">
+        <form method="POST" id="post_form">
+            <div class="row">
+                <div class="small-12 columns">
+                    <label> New Announcement
+                        <textarea id="textarea" name="body" placeholder="Today..." maxlength="4096" autofocus></textarea>
+                    </label>
+                    <input id="post_submit" type="submit" class="button" value="Post">
+                    <span id="c_count">4096</span>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript" src="/js/announcement.js"></script>
+{% endblock %}

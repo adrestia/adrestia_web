@@ -97,14 +97,16 @@ class DefaultController extends Controller
         }
         
         $em = Utilities::getEntityManager($this);
-        
         $user = Utilities::getCurrentUser($this);
+        
+        // Need to get all the possible report reasons
+        $reasons = $em->getRepository('AppBundle:ReportReason')->findAll();
         
         /*
         EQUIVALENT QUERY TO BUILDER BELOW
 
        "SELECT p.id, p.user_id, p.body, p.upvotes, 
-                p.downvotes, p.score, p.reports, 
+                p.downvotes, p.score,
                 p.created, l.is_like, l.user_id, 
                 l.post_id, (p.upvotes - p.downvotes) AS top
          FROM posts p
@@ -120,7 +122,7 @@ class DefaultController extends Controller
                  
         $builder = $em->createQueryBuilder();
         $builder
-            ->select('partial p.{id, body, upvotes, downvotes, score, reports, created}', 'IDENTITY(p.user)')
+            ->select('partial p.{id, body, upvotes, downvotes, score, created}', 'IDENTITY(p.user)')
             ->addSelect('(p.upvotes - p.downvotes) AS top')
             ->from('AppBundle:Post', 'p') 
             ->where('p.college = :college AND p.hidden = false')
@@ -151,9 +153,25 @@ class DefaultController extends Controller
                 
         $posts = $builder->getQuery()->getScalarResult();
         
+        $week_ago = strtotime("-7 day");
+        $builder = $em->createQueryBuilder();
+        $builder
+            ->select('a.id, a.body, a.created')
+            ->from('AppBundle:Announcement', 'a')
+            ->where('a.created > :date')
+            ->setParameter('date', $week_ago)
+            ->orderBy('a.created', 'DESC')
+            ->setMaxResults(1);
+        
+        $announcement = $builder->getQuery()->getResult();
+        
+        $announcement = empty($announcement) ? null : $announcement[0];
+        
         return $this->render('default/index.html.twig', [
             'posts' => $posts,
-            'sorting' => $sorting
+            'sorting' => $sorting,
+            'report_reasons' => $reasons,
+            'announcement' => $announcement,
         ]);
     }
     
@@ -174,7 +192,7 @@ class DefaultController extends Controller
         EQUIVALENT QUERY TO BUILDER BELOW
 
        "SELECT p.id, p.user_id, p.body, p.upvotes, 
-                p.downvotes, p.score, p.reports, 
+                p.downvotes, p.score,
                 p.created, l.is_like, l.user_id, 
                 l.post_id, (p.upvotes - p.downvotes) AS top
          FROM posts p
@@ -190,7 +208,7 @@ class DefaultController extends Controller
                  
         $builder = $em->createQueryBuilder();
         $builder
-            ->select('partial p.{id, body, upvotes, downvotes, score, reports, created}', 'IDENTITY(p.user)')
+            ->select('partial p.{id, body, upvotes, downvotes, score, created}', 'IDENTITY(p.user)')
             ->addSelect('(p.upvotes - p.downvotes) AS top')
             ->from('AppBundle:Post', 'p') 
             ->where('p.college = :college AND p.hidden = false')
@@ -228,112 +246,6 @@ class DefaultController extends Controller
         $serializer = $this->container->get('serializer');
         $reports = $serializer->serialize($posts, 'json');
         return new Response($reports, 200);
-    }
-    
-    /**
-     * @Route("/colleges", name="college_home")
-     */
-    public function collegePickAction(Request $request)
-    {
-        $em = Utilities::getEntityManager($this);
-        
-        $user = Utilities::getCurrentUser($this);
-        
-        /*
-        EQUIVALENT QUERY TO BUILDER BELOW
-
-       "SELECT p.id, p.user_id, p.body, p.upvotes, 
-                p.downvotes, p.score, p.reports, 
-                p.created, (p.upvotes - p.downvotes) AS top
-         FROM posts p
-         WHERE p.hidden = false
-         GROUP BY p.id, p.user_id, p.body, p.upvotes
-                  p.downvotes, p.score, p.reports,
-                  p.created
-         ORDER BY hot DESC
-         LIMIT 25;"
-        */
-                 
-        $builder = $em->createQueryBuilder();
-        $builder
-            ->select('p')
-            ->addSelect('(p.upvotes - p.downvotes) AS HIDDEN top')
-            ->from('AppBundle:Post', 'p') 
-            ->where('p.hidden = false')
-            ->groupBy('p')
-            ->setMaxResults(25)
-            ->orderBy('p.score', 'DESC');
-        
-        $posts = $builder->getQuery()->getResult();
-        
-        
-        // Simply selecting all colleges
-        $builder = $em->createQueryBuilder()->select('c')->from('AppBundle:College', 'c');
-        $colleges = $builder->getQuery()->getResult();
-                
-        return $this->render('default/college_view.html.twig', [
-            'posts' => $posts,
-            'colleges' => $colleges,
-        ]);
-    }
-
-    /**
-     * @Route("/college/{college_id}/{sorting}", name="college_page", defaults={"sorting":"hot"}, requirements={"sorting":"top|new|hot|^$", "college_id" : "\d+"})
-     */
-    public function collegePageAction(Request $request, $college_id, $sorting)
-    {
-        $em = Utilities::getEntityManager($this);
-        $user = Utilities::getCurrentUser($this);
-        
-        /*
-        EQUIVALENT QUERY TO BUILDER BELOW
-
-       "SELECT p.id, p.user_id, p.body, p.upvotes, 
-                p.downvotes, p.score, p.reports, 
-                p.created, (p.upvotes - p.downvotes) AS top
-         FROM posts p
-         WHERE p.college = :college AND p.hidden = false
-         GROUP BY p.id, p.user_id, p.body, p.upvotes
-                  p.downvotes, p.score, p.reports,
-                  p.created
-         ORDER BY created DESC;";
-        */
-                 
-        $builder = $em->createQueryBuilder();
-        $builder
-            ->select('p')
-            ->addSelect('(p.upvotes - p.downvotes) AS HIDDEN top')
-            ->from('AppBundle:Post', 'p') 
-            ->where('p.college = :college AND p.hidden = false')
-            ->setParameter('college', $college_id)
-            ->groupBy('p');
-        
-        $college = $em->getRepository('AppBundle:College')
-                      ->find($college_id);
-        
-        if($user->getCollege() == $college) {
-            return $this->redirect($this->generateUrl('homepage'));
-        }
-        
-        $sorting = strtolower($sorting);
-        if($sorting === "new") {
-            $builder->orderBy('p.created', 'DESC');
-        } elseif ($sorting === "top") {
-            $builder->orderBy('top', 'DESC');
-        } elseif ($sorting === "hot") {
-            $builder->orderBy('p.score', 'DESC');
-        } else {
-            $sorting === "hot";
-            $builder->orderBy('p.created', 'DESC');
-        }
-                
-        $posts = $builder->getQuery()->getResult();
-        
-        return $this->render('default/college.html.twig', [
-            'posts' => $posts,
-            'sorting' => $sorting,
-            'college' => $college,
-        ]);
     }
     
     /**

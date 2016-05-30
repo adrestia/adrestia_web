@@ -39,6 +39,21 @@
                 {{ app.user.getCollege.getName }}
                 <hr width="40%">
             </div>
+            {% block announcement %}
+                {% if announcement is not null %}
+                <h5> Announcements </h5>
+                <div class="row post">
+                    <div class="small-12 columns body">
+                        {% if announcement.body|length > 250 %} 
+                            <p class="post_body">{{ announcement.body|slice(0, 250) }} <a href="{{ path('announcement_view', {'announcement_id' : announcement.id }) }}"> More...</a></p>
+                        {% else %}
+                            <p class="post_body">{{ announcement.body }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+            {% endblock %}
             {% if posts|length == 0 %}
                 <h4> There doesn't seem to be anything here! </h4>
             {% else %}
@@ -64,8 +79,10 @@
             {% endif %}
         </div>
     </div>
+    {% include 'modals.html.twig' %}
 {% endblock %}
 
 {% block javascripts %}
     <script type="text/javascript" src="/js/index.js"></script>
+    <script type="text/javascript" src="/js/post.js"></script>
 {% endblock %}

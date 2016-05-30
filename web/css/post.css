@@ -2,6 +2,10 @@
     margin-top: 40px;
 }
 
+#post_submit:disabled {
+    background-color: #2B9BE5;
+}
+
 .comment, .new_comment {
 	position: relative;
     background-color: #F8F8F8;
@@ -89,5 +93,9 @@ div.body {
 }
 
 #c_count.alert {
+    color: #EA5946;
+}
+
+.post_error {
     color: #EA5946;
 }

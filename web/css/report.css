@@ -1,0 +1,29 @@
+.reveal:focus {
+    outline-width: 0;
+}
+
+.report_reasons {
+    list-style-type: none;
+}
+
+#tease-reason {
+    cursor: pointer;
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid grey;
+}
+
+#tease-reason:hover {
+    background-color: #eee;
+}
+
+.report_item {
+    cursor: pointer;
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid grey;
+}
+
+.report_item:hover {
+    background-color: #eee;
+}

@@ -1,1 +1,97 @@
-<h1>This is where Content Policy goes</h1>
+{% extends 'base.html.twig' %}
+
+{% block left_menu %}
+    <a class="button primary" href="{{ path('homepage')}}">Home</a>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="small-12 columns">
+            <h1>College Confessions Content Policy</h1>
+            <h5>Last updated: 28 May, 2016</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-12 columns">
+            <p>
+                College Confessions is a social platform for college students
+                to vent, discuss, support, and connect with each other in an
+                open environment. Confessions can be funny, serious, honest,
+                exaggerated, offensive, or any combination of the above. We
+                ask that you show respect for others and continue to cultivate
+                a fun, emapthetic, and open community. 
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-12 columns">
+            <h3>Content</h3>
+            <p>
+                College Confessions strives to be as open, honest, and real as
+                possible, however there are some restrictions on what is not 
+                okay. Remember that this is a platform for sharing stories and
+                confessions with other <i>college students</i> and as such
+                the content should be tailored to match. 
+            </p>
+            <h4>Prohibited Content</h4>
+            <p>
+                Any of the following are prohibited from College Confessions:
+                <ul>
+                    <li> Any illegal content </li>
+                    <li> Any copyrighted, uncited, and/or unlicensed content </li> 
+                    <li> Any involuntary pornography </li>
+                    <li> Any links to pornographic material (confessions about sex or sexually explicit situations, however, are fine) </li>
+                    <li> Any content that encourages or incites violence against people, animals, or otherwise </li>
+                    <li> Any threats, harassment, bullying, stalking, or encouragement of these behaviors </li>
+                    <li> Any personal information including but not limited to
+                        <ul>
+                            <li> Full name </li>
+                            <li> Classes </li>
+                            <li> Place of residence </li>
+                        </ul>
+                    </li>
+                    <li> Any content that impersonates others including students and professional staff </li>
+                    <li> Spam or spamming</li>
+                    <li> Solicitation of services </li>
+                    <li> Asking for votes (up or down) </li>
+                    <li> Attempting to circumvent any of the above listed restrictions </li>
+                    <li> Any attempts to break College Confessions, the website, or the mobile application </li>
+                    <li> Creating multiple accounts in order to circumvent suspension or bans </li>
+                </ul>
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-12 columns">
+            <h3>Enforcement</h3>
+            <h4>We have a variety of ways of enforcing our guidelines, including, but not limited to</h4>
+            <ul>
+                <li> Email asking you to stop the behavior </li>
+                <li> Formal warning email </li>
+                <li> Temporary or permanent suspension of accounts </li>
+                <li> Removal of posted content </li>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-12 columns">
+            <h3>Changes</h3>
+            <p>
+                We reserve the right, at our sole discretion, 
+                to modify or replace any of these policies at any time.
+                If a revision is material we will try to provide at 
+                least ​30-days notice prior to any new terms taking effect. 
+                What constitutes a material change 
+                will be determined at our sole discretion.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-12 columns">
+            <h3>Contact Us</h3>
+            <p>
+                If you have any questions about this Content Policy, please contact us.
+                <a href="mailto:adrestiaweb@gmail.com">adrestiaweb@gmail.com</a>
+            </p>
+        </div>
+    </div>
+{% endblock %}
